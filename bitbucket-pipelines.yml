@@ -1,0 +1,7 @@
+image: gcc:6.3
+
+pipelines:
+    default:
+        - step:
+            script:
+                - make

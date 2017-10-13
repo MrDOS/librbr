@@ -1,0 +1,6 @@
+# Generated artifacts.
+bin/
+docs/
+
+# Temporary files.
+*~
