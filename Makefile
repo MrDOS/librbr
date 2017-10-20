@@ -1,5 +1,4 @@
 ## \file Makefile
-## \version $Id$
 ##
 ## \brief Build automation.
 ##
@@ -44,7 +43,7 @@ ARFLAGS := crsU
 ## to go out of your way to enable them. If you don't want them, we suggest
 ## using `strip(1)` on the archives as opposed to changing this makefile to
 ## minimize the friction of pulling in library updates.
-CFLAGS := -Werror -Wall -Wextra -pedantic -pedantic-errors -ansi -g
+CFLAGS := -Werror -Wall -Wextra -pedantic -pedantic-errors -std=c99 -g
 
 all: library docs test
 

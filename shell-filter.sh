@@ -1,7 +1,6 @@
 #! /bin/sh
 
 ## \file shell-filter.sh
-## \version $Id$
 ##
 ## \brief Doxygen filter for makefiles/shell scripts.
 ##

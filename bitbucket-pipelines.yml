@@ -4,4 +4,4 @@ pipelines:
     default:
         - step:
             script:
-                - make
+                - scan-build make

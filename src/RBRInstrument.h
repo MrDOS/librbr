@@ -1,6 +1,5 @@
 /**
  * \file RBRInstrument.h
- * \version $Id$
  *
  * \brief Interface for simplified communication with RBR instruments.
  *
@@ -16,16 +15,19 @@ extern "C" {
 #endif
 
 #include <inttypes.h>
+#include <stdbool.h>
 #include <stdlib.h>
-
-/** \brief The maximum number of instrument channels supported. */
-#define RBRINSTRUMENT_CHANNEL_MAX 24
 
 /**
  * \brief The size of the buffer storing instrument responses.
  *
  * Must be large enough to hold the largest chunk data you will want to
  * download in one request plus its 2B CRC.
+ *
+ * A buffer of this size is included in RBRInstrument. Whether you let
+ * RBRInstrument_open() perform its own allocation or you perform your own
+ * allocation based on `sizeof(RBRInstrument)`, a buffer of this size is
+ * included.
  */
 #define RBRINSTRUMENT_PARSE_BUFFER_MAX 1800
 
@@ -90,22 +92,6 @@ const char *RBRInstrument_getErrorString(RBRInstrumentError error);
 
 struct RBRInstrument;
 
-#ifndef LIBRBR_RBRINSTRUMENT_TIMEOUT_TYPE
-/** \brief Indicator that the instrument timeout type has been defined. */
-#define LIBRBR_RBRINSTRUMENT_TIMEOUT
-/**
- * \brief Data type for instrument timeouts.
- *
- * The communication timeout is never used by library code: the instrument
- * timeout is stored by the library and passed into user code, but never
- * manipulated. By default the timeout type is a 64-bit unsigned integer.
- * However, if another type is preferred (e.g., a `struct timeval`), then
- * define `LIBRBR_RBRINSTRUMENT_TIMEOUT_TYPE` and typedef
- * `RBRInstrumentTimeout`, and recompile the library.
- */
-typedef uint64_t RBRInstrumentTimeout;
-#endif
-
 /**
  * \brief Callback to read data from the physical instrument.
  *
@@ -117,10 +103,10 @@ typedef uint64_t RBRInstrumentTimeout;
  * The library will provide a destination for data read from the instrument via
  * the \a data parameter. The maximum amount of data which can be written to
  * this location is given by the \a length parameter. Before returning
- * \a RBRINSTRUMENT_SUCCESS, the value of \a length should be updated to
- * reflect the number of bytes written to \a data. When a value other than
- * \a RBRINSTRUMENT_SUCCESS is returned, any new value of \a length is ignored,
- * as is any data written to \a data.
+ * \a RBRINSTRUMENT_SUCCESS, the value of \a length should be updated by the
+ * callback to reflect the number of bytes written to \a data. When a value
+ * other than \a RBRINSTRUMENT_SUCCESS is returned, any new value of \a length
+ * is ignored, as is any data written to \a data.
  *
  * The function should return \a RBRINSTRUMENT_SUCCESS when data is
  * successfully read from the instrument. In the event of any other value being
@@ -132,13 +118,17 @@ typedef uint64_t RBRInstrumentTimeout;
  * that way any errors having occurred in user code can be cleanly
  * distinguished from those occurring in library code.
  *
+ * Because communication is handled by user code, and because communication
+ * only occurs at the behest of the user, it is up to the user to define the
+ * semantics of communication timeouts and to implement them. This could be a
+ * constant read/write timeout, or a per-connection timeout tied to the
+ * instrument by the user data pointer; the library is unopinionated.
+ *
  * \param [in] instrument the instrument for which data is being requested
  * \param [in,out] data where up to \a length bytes of data can be written
  * \param [in,out] length initially, the maximum amount of data which can be
- *                        written to \a data; upon return, the number of bytes
- *                        actually written
- * \param [in] timeout timeout for data read
- * \param [in] user a pointer to arbitrary, user-specified data
+ *                        written to \a data; set by the callback to the number
+ *                        of bytes actually written
  * \return \a RBRINSTRUMENT_SUCCESS when data is successfully read
  * \return \a RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return \a RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
@@ -146,9 +136,7 @@ typedef uint64_t RBRInstrumentTimeout;
 typedef RBRInstrumentError (*RBRInstrumentReadCallback)(
     const struct RBRInstrument *instrument,
     void *data,
-    size_t *length,
-    RBRInstrumentTimeout timeout,
-    void *user);
+    size_t *length);
 
 /**
  * \brief Callback to write data to the physical instrument.
@@ -160,24 +148,19 @@ typedef RBRInstrumentError (*RBRInstrumentReadCallback)(
  * The \a data pointer should not be used after the callback returns. Do not
  * store copies of it; copy the data instead.
  *
- * See the description of RBRInstrumentReadCallback() for an explanation of
- * expected return values from user callback functions.
- *
  * \param [in] instrument the instrument for which data is being sent
  * \param [in] data the data to be written to the instrument
  * \param [in] length the length of the data given by \a data
- * \param [in] timeout timeout for data write
- * \param [in] user a pointer to arbitrary, user-specified data
  * \return \a RBRINSTRUMENT_SUCCESS when the data is successfully written
  * \return \a RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return \a RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \see RBRInstrumentReadCallback() for details on how the values returned from
+ *                                  user callback functions are used
  */
 typedef RBRInstrumentError (*RBRInstrumentWriteCallback)(
     const struct RBRInstrument *instrument,
     const void *const data,
-    size_t length,
-    RBRInstrumentTimeout timeout,
-    void *user);
+    size_t length);
 
 /**
  * \brief The types of messages returned by the instrument.
@@ -186,14 +169,16 @@ typedef RBRInstrumentError (*RBRInstrumentWriteCallback)(
  */
 typedef enum
 {
-    /** The message has been incorrectly or incompletely populated. */
-    RBRINSTRUMENTMESSAGE_UNAVAILABLE = 0,
     /** A success indicator or informational message. */
     RBRINSTRUMENTMESSAGE_INFO,
     /** Typically indicates that the command succeeded but with caveats. */
     RBRINSTRUMENTMESSAGE_WARNING,
     /** A command failure. */
-    RBRINSTRUMENTMESSAGE_ERROR
+    RBRINSTRUMENTMESSAGE_ERROR,
+    /** The number of specific types. */
+    RBRINSTRUMENTMESSAGE_TYPE_COUNT,
+    /** The message has been incorrectly or incompletely populated. */
+    RBRINSTRUMENTMESSAGE_UNKNOWN_TYPE
 } RBRInstrumentMessageType;
 
 /**
@@ -206,7 +191,21 @@ typedef enum
  */
 typedef struct RBRInstrumentMessage
 {
-    /** \brief The type of this message: informational, warning, or error. */
+    /**
+     * \brief The type of this message: informational, warning, or error.
+     *
+     * Successful commands, as indicated by the command having returned
+     * \a RBRINSTRUMENT_SUCCESS, may yield informational or warning messages
+     * (types \a RBRINSTRUMENTMESSAGE_INFO and \a RBRINSTRUMENTMESSAGE_WARNING,
+     * respectively). Commands having resulted in a hardware error will yield
+     * an error message (type \a RBRINSTRUMENT_HARDWARE_ERROR). In any other
+     * case, the message is unpopulated and its contents are irrelevant (type
+     * \a RBRINSTRUMENTMESSAGE_UNKNOWN_TYPE).
+     *
+     * - Informational messages will provide only a message (number as `0`).
+     * - Warnings and errors will provide a number and occasionally a message.
+     * - Otherwise, the message number will be `0` and the message `NULL`.
+     */
     RBRInstrumentMessageType type;
     /**
      * \brief The instrument warning or error number, if applicable.
@@ -236,24 +235,40 @@ typedef struct RBRInstrument
 {
     /** \brief Called to read data from the physical instrument. */
     RBRInstrumentReadCallback readCallback;
-    /** \brief Passed as \a user to the read callback. */
-    void *readCallbackUserData;
 
     /** \brief Called to write data to the physical instrument. */
     RBRInstrumentWriteCallback writeCallback;
-    /** \brief Passed as \a user to the write callback. */
-    void *writeCallbackUserData;
 
-    /** \brief The timeout applied to all communications. */
-    RBRInstrumentTimeout timeout;
+    /** \brief Arbitrary user data; useful in callbacks. */
+    void *user;
 
     /** \brief The most recent message received from the instrument. */
     RBRInstrumentMessage message;
 
+    /**
+     * \brief The length of the most-recent instrument message.
+     *
+     * After parsing a command response, the verbatim response is left in the
+     * parse buffer. The message pointer on the instrument message struct
+     * points into the parse buffer appropriately: to the beginning of the
+     * error message if one is present; otherwise, the beginning of the
+     * response. This obviously stands an increasing chance of getting
+     * obliterated the more full the parse buffer gets, hence the advisory on
+     * RBRInstrument_getLastMessage() to immediately assume message expiration.
+     */
+    size_t messageLength;
+
+    /** \brief The number of used bytes in the parse buffer. */
+    size_t parseBufferSize;
+
     /** \brief Unparsed data received from the instrument. */
     uint8_t parseBuffer[RBRINSTRUMENT_PARSE_BUFFER_MAX];
 
-    size_t parseBufferPos
+    /**
+     * \brief Whether the instance memory was dynamically allocated by the
+     * constructor.
+     */
+    bool managedAllocation;
 } RBRInstrument;
 
 /**
@@ -268,7 +283,7 @@ typedef struct RBRInstrument
  * `malloc(3)`) to satisfy the requirements of all instrument communications.
  * If you would rather allocate this memory yourself (perhaps statically), you
  * can use \a RBRInstrumentSize to inform your allocation then pass a pointer
- * to that memory.
+ * to that memory. *Do not* pass an uninitialized pointer to this constructor!
  *
  * For example:
  *
@@ -291,48 +306,58 @@ typedef struct RBRInstrument
  *
  * \param [in,out] instrument the context object to populate
  * \param [in] readCallback called to read data from the physical instrument
- * \param [in] readCallbackUserData passed as \a user to the read callback
  * \param [in] writeCallback called to write data to the physical instrument
- * \param [in] writeCallbackUserData passed as \a user to the write callback
- * \param [in] timeout a timeout to be applied to all communications
+ * \param [in] user arbitrary user data; useful in callbacks
  * \return \a RBRINSTRUMENT_SUCCESS if the instrument was opened successfully
  * \return \a RBRINSTRUMENT_ALLOCATION_FAILURE if memory allocation failed
  * \return \a RBRINSTRUMENT_MISSING_CALLBACK if a callback was not provided
  */
-RBRInstrumentError RBRInstrument_open(
-    RBRInstrument **instrument,
-    RBRInstrumentReadCallback readCallback,
-    void *readCallbackUserData,
-    RBRInstrumentWriteCallback writeCallback,
-    void *writeCallbackUserData,
-    RBRInstrumentTimeout timeout);
+RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
+                                      RBRInstrumentReadCallback readCallback,
+                                      RBRInstrumentWriteCallback writeCallback,
+                                      void *user);
 
 /**
- * \brief Update the connection timeout.
+ * \brief Terminate the instrument connection and release any held resources.
  *
- * Update the timeout applied to all communication using the given connection.
+ * Frees the buffer allocated by RBRInstrument_open() if necessary. Does not
+ * perform any communication with the instrument.
+ *
+ * \param [in,out] instrument the instrument connection to terminate
+ * \return \a RBRINSTRUMENT_SUCCESS if the instrument was closed successfully
+ */
+RBRInstrumentError RBRInstrument_close(RBRInstrument *instrument);
+
+/**
+ * \brief Get the pointer to arbitrary user data.
+ *
+ * Returns whatever arbitrary pointer the user has most recently provided,
+ * either via RBRInstrument_open() or RBRInstrument_setUserData().
+ *
+ * \param [in] instrument the instrument connection
+ */
+void *RBRInstrument_getUserData(const RBRInstrument *instrument);
+
+/**
+ * \brief Change the arbitrary user data pointer.
  *
  * \param [in,out] instrument the instrument connection
- * \param [in] timeout the new communication timeout
+ * \param [in] user the new user data
  */
-void RBRInstrument_setTimeout(RBRInstrument *instrument,
-                              RBRInstrumentTimeout timeout);
+void RBRInstrument_setUserData(RBRInstrument *instrument, void *user);
 
 /**
  * \brief Get the most recent message returned by the instrument.
  *
- * This function retrieves the most recent response from an instrument. In the
- * case of successful commands, it gives the verbatim response (sans trailing
- * newline). In the case of \a RBRINSTRUMENT_HARDWARE_ERROR, it gives the error
- * number and message. In any other case, no message will be available: the
- * message type will be \a RBRINSTRUMENTMESSAGE_UNAVAILABLE, the error number
- * will be `0`, and the message will be `NULL`.
+ * The fields of the message vary based on the status returned by the
+ * most-recently-executed instrument communication. See RBRInstrumentMessage
+ * for details.
  *
  * Note that this information is _not_ recorded by the instrument: it is
  * recorded by the library as responses are parsed. Accordingly, the value will
  * not persist across instrument connections.
  *
- * The buffer pointed to by the \a message struct member will change whenever
+ * The buffer used by RBRInstrumentMessage.message will change whenever
  * instrument communication occurs. The message should be considered invalid
  * after making any subsequent calls for the same instrument instance. If you
  * need to retain a copy of the message, you should `strcpy()` it to your own
@@ -345,10 +370,10 @@ void RBRInstrument_setTimeout(RBRInstrument *instrument,
  *
  * \param [in] instrument the instrument connection
  * \param [out] message the message
+ * \see RBRInstrumentMessage for details on field contents by message type
  */
-void RBRInstrument_getLastMessage(
-    const RBRInstrument *instrument,
-    RBRInstrumentMessage **message);
+void RBRInstrument_getLastMessage(const RBRInstrument *instrument,
+                                  const RBRInstrumentMessage **message);
 
 #ifdef __cplusplus
 }

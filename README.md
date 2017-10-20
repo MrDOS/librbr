@@ -6,25 +6,35 @@ librbr provides an interface
 for simplified communication
 with RBR instruments.
 
-* TODO: Note about platform support.
-    * Syntactically C89/ANSI C; requires `inttypes.h` from C99.
-* TODO: Note about license requirements.
-
+The library tries to be platform-agnostic.
+It targets C99
+and should be compilable
+on any compliant compiler.
 
 ## Building
 
-* The library can be built with GNU Make.
-  For documentation on Make targets,
-  see the [Makefile][0].
-* TODO: Note about including source wholesale in project.
-    * TODO: Suggestion to integrate via Git submodules.
+The library can be built with GNU Make.
+For documentation on Make targets,
+see the [Makefile].
 
-[0]: Makefile.html
+You may prefer to integrate
+the entire library source
+into your codebase.
+In that case,
+we strongly suggest doing so
+via a [Git submodule]
+where possible
+to make updating easier.
+
+[Makefile]: Makefile.html
+[Git submodule]: https://git-scm.com/docs/git-submodule
 
 ## Using
 
 * TODO: API introduction.
-* TODO: Link to examples.
+
+For examples,
+please see the `examples/` subdirectory.
 
 ## Contributing
 

@@ -1,7 +1,6 @@
 #! /bin/sh
 
 ## \file indent.sh
-## \version $Id$
 ##
 ## \brief Source code indentation.
 ##
@@ -39,7 +38,9 @@
 ## \author Samuel Coleman <samuel.coleman@rbr-global.com>
 ## \copyright Copyright (c) 2017 RBR Ltd
 
-if ! command -v uncrustifyd >/dev/null
+SCRIPT_DIR="`dirname "$0"`"
+
+if ! command -v uncrustify >/dev/null
 then
     echo "$0: could not find uncrustify in your PATH" 1>&2
     exit 1
@@ -47,7 +48,7 @@ fi
 
 if [ $# -ge 1 ]
 then
-    uncrustify -c "uncrustify.cfg" --replace "$@"
+    uncrustify -c "$SCRIPT_DIR"/"uncrustify.cfg" --replace "$@"
 else
-    uncrustify -c "uncrustify.cfg" --replace src/*.[ch]
+    uncrustify -c "$SCRIPT_DIR"/"uncrustify.cfg" --replace src/*.[ch]
 fi
