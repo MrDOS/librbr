@@ -3,6 +3,11 @@
  *
  * \brief Interface for simplified communication with RBR instruments.
  *
+ * This file contains declarations and constants relevant throughout the
+ * library. Command-specific declarations are stored in categorical headers
+ * which are included by this one. As the end user, your include directives
+ * need reference only this file.
+ *
  * \author Samuel Coleman <samuel.coleman@rbr-global.com>
  * \copyright Copyright (c) 2017 RBR Ltd
  */
@@ -38,10 +43,10 @@ extern "C" {
  * data values; data will be passed back to the caller via out pointers. This
  * allows for predictable and consistent error checking by the caller.
  */
-typedef enum
+typedef enum RBRInstrumentError
 {
-    /** No error. */
-    RBRINSTRUMENT_SUCCESS = 0,
+    /** \brief No error. */
+    RBRINSTRUMENT_SUCCESS,
     /** An error occurred while allocating memory. This is typically fatal. */
     RBRINSTRUMENT_ALLOCATION_FAILURE,
     /** A required callback function was not provided. */
@@ -52,9 +57,12 @@ typedef enum
     RBRINSTRUMENT_TIMEOUT,
     /**
      * The physical instrument reported a warning or error.
-     * See RBRInstrument_getMessage().
+     *
+     * \see RBRInstrument_getLastMessage()
      */
     RBRINSTRUMENT_HARDWARE_ERROR,
+    /** The given value is out of bounds or otherwise unsuitable. */
+    RBRINSTRUMENT_INVALID_PARAMETER_VALUE,
     /** The number of specific errors. */
     RBRINSTRUMENT_ERROR_COUNT,
     /** An unknown or unrecognized error. */
@@ -88,7 +96,7 @@ typedef enum
  * \param [in] error the error
  * \return a string name for the error
  */
-const char *RBRInstrument_getErrorString(RBRInstrumentError error);
+const char *RBRInstrument_getInstrumentErrorString(RBRInstrumentError error);
 
 struct RBRInstrument;
 
@@ -167,7 +175,7 @@ typedef RBRInstrumentError (*RBRInstrumentWriteCallback)(
  *
  * Used by RBRInstrumentMessage.
  */
-typedef enum
+typedef enum RBRInstrumentMessageType
 {
     /** A success indicator or informational message. */
     RBRINSTRUMENTMESSAGE_INFO,
@@ -374,6 +382,11 @@ void RBRInstrument_setUserData(RBRInstrument *instrument, void *user);
  */
 void RBRInstrument_getLastMessage(const RBRInstrument *instrument,
                                   const RBRInstrumentMessage **message);
+
+/* To help keep declarations and documentation organized and discoverable,
+ * instrument commands and structures are broken out into individual
+ * categorical headers. */
+#include "RBRInstrumentCommands.h"
 
 #ifdef __cplusplus
 }
