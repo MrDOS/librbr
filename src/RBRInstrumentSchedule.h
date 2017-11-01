@@ -24,23 +24,10 @@ extern "C" {
 #define RBRINSTRUMENT_AVAILABLE_FAST_PERIODS_MAX 32
 
 /**
- * A date and time in seconds since the Unix epoch (1970-01-01T00:00:00Z).
- * Instrument functions operating on time (e.g., RBRInstrument_getClock(),
- * RBRInstrument_setClock()) will automatically convert to and from the
- * instrument's string time representation.
- *
- * The valid range for any instrument date/time parameter is
- * 2000-01-01T00:00:00Z to 2099-12-31T23:59:59Z, inclusive. Passing a value
- * outside of this range will be detected by the library and will cause a
- * #RBRINSTRUMENT_INVALID_PARAMETER_VALUE error, not a hardware error.
- */
-typedef uint64_t InstrumentDateTime;
-
-/**
  * \brief Instrument `clock` command parameters.
  *
- * \see RBRInstrument_setClock()
  * \see RBRInstrument_getClock()
+ * \see RBRInstrument_setClock()
  * \see https://docs.rbr-global.com/display/L3DOC/clock
  */
 typedef struct RBRInstrumentClock
@@ -94,7 +81,7 @@ RBRInstrumentError RBRInstrument_getClock(RBRInstrument *instrument,
  *
  * Hardware errors may occur if:
  *
- * - you attempt to change the clock while logging
+ * - the instrument is logging
  * - you set an out-of-bounds time the library fails to detect
  *
  * \param [in] instrument the instrument connection
@@ -180,8 +167,8 @@ typedef enum RBRInstrumentGatingCondition
  *
  * See the command reference for details on valid parameter values.
  *
- * \see RBRInstrument_setSampling()
  * \see RBRInstrument_getSampling()
+ * \see RBRInstrument_setSampling()
  * \see https://docs.rbr-global.com/display/L3DOC/sampling
  */
 typedef struct RBRInstrumentSampling
@@ -192,12 +179,12 @@ typedef struct RBRInstrumentSampling
      * \brief Time between measurements.
      *
      * Specified in milliseconds. Must be in the range
-     * RBRInstrumentSampling.userPeriodLimit – 86400000.
+     * RBRInstrumentSampling.userPeriodLimit—86,400,000.
      *
-     * - When < 1000, must be in RBRInstrumentSampling.availableFastPeriods.
-     * - When ≥ 1000, must be a multiple of 1000.
+     * - When < 1,000, must be in RBRInstrumentSampling.availableFastPeriods.
+     * - When ≥ 1,000, must be a multiple of 1,000.
      */
-    uint32_t period;
+    InstrumentPeriod period;
     /**
      * \brief Fast measurement periods available for the logger for sampling
      * rates faster than 1Hz.
@@ -211,7 +198,8 @@ typedef struct RBRInstrumentSampling
      *
      * \readonly
      */
-    uint32_t availableFastPeriods[RBRINSTRUMENT_AVAILABLE_FAST_PERIODS_MAX];
+    InstrumentPeriod
+        availableFastPeriods[RBRINSTRUMENT_AVAILABLE_FAST_PERIODS_MAX];
     /**
      * \brief The minimum period which can be used in fast sampling modes.
      *
@@ -221,13 +209,13 @@ typedef struct RBRInstrumentSampling
      *
      * \readonly
      */
-    uint32_t userPeriodLimit;
+    InstrumentPeriod userPeriodLimit;
     /**
      * \brief The time between the first measurement of two consecutive bursts.
      *
      * Specified in milliseconds.
      */
-    uint32_t burstInterval;
+    InstrumentPeriod burstInterval;
     /** \brief The number of measurements taken in each burst. */
     uint16_t burstLength;
     /** \brief The sampling gating condition. */
@@ -253,7 +241,7 @@ RBRInstrumentError RBRInstrument_getSampling(
  *
  * Hardware errors may occur if:
  *
- * - you attempt to change the sampling parameters while logging
+ * - the instrument is logging
  * - you set an out-of-bounds parameter the library fails to detect
  * - you attempt to use a feature not supported by the instrument
  *
@@ -315,8 +303,8 @@ typedef enum RBRInstrumentDeploymentStatus
 /**
  * \brief Instrument `deployment` command parameters.
  *
- * \see RBRInstrument_setDeployment()
  * \see RBRInstrument_getDeployment()
+ * \see RBRInstrument_setDeployment()
  * \see https://docs.rbr-global.com/display/L3DOC/deploymdfent
  */
 typedef struct RBRInstrumentDeployment
@@ -355,8 +343,8 @@ RBRInstrumentError RBRInstrument_getDeployment(
  *
  * Hardware errors may occur if:
  *
- * - you attempt to change the deployment parameters while logging
- * - you set an out-of-bounds time the library fails to detect
+ * - the instrument is logging
+ * - you set an out-of-bounds parameter the library fails to detect
  *
  * \param [in] instrument the instrument connection
  * \param [in] deployment the deployment parameters

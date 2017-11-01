@@ -37,6 +37,34 @@ extern "C" {
 #define RBRINSTRUMENT_PARSE_BUFFER_MAX 1800
 
 /**
+ * \brief The maximum number of characters in a channel label.
+ *
+ * Does not include any null terminator.
+ */
+#define RBRINSTRUMENT_CHANNEL_LABEL_MAX 31
+
+/**
+ * A date and time in seconds since the Unix epoch (1970-01-01T00:00:00Z).
+ * Instrument functions operating on time (e.g., RBRInstrument_getClock(),
+ * RBRInstrument_setClock()) will automatically convert to and from the
+ * instrument's string time representation.
+ *
+ * The valid range for any instrument date/time parameter is
+ * 2000-01-01T00:00:00Z to 2099-12-31T23:59:59Z, inclusive. Passing a value
+ * outside of this range will be detected by the library and will cause a
+ * #RBRINSTRUMENT_INVALID_PARAMETER_VALUE error, not a hardware error.
+ */
+typedef uint64_t InstrumentDateTime;
+
+/**
+ * \brief A periodic parameter.
+ *
+ * Specified in milliseconds. May not be greater than 86,400,000 (24 hours).
+ * When greater than 1,000, must be a multiple of 1,000.
+ */
+typedef uint32_t InstrumentPeriod;
+
+/**
  * \brief Errors which can be returned from library functions.
  *
  * Generally speaking, library functions will return error codes in lieu of
