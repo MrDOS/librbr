@@ -12,4 +12,12 @@
 #ifndef LIBRBR_RBRINSTRUMENTSECURITY_H
 #define LIBRBR_RBRINSTRUMENTSECURITY_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* LIBRBR_RBRINSTRUMENTSECURITY_H */

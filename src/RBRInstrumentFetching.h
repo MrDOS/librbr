@@ -12,4 +12,12 @@
 #ifndef LIBRBR_RBRINSTRUMENTFETCHING_H
 #define LIBRBR_RBRINSTRUMENTFETCHING_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* LIBRBR_RBRINSTRUMENTFETCHING_H */

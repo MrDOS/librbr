@@ -11,6 +11,31 @@
 #ifndef LIBRBR_RBRINSTRUMENTSCHEDULE_H
 #define LIBRBR_RBRINSTRUMENTSCHEDULE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * \brief The maximum number of available fast sampling periods to parse from
+ * the instrument.
+ *
+ * \see RBRInstrumentSampling.availableFastPeriods
+ */
+#define RBRINSTRUMENT_AVAILABLE_FAST_PERIODS_MAX 32
+
+/**
+ * A date and time in seconds since the Unix epoch (1970-01-01T00:00:00Z).
+ * Instrument functions operating on time (e.g., RBRInstrument_getClock(),
+ * RBRInstrument_setClock()) will automatically convert to and from the
+ * instrument's string time representation.
+ *
+ * The valid range for any instrument date/time parameter is
+ * 2000-01-01T00:00:00Z to 2099-12-31T23:59:59Z, inclusive. Passing a value
+ * outside of this range will be detected by the library and will cause a
+ * #RBRINSTRUMENT_INVALID_PARAMETER_VALUE error, not a hardware error.
+ */
+typedef uint64_t InstrumentDateTime;
+
 /**
  * \brief Instrument `clock` command parameters.
  *
@@ -22,10 +47,8 @@ typedef struct RBRInstrumentClock
 {
     /**
      * \brief The instrument's date and time.
-     *
-     * Specified in seconds since the Unix epoch (1970-01-01 00:00:00).
      */
-    uint64_t dateTime;
+    InstrumentDateTime dateTime;
     /** \brief The offset of the instrument's date and time from UTC. */
     struct
     {
@@ -35,14 +58,15 @@ typedef struct RBRInstrumentClock
          * When passing a date and time to the instrument, a `false` value will
          * cause the `offsetfromutc` parameter to be omitted from the command
          * sent to the instrument; otherwise, the parameter will be sent based
-         * on the \a hours and \a minutes member values.
+         * on the values of RBRInstrumentClock.hours and
+         * RBRInstrumentClock.member.
          *
          * When receiving a date and time from the instrument, a `false` value
          * indicates that an offset from UTC was not provided when the
-         * instrument clock was most recently set. In that case, the \a hours
-         * and \a minutes members are uninitialized and their values should be
-         * ignored. Otherwise, the member values will correspond to the
-         * instrument clock offset from UTC.
+         * instrument clock was most recently set. In that case,
+         * RBRInstrumentClock.hours and RBRInstrumentClock.minutes are
+         * uninitialized and their values should be ignored. Otherwise, their
+         * values will correspond to the instrument clock offset from UTC.
          */
         bool known;
         /** \brief The hours offset from UTC. */
@@ -57,9 +81,9 @@ typedef struct RBRInstrumentClock
  *
  * \param [in] instrument the instrument connection
  * \param [out] clock the clock value
- * \return \a RBRINSTRUMENT_SUCCESS when the settings are successfully read
- * \return \a RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return \a RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
  * \see https://docs.rbr-global.com/display/L3DOC/clock
  */
 RBRInstrumentError RBRInstrument_getClock(RBRInstrument *instrument,
@@ -75,11 +99,11 @@ RBRInstrumentError RBRInstrument_getClock(RBRInstrument *instrument,
  *
  * \param [in] instrument the instrument connection
  * \param [in] clock the clock value
- * \return \a RBRINSTRUMENT_SUCCESS when the settings are successfully written
- * \return \a RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return \a RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
- * \return \a RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
- * \return \a RBRINSTRUMENT_INVALID_PARAMETER_VALUE when the clock values are
+ * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully written
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
+ * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when the clock values are
  *                                                  out of range
  * \see https://docs.rbr-global.com/display/L3DOC/clock
  */
@@ -167,22 +191,35 @@ typedef struct RBRInstrumentSampling
     /**
      * \brief Time between measurements.
      *
-     * Specified in milliseconds.
+     * Specified in milliseconds. Must be in the range
+     * RBRInstrumentSampling.userPeriodLimit – 86400000.
+     *
+     * - When < 1000, must be in RBRInstrumentSampling.availableFastPeriods.
+     * - When ≥ 1000, must be a multiple of 1000.
      */
     uint32_t period;
     /**
      * \brief Fast measurement periods available for the logger for sampling
      * rates faster than 1Hz.
      *
-     * TODO: How to handle this?
+     * Available fast periods are stored in the array in the order reported by
+     * the instrument. Unused array elements are populated with `0`. If more
+     * than #RBRINSTRUMENT_AVAILABLE_FAST_PERIODS_MAX are available, trailing
+     * entries are discarded.
+     *
+     * \nol2 Refer to RBRInstrumentSampling.userPeriodLimit instead.
+     *
+     * \readonly
      */
-    void *availableFastPeriods;
+    uint32_t availableFastPeriods[RBRINSTRUMENT_AVAILABLE_FAST_PERIODS_MAX];
     /**
      * \brief The minimum period which can be used in fast sampling modes.
      *
      * Specified in milliseconds.
      *
-     * The \a period cannot be set to a value less than this.
+     * This is the minimum RBRInstrumentSampling.period value.
+     *
+     * \readonly
      */
     uint32_t userPeriodLimit;
     /**
@@ -195,7 +232,6 @@ typedef struct RBRInstrumentSampling
     uint16_t burstLength;
     /** \brief The sampling gating condition. */
     RBRInstrumentGatingCondition gate;
-
 } RBRInstrumentSampling;
 
 /**
@@ -203,9 +239,9 @@ typedef struct RBRInstrumentSampling
  *
  * \param [in] instrument the instrument connection
  * \param [out] sampling the sampling parameters
- * \return \a RBRINSTRUMENT_SUCCESS when the settings are successfully read
- * \return \a RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return \a RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
  * \see https://docs.rbr-global.com/display/L3DOC/sampling
  */
 RBRInstrumentError RBRInstrument_getSampling(
@@ -223,11 +259,11 @@ RBRInstrumentError RBRInstrument_getSampling(
  *
  * \param [in] instrument the instrument connection
  * \param [in] sampling the sampling parameters
- * \return \a RBRINSTRUMENT_SUCCESS when the settings are successfully written
- * \return \a RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return \a RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
- * \return \a RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
- * \return \a RBRINSTRUMENT_INVALID_PARAMETER_VALUE when parameter values are
+ * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully written
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
+ * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when parameter values are
  *                                                  out of range
  * \see https://docs.rbr-global.com/display/L3DOC/sampling
  */
@@ -286,14 +322,13 @@ typedef enum RBRInstrumentDeploymentStatus
 typedef struct RBRInstrumentDeployment
 {
     /** \brief The deployment start date and time. */
-    uint64_t startTime;
+    InstrumentDateTime startTime;
     /** \brief The deployment end date and time. */
-    uint64_t endTime;
+    InstrumentDateTime endTime;
     /**
      * \brief The deployment status.
      *
-     * The value of this member is ignored when sending the `deployment`
-     * command to the instrument.
+     * \readonly
      */
     RBRInstrumentDeploymentStatus status;
 } RBRInstrumentDeployment;
@@ -303,9 +338,9 @@ typedef struct RBRInstrumentDeployment
  *
  * \param [in] instrument the instrument connection
  * \param [out] deployment the deployment parameters
- * \return \a RBRINSTRUMENT_SUCCESS when the settings are successfully read
- * \return \a RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return \a RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
  * \see https://docs.rbr-global.com/display/L3DOC/deploymdfent
  */
 RBRInstrumentError RBRInstrument_getDeployment(
@@ -325,16 +360,20 @@ RBRInstrumentError RBRInstrument_getDeployment(
  *
  * \param [in] instrument the instrument connection
  * \param [in] deployment the deployment parameters
- * \return \a RBRINSTRUMENT_SUCCESS when the settings are successfully written
- * \return \a RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return \a RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
- * \return \a RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
- * \return \a RBRINSTRUMENT_INVALID_PARAMETER_VALUE when the start or end time
+ * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully written
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
+ * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when the start or end time
  *                                                  values are out of range
  * \see https://docs.rbr-global.com/display/L3DOC/deploymdfent
  */
 RBRInstrumentError RBRInstrument_setDeployment(
     RBRInstrument *instrument,
     const RBRInstrumentDeployment *deployment);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* LIBRBR_RBRINSTRUMENTSCHEDULE_H */

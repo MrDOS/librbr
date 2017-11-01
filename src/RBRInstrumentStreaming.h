@@ -19,4 +19,12 @@
 #ifndef LIBRBR_RBRINSTRUMENTSTREAMING_H
 #define LIBRBR_RBRINSTRUMENTSTREAMING_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* LIBRBR_RBRINSTRUMENTSTREAMING_H */

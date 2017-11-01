@@ -109,22 +109,21 @@ struct RBRInstrument;
  * multiple times in quick succession if the library requires more data.
  *
  * The library will provide a destination for data read from the instrument via
- * the \a data parameter. The maximum amount of data which can be written to
- * this location is given by the \a length parameter. Before returning
- * \a RBRINSTRUMENT_SUCCESS, the value of \a length should be updated by the
+ * the \a data argument. The maximum amount of data which can be written to
+ * this location is given by the \a length argument. Before returning
+ * #RBRINSTRUMENT_SUCCESS, the value of \a length should be updated by the
  * callback to reflect the number of bytes written to \a data. When a value
- * other than \a RBRINSTRUMENT_SUCCESS is returned, any new value of \a length
+ * other than #RBRINSTRUMENT_SUCCESS is returned, any new value of \a length
  * is ignored, as is any data written to \a data.
  *
- * The function should return \a RBRINSTRUMENT_SUCCESS when data is
- * successfully read from the instrument. In the event of any other value being
- * returned, the calling library function will treat that value as indicative
- * of an error, immediately perform any necessary cleanup, and then return that
- * same value to its caller. It is strongly suggested that
- * \a RBRINSTRUMENT_TIMEOUT be returned in the event of a timeout and that
- * \a RBRINSTRUMENT_CALLBACK_ERROR be returned under any other circumstance;
- * that way any errors having occurred in user code can be cleanly
- * distinguished from those occurring in library code.
+ * The function should return #RBRINSTRUMENT_SUCCESS when data is successfully
+ * read from the instrument. In the event of any other value being returned,
+ * the calling library function will treat that value as indicative of an
+ * error, immediately perform any necessary cleanup, and then return that same
+ * value to its caller. It is strongly suggested that #RBRINSTRUMENT_TIMEOUT be
+ * returned in the event of a timeout and that #RBRINSTRUMENT_CALLBACK_ERROR be
+ * returned under any other circumstance; that way a clear distinction can be
+ * made between errors occurring in user code versus library code.
  *
  * Because communication is handled by user code, and because communication
  * only occurs at the behest of the user, it is up to the user to define the
@@ -137,9 +136,9 @@ struct RBRInstrument;
  * \param [in,out] length initially, the maximum amount of data which can be
  *                        written to \a data; set by the callback to the number
  *                        of bytes actually written
- * \return \a RBRINSTRUMENT_SUCCESS when data is successfully read
- * \return \a RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return \a RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_SUCCESS when data is successfully read
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
  */
 typedef RBRInstrumentError (*RBRInstrumentReadCallback)(
     const struct RBRInstrument *instrument,
@@ -159,9 +158,9 @@ typedef RBRInstrumentError (*RBRInstrumentReadCallback)(
  * \param [in] instrument the instrument for which data is being sent
  * \param [in] data the data to be written to the instrument
  * \param [in] length the length of the data given by \a data
- * \return \a RBRINSTRUMENT_SUCCESS when the data is successfully written
- * \return \a RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return \a RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_SUCCESS when the data is successfully written
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
  * \see RBRInstrumentReadCallback() for details on how the values returned from
  *                                  user callback functions are used
  */
@@ -203,12 +202,12 @@ typedef struct RBRInstrumentMessage
      * \brief The type of this message: informational, warning, or error.
      *
      * Successful commands, as indicated by the command having returned
-     * \a RBRINSTRUMENT_SUCCESS, may yield informational or warning messages
-     * (types \a RBRINSTRUMENTMESSAGE_INFO and \a RBRINSTRUMENTMESSAGE_WARNING,
+     * #RBRINSTRUMENT_SUCCESS, may yield informational or warning messages
+     * (types #RBRINSTRUMENTMESSAGE_INFO and #RBRINSTRUMENTMESSAGE_WARNING,
      * respectively). Commands having resulted in a hardware error will yield
-     * an error message (type \a RBRINSTRUMENT_HARDWARE_ERROR). In any other
+     * an error message (type #RBRINSTRUMENT_HARDWARE_ERROR). In any other
      * case, the message is unpopulated and its contents are irrelevant (type
-     * \a RBRINSTRUMENTMESSAGE_UNKNOWN_TYPE).
+     * #RBRINSTRUMENTMESSAGE_UNKNOWN_TYPE).
      *
      * - Informational messages will provide only a message (number as `0`).
      * - Warnings and errors will provide a number and occasionally a message.
@@ -290,13 +289,14 @@ typedef struct RBRInstrument
  * If the instrument pointer is `NULL`, enough memory will be allocated (via
  * `malloc(3)`) to satisfy the requirements of all instrument communications.
  * If you would rather allocate this memory yourself (perhaps statically), you
- * can use \a RBRInstrumentSize to inform your allocation then pass a pointer
- * to that memory. *Do not* pass an uninitialized pointer to this constructor!
+ * can use the size of RBRInstrument to inform your allocation then pass a
+ * pointer to that memory. *Do not* pass an uninitialized pointer to this
+ * constructor!
  *
  * For example:
  *
  * ~~~{.c}
- * uint8_t instrument_buf[RBRInstrumentSize];
+ * uint8_t instrument_buf[sizeof(RBRInstrument)];
  * RBRInstrument *instrument = instrument_buf;
  * RBRInstrument_open(&instrument, ...);
  * ~~~
@@ -304,21 +304,21 @@ typedef struct RBRInstrument
  * If you pass pre-allocated memory, its contents will be discarded.
  *
  * Both callbacks must be given. If either are given as null pointers,
- * \a RBRINSTRUMENT_MISSING_CALLBACK is returned and the instrument connection
+ * #RBRINSTRUMENT_MISSING_CALLBACK is returned and the instrument connection
  * will not be opened.
  *
  * Whenever callbacks are called, the data passed to them should be handled
  * immediately. The pointers passed will coincide with buffers within the
- * `RBRInstrument` instance, and may be overwritten as soon as the callback
+ * RBRInstrument instance, and may be overwritten as soon as the callback
  * returns.
  *
  * \param [in,out] instrument the context object to populate
  * \param [in] readCallback called to read data from the physical instrument
  * \param [in] writeCallback called to write data to the physical instrument
  * \param [in] user arbitrary user data; useful in callbacks
- * \return \a RBRINSTRUMENT_SUCCESS if the instrument was opened successfully
- * \return \a RBRINSTRUMENT_ALLOCATION_FAILURE if memory allocation failed
- * \return \a RBRINSTRUMENT_MISSING_CALLBACK if a callback was not provided
+ * \return #RBRINSTRUMENT_SUCCESS if the instrument was opened successfully
+ * \return #RBRINSTRUMENT_ALLOCATION_FAILURE if memory allocation failed
+ * \return #RBRINSTRUMENT_MISSING_CALLBACK if a callback was not provided
  */
 RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
                                       RBRInstrumentReadCallback readCallback,
@@ -332,7 +332,7 @@ RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
  * perform any communication with the instrument.
  *
  * \param [in,out] instrument the instrument connection to terminate
- * \return \a RBRINSTRUMENT_SUCCESS if the instrument was closed successfully
+ * \return #RBRINSTRUMENT_SUCCESS if the instrument was closed successfully
  */
 RBRInstrumentError RBRInstrument_close(RBRInstrument *instrument);
 

@@ -11,4 +11,12 @@
 #ifndef LIBRBR_RBRINSTRUMENTOTHER_H
 #define LIBRBR_RBRINSTRUMENTOTHER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* LIBRBR_RBRINSTRUMENTOTHER_H */

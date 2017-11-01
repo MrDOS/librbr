@@ -12,4 +12,12 @@
 #ifndef LIBRBR_RBRINSTRUMENTMEMORY_H
 #define LIBRBR_RBRINSTRUMENTMEMORY_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* LIBRBR_RBRINSTRUMENTMEMORY_H */

@@ -5,7 +5,10 @@ PROJECT_BRIEF = "RBR instrument communication API"
 PROJECT_LOGO = res/rbr.png
 OUTPUT_DIRECTORY = docs
 
-ALIASES += "license=\par License\n"
+ALIASES += "readonly=The corresponding instrument parameter is read-only. This
+"member is used only when reading parameters from the instrument; its value is
+"ignored when sending parameters to the instrument."
+ALIASES += "nol2=This parameter is unavailable for Logger2 instruments."
 
 # Include anything in the repository root and the library source code.
 INPUT = . src

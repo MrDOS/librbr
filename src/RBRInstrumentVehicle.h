@@ -11,4 +11,12 @@
 #ifndef LIBRBR_RBRINSTRUMENTVEHICLE_H
 #define LIBRBR_RBRINSTRUMENTVEHICLE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* LIBRBR_RBRINSTRUMENTVEHICLE_H */

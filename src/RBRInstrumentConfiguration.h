@@ -12,4 +12,12 @@
 #ifndef LIBRBR_RBRINSTRUMENTCONFIGURATION_H
 #define LIBRBR_RBRINSTRUMENTCONFIGURATION_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* LIBRBR_RBRINSTRUMENTCONFIGURATION_H */

@@ -10,6 +10,10 @@
 #ifndef LIBRBR_RBRINSTRUMENTCOMMANDS_H
 #define LIBRBR_RBRINSTRUMENTCOMMANDS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "RBRInstrumentSchedule.h"
 #include "RBRInstrumentGating.h"
 #include "RBRInstrumentVehicle.h"
@@ -21,5 +25,9 @@
 #include "RBRInstrumentOther.h"
 #include "RBRInstrumentFetching.h"
 #include "RBRInstrumentSecurity.h"
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* LIBRBR_RBRINSTRUMENTCOMMANDS_H */

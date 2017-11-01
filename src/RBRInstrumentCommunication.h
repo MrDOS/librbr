@@ -12,4 +12,12 @@
 #ifndef LIBRBR_RBRINSTRUMENTCOMMUNICATION_H
 #define LIBRBR_RBRINSTRUMENTCOMMUNICATION_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* LIBRBR_RBRINSTRUMENTCOMMUNICATION_H */

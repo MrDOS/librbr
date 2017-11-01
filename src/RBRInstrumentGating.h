@@ -11,4 +11,12 @@
 #ifndef LIBRBR_RBRINSTRUMENTGATING_H
 #define LIBRBR_RBRINSTRUMENTGATING_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* LIBRBR_RBRINSTRUMENTGATING_H */
