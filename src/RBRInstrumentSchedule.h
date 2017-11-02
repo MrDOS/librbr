@@ -35,7 +35,7 @@ typedef struct RBRInstrumentClock
     /**
      * \brief The instrument's date and time.
      */
-    InstrumentDateTime dateTime;
+    RBRInstrumentDateTime dateTime;
     /** \brief The offset of the instrument's date and time from UTC. */
     struct
     {
@@ -90,8 +90,8 @@ RBRInstrumentError RBRInstrument_getClock(RBRInstrument *instrument,
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
- * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when the clock values are
- *                                                  out of range
+ * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when the clock values are out
+ *                                                of range
  * \see https://docs.rbr-global.com/display/L3DOC/clock
  */
 RBRInstrumentError RBRInstrument_setClock(RBRInstrument *instrument,
@@ -184,7 +184,7 @@ typedef struct RBRInstrumentSampling
      * - When < 1,000, must be in RBRInstrumentSampling.availableFastPeriods.
      * - When ≥ 1,000, must be a multiple of 1,000.
      */
-    InstrumentPeriod period;
+    RBRInstrumentPeriod period;
     /**
      * \brief Fast measurement periods available for the logger for sampling
      * rates faster than 1Hz.
@@ -198,7 +198,7 @@ typedef struct RBRInstrumentSampling
      *
      * \readonly
      */
-    InstrumentPeriod
+    RBRInstrumentPeriod
         availableFastPeriods[RBRINSTRUMENT_AVAILABLE_FAST_PERIODS_MAX];
     /**
      * \brief The minimum period which can be used in fast sampling modes.
@@ -209,13 +209,13 @@ typedef struct RBRInstrumentSampling
      *
      * \readonly
      */
-    InstrumentPeriod userPeriodLimit;
+    RBRInstrumentPeriod userPeriodLimit;
     /**
      * \brief The time between the first measurement of two consecutive bursts.
      *
      * Specified in milliseconds.
      */
-    InstrumentPeriod burstInterval;
+    RBRInstrumentPeriod burstInterval;
     /** \brief The number of measurements taken in each burst. */
     uint16_t burstLength;
     /** \brief The sampling gating condition. */
@@ -251,8 +251,8 @@ RBRInstrumentError RBRInstrument_getSampling(
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
- * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when parameter values are
- *                                                  out of range
+ * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when parameter values are out
+ *                                                of range
  * \see https://docs.rbr-global.com/display/L3DOC/sampling
  */
 RBRInstrumentError RBRInstrument_setSampling(
@@ -310,9 +310,9 @@ typedef enum RBRInstrumentDeploymentStatus
 typedef struct RBRInstrumentDeployment
 {
     /** \brief The deployment start date and time. */
-    InstrumentDateTime startTime;
+    RBRInstrumentDateTime startTime;
     /** \brief The deployment end date and time. */
-    InstrumentDateTime endTime;
+    RBRInstrumentDateTime endTime;
     /**
      * \brief The deployment status.
      *
@@ -353,7 +353,7 @@ RBRInstrumentError RBRInstrument_getDeployment(
  * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when the start or end time
- *                                                  values are out of range
+ *                                                values are out of range
  * \see https://docs.rbr-global.com/display/L3DOC/deploymdfent
  */
 RBRInstrumentError RBRInstrument_setDeployment(

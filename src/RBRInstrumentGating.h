@@ -101,7 +101,7 @@ typedef struct RBRInstrumentThresholding
      * a non-zero whole number of seconds (i.e., must be divisible by 1,000)
      * and must not be greater than 86,400,000 (24 hours).
      */
-    InstrumentPeriod interval;
+    RBRInstrumentPeriod interval;
 } RBRInstrumentThresholding;
 
 /**
@@ -112,6 +112,7 @@ typedef struct RBRInstrumentThresholding
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_HARDWARE_ERROR when the feature is unavailable
  * \see https://docs.rbr-global.com/display/L3DOC/thresholding
  */
 RBRInstrumentError RBRInstrument_getThresholding(
@@ -134,8 +135,8 @@ RBRInstrumentError RBRInstrument_getThresholding(
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
- * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when parameter values are
- *                                                  out of range
+ * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when parameter values are out
+ *                                                of range
  * \see https://docs.rbr-global.com/display/L3DOC/thresholding
  */
 RBRInstrumentError RBRInstrument_setThresholding(
@@ -169,6 +170,7 @@ typedef struct RBRInstrumentTwistActivation
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_HARDWARE_ERROR when the feature is unavailable
  * \see https://docs.rbr-global.com/display/L3DOC/twistactivation
  */
 RBRInstrumentError RBRInstrument_getTwistActivation(
