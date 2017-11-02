@@ -80,8 +80,8 @@ typedef struct RBRInstrumentThresholding
      * \brief The label of the channel to use for the threshold check.
      *
      * When setting the thresholding channel by label, should be provided as a
-     * null-terminated C string. Will be provided likewise when retrieving the
-     * thresholding parameters from the instrument.
+     * null-terminated C string. The value will be populated likewise when
+     * retrieving thresholding parameters from the instrument.
      *
      * Note when setting the instrument thresholding channel, the value of this
      * field will only be used when RBRInstrumentThresholding.channelSelection
@@ -111,7 +111,7 @@ typedef struct RBRInstrumentThresholding
  * \param [out] threshold the thresholding parameters
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the feature is unavailable
  * \see https://docs.rbr-global.com/display/L3DOC/thresholding
  */
@@ -133,7 +133,7 @@ RBRInstrumentError RBRInstrument_getThresholding(
  * \param [in] threshold the thresholding parameters
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when parameter values are out
  *                                                of range
@@ -169,7 +169,7 @@ typedef struct RBRInstrumentTwistActivation
  * \param [out] twistActivation the twist activation parameters
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the feature is unavailable
  * \see https://docs.rbr-global.com/display/L3DOC/twistactivation
  */
@@ -189,7 +189,7 @@ RBRInstrumentError RBRInstrument_getTwistActivation(
  * \param [in] twistActivation the twist activation parameters
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
  * \see https://docs.rbr-global.com/display/L3DOC/twistactivation
  */

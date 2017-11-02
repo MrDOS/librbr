@@ -70,7 +70,7 @@ typedef struct RBRInstrumentClock
  * \param [out] clock the clock value
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \see https://docs.rbr-global.com/display/L3DOC/clock
  */
 RBRInstrumentError RBRInstrument_getClock(RBRInstrument *instrument,
@@ -88,7 +88,7 @@ RBRInstrumentError RBRInstrument_getClock(RBRInstrument *instrument,
  * \param [in] clock the clock value
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when the clock values are out
  *                                                of range
@@ -229,7 +229,7 @@ typedef struct RBRInstrumentSampling
  * \param [out] sampling the sampling parameters
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \see https://docs.rbr-global.com/display/L3DOC/sampling
  */
 RBRInstrumentError RBRInstrument_getSampling(
@@ -249,7 +249,7 @@ RBRInstrumentError RBRInstrument_getSampling(
  * \param [in] sampling the sampling parameters
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when parameter values are out
  *                                                of range
@@ -328,7 +328,7 @@ typedef struct RBRInstrumentDeployment
  * \param [out] deployment the deployment parameters
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \see https://docs.rbr-global.com/display/L3DOC/deploymdfent
  */
 RBRInstrumentError RBRInstrument_getDeployment(
@@ -350,7 +350,7 @@ RBRInstrumentError RBRInstrument_getDeployment(
  * \param [in] deployment the deployment parameters
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when the start or end time
  *                                                values are out of range

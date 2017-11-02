@@ -74,7 +74,7 @@ typedef struct RBRInstrumentRegimes
  * \param [out] regimes the regimes parameters
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the feature is unavailable
  * \see https://docs.rbr-global.com/display/L3DOC/regimes
  */
@@ -97,7 +97,7 @@ RBRInstrumentError RBRInstrument_getRegimes(
  * \param [in] regimes the regimes parameters
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when too many regimes are
  *                                                requested
@@ -161,7 +161,7 @@ typedef struct RBRInstrumentRegime
  * \param [out] regime the regime parameters
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the feature is unavailable, or if
  *                                       an invalid regime index is given
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE if an invalid regime index
@@ -185,7 +185,7 @@ RBRInstrumentError RBRInstrument_getRegime(
  * \param [in] regime the regime parameters
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when parameter values are out
  *                                                of range
@@ -245,7 +245,7 @@ typedef struct RBRInstrumentDirectionDependentSampling
  * \param [out] ddsampling the direction-dependent sampling parameters
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the feature is unavailable
  * \see https://docs.rbr-global.com/display/L3DOC/ddsampling
  */
@@ -266,7 +266,7 @@ RBRInstrumentError RBRInstrument_getDirectionDependentSampling(
  * \param [in] ddsampling the direction-dependent sampling parameters
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when parameter values are out
  *                                                of range

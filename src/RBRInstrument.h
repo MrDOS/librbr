@@ -36,6 +36,24 @@ extern "C" {
  */
 #define RBRINSTRUMENT_PARSE_BUFFER_MAX 1800
 
+/** \brief The maximum number of channels present on an instrument. */
+#define RBRINSTRUMENT_CHANNEL_MAX 32
+
+/**
+ * \brief The maximum number of characters in a channel name (e.g.,
+ * “Temperature”).
+ *
+ * Does not include any null terminator.
+ */
+#define RBRINSTRUMENT_CHANNEL_NAME_MAX 31
+
+/**
+ * \brief The maximum number of characters in a channel unit name (e.g., “C”).
+ *
+ * Does not include any null terminator.
+ */
+#define RBRINSTRUMENT_CHANNEL_UNITS_MAX 7
+
 /**
  * \brief The maximum number of characters in a channel label.
  *
@@ -73,7 +91,7 @@ typedef uint32_t RBRInstrumentPeriod;
  */
 typedef enum RBRInstrumentError
 {
-    /** \brief No error. */
+    /** No error. */
     RBRINSTRUMENT_SUCCESS,
     /** An error occurred while allocating memory. This is typically fatal. */
     RBRINSTRUMENT_ALLOCATION_FAILURE,
@@ -83,6 +101,8 @@ typedef enum RBRInstrumentError
     RBRINSTRUMENT_CALLBACK_ERROR,
     /** A timeout occurred. */
     RBRINSTRUMENT_TIMEOUT,
+    /** The instrument is unsupported by the library. */
+    RBRINSTRUMENT_UNSUPPORTED,
     /**
      * The physical instrument reported a warning or error.
      *
@@ -127,6 +147,21 @@ typedef enum RBRInstrumentError
 const char *RBRInstrument_getInstrumentErrorString(RBRInstrumentError error);
 
 struct RBRInstrument;
+
+/** \brief Generations of RBR instruments. */
+typedef enum RBRInstrumentGeneration
+{
+    /** Logger1 (XR/XRX/TR/DR/TDR/HT). */
+    RBRINSTRUMENT_LOGGER1,
+    /** Logger2 (RBRvirtuoso/duo/concerto/maestro/solo/duet/coda). */
+    RBRINSTRUMENT_LOGGER2,
+    /** Logger3 (RBRvirtuoso³/duo³/concerto³/maestro³/solo³/duet³/coda³). */
+    RBRINSTRUMENT_LOGGER3,
+    /** The number of known generations. */
+    RBRINSTRUMENT_GENERATION_COUNT,
+    /** An unknown or unrecognized instrument generation. */
+    RBRINSTRUMENT_UNKNOWN_GENERATION
+} RBRInstrumentGeneration;
 
 /**
  * \brief Callback to read data from the physical instrument.
@@ -268,6 +303,12 @@ typedef struct RBRInstrumentMessage
  */
 typedef struct RBRInstrument
 {
+    /**
+     * \brief The generation of the instrument.
+     *
+     * Detected while establishing the instrument connection.
+     */
+    RBRInstrumentGeneration generation;
     /** \brief Called to read data from the physical instrument. */
     RBRInstrumentReadCallback readCallback;
 
@@ -340,6 +381,11 @@ typedef struct RBRInstrument
  * RBRInstrument instance, and may be overwritten as soon as the callback
  * returns.
  *
+ * This library supports 3rd-generation RBR instruments and, to a lesser
+ * extent, 2nd-generation instruments. 1st-generation and third-party
+ * instruments are not supported. If the library detects an unsupported
+ * instrument during connection, #RBRINSTRUMENT_UNSUPPORTED is returned.
+ *
  * \param [in,out] instrument the context object to populate
  * \param [in] readCallback called to read data from the physical instrument
  * \param [in] writeCallback called to write data to the physical instrument
@@ -347,6 +393,7 @@ typedef struct RBRInstrument
  * \return #RBRINSTRUMENT_SUCCESS if the instrument was opened successfully
  * \return #RBRINSTRUMENT_ALLOCATION_FAILURE if memory allocation failed
  * \return #RBRINSTRUMENT_MISSING_CALLBACK if a callback was not provided
+ * \return #RBRINSTRUMENT_UNSUPPORTED if the instrument is unsupported
  */
 RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
                                       RBRInstrumentReadCallback readCallback,
