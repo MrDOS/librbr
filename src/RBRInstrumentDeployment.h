@@ -40,7 +40,7 @@ RBRInstrumentError RBRInstrument_verify(
 /**
  * \brief Enable the instrument to sample according to the programmed schedule.
  *
- * If \a eraseMemory is not `true`, RBRInstrument_memClear() must be used to
+ * If \a eraseMemory is not `true`, RBRInstrument_memoryClear() must be used to
  * erase the memory beforehand as necessary.
  *
  * A hardware error can be generated for a variety of reasons. See the `enable`
@@ -95,7 +95,7 @@ typedef struct RBRInstrumentSimulation
     /**
      * The period of each simulated profile.
      *
-     * Specified in milliseconds.
+     * Specified in milliseconds. Must be greater than 0.
      */
     RBRInstrumentPeriod period;
 } RBRInstrumentSimulation;

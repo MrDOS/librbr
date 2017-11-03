@@ -72,16 +72,17 @@ extern "C" {
  * outside of this range will be detected by the library and will cause a
  * #RBRINSTRUMENT_INVALID_PARAMETER_VALUE error, not a hardware error.
  */
-typedef uint64_t RBRInstrumentDateTime;
+typedef int64_t RBRInstrumentDateTime;
 
 /**
  * \brief A periodic parameter.
  *
- * Specified in milliseconds. Generally, parameters of this type may not be
- * greater than 86,400,000 (24 hours) and must be multiples of 1,000 when
- * greater than 1,000. See specific parameter documentation for details.
+ * Specified in milliseconds. Generally, parameters of this type must be
+ * greater than 0, may not be greater than 86,400,000 (24 hours), and must be
+ * multiples of 1,000 when greater than 1,000. See specific parameter
+ * documentation for details.
  */
-typedef uint32_t RBRInstrumentPeriod;
+typedef int32_t RBRInstrumentPeriod;
 
 /**
  * \brief Errors which can be returned from library functions.

@@ -24,11 +24,6 @@ extern "C" {
 #endif
 
 /**
- * \brief The maximum number of output formats supported by the instrument.
- */
-#define RBRINSTRUMENT_OUTPUT_FORMAT_MAX 8
-
-/**
  * \brief The maximum number of characters in an output format name (e.g.,
  * “caltext01”).
  */
@@ -131,15 +126,15 @@ typedef enum RBRInstrumentOutputFormat
 {
     /** Physical units to 4 decimal places. */
     RBRINSTRUMENT_CALTEXT01 = 1 << 0,
-        /** Physical units to 4 decimal places with units. */
-        RBRINSTRUMENT_CALTEXT02 = 1 << 1,
-        /**
-         * Physical units with sufficient significant digits to ensure no
-         * resolution loss.
-         */
-        RBRINSTRUMENT_CALTEXT03 = 1 << 2,
-        /** Physical units expressed as “engineering-notation” floating point. */
-        RBRINSTRUMENT_CALTEXT04 = 1 << 3
+    /** Physical units to 4 decimal places with units. */
+    RBRINSTRUMENT_CALTEXT02 = 1 << 1,
+    /**
+     * Physical units with sufficient significant digits to ensure no
+     * resolution loss.
+     */
+    RBRINSTRUMENT_CALTEXT03 = 1 << 2,
+    /** Physical units expressed as “engineering-notation” floating point. */
+    RBRINSTRUMENT_CALTEXT04 = 1 << 3
 } RBRInstrumentOutputFormat;
 
 /**
@@ -362,13 +357,12 @@ typedef struct RBRInstrumentAuxOutput
  *
  * ~~~{.c}
  * RBRInstrumentAuxOutput output;
- * ...
  * output.aux = 1;
  * RBRInstrument_getAuxOutput(instrument, &output);
  * ~~~
  *
  * \param [in] instrument the instrument connection
- * \param [out] auxOutput the auxiliary output signal parameters
+ * \param [in,out] auxOutput the auxiliary output signal parameters
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
