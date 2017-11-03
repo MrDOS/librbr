@@ -263,7 +263,11 @@ RBRInstrumentError RBRInstrument_setSampling(
  * \brief Possible instrument logging statuses.
  *
  * \see RBRInstrumentDeployment
+ * \see RBRInstrument_enable()
+ * \see RBRInstrument_getStatus()
  * \see https://docs.rbr-global.com/display/L3DOC/deploymdfent
+ * \see https://docs.rbr-global.com/display/L3DOC/enable
+ * \see https://docs.rbr-global.com/display/L3DOC/status
  */
 typedef enum RBRInstrumentDeploymentStatus
 {
@@ -280,7 +284,6 @@ typedef enum RBRInstrumentDeploymentStatus
     /**
      * A `disable` command was received.
      *
-     * \see RBRInstrumentDeployment.h
      * \see RBRInstrument_disable()
      */
     RBRINSTRUMENT_STOPPED,

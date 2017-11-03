@@ -77,8 +77,9 @@ typedef uint64_t RBRInstrumentDateTime;
 /**
  * \brief A periodic parameter.
  *
- * Specified in milliseconds. May not be greater than 86,400,000 (24 hours).
- * When greater than 1,000, must be a multiple of 1,000.
+ * Specified in milliseconds. Generally, parameters of this type may not be
+ * greater than 86,400,000 (24 hours) and must be multiples of 1,000 when
+ * greater than 1,000. See specific parameter documentation for details.
  */
 typedef uint32_t RBRInstrumentPeriod;
 
