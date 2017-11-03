@@ -48,6 +48,13 @@ extern "C" {
 #define RBRINSTRUMENT_CHANNEL_NAME_MAX 31
 
 /**
+ * \brief The maximum number of characters in a channel type (e.g., “temp09”).
+ *
+ * Does not include any null terminator.
+ */
+#define RBRINSTRUMENT_CHANNEL_TYPE_MAX 11
+
+/**
  * \brief The maximum number of characters in a channel unit name (e.g., “C”).
  *
  * Does not include any null terminator.
