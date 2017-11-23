@@ -204,6 +204,55 @@ RBRInstrumentError RBRInstrument_getChannels(RBRInstrument *instrument,
                                              RBRInstrumentChannels *channels);
 
 /**
+ * \brief Set the status of a channel.
+ *
+ * \param [in] instrument the instrument connection
+ * \param [in] channel the index of the channel to update
+ * \param [in] status whether the channel is activated for sampling
+ * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
+ * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
+ * \see RBRInstrument_getChannels()
+ * \see https://docs.rbr-global.com/display/L3DOC/channel
+ */
+RBRInstrumentError RBRInstrument_setChannelStatus(RBRInstrument *instrument,
+                                                  uint8_t channel,
+                                                  bool status);
+
+/**
+ * \brief Update a channel's calibration coefficients.
+ *
+ * Hardware errors may occur if:
+ *
+ * - the instrument is logging
+ * - you set an out-of-range or incorrect coefficient
+ * - you set too many coefficients
+ * - you set the wrong types of coefficients
+ *
+ * If coefficients used by the channel are omitted from the set sent, then
+ * those coefficients will retain their current values. You can call
+ * RBRInstrument_getChannels() after updating coefficients to confirm the
+ * values written.
+ *
+ * \param [in] instrument the instrument connection
+ * \param [in] channel the index of the channel to update
+ * \param [in] calibration the new calibration coefficients for the channel
+ * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
+ * \return #RBRINSTRUMENT_HARDWARE_ERROR when the calibration cannot be changed
+ * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when no coefficients are
+ *                                                populated
+ * \see RBRInstrument_getChannels()
+ * \see https://docs.rbr-global.com/display/L3DOC/calibration
+ */
+RBRInstrumentError RBRInstrument_setCalibration(
+    RBRInstrument *instrument,
+    uint8_t channel,
+    const RBRInstrumentCalibration *calibration);
+
+/**
  * \brief Get the fetch power-off delay.
  *
  * The fetch power-off delay delay in milliseconds between the successful
@@ -232,7 +281,7 @@ RBRInstrumentError RBRInstrument_getFetchPowerOffDelay(
  *
  * \param [in] instrument the instrument connection
  * \param [in] fetchPowerOffDelay the fetch power-off delay
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
+ * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
@@ -269,7 +318,7 @@ RBRInstrumentError RBRInstrument_isSensorPowerAlwaysOn(
  *
  * \param [in] instrument the instrument connection
  * \param [in] sensorPowerAlwaysOn whether sensor power is always on
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
+ * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
@@ -304,7 +353,7 @@ RBRInstrumentError RBRInstrument_getCastDetection(RBRInstrument *instrument,
  *
  * \param [in] instrument the instrument connection
  * \param [in] castDetection whether cast detection is enabled
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
+ * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
@@ -339,7 +388,7 @@ RBRInstrumentError RBRInstrument_getInputTimeout(
  *
  * \param [in] instrument the instrument connection
  * \param [in] inputTimeout the timeout for output suppression
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
+ * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
@@ -377,7 +426,7 @@ RBRInstrumentError RBRInstrument_getSpecCondTempCo(RBRInstrument *instrument,
  *
  * \param [in] instrument the instrument connection
  * \param [in] specCondTempCo specific conductivity temperature coefficient
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
+ * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
@@ -412,7 +461,7 @@ RBRInstrumentError RBRInstrument_getAltitude(RBRInstrument *instrument,
  *
  * \param [in] instrument the instrument connection
  * \param [in] altitude the altitude of the deployment
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
+ * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
@@ -447,7 +496,7 @@ RBRInstrumentError RBRInstrument_getTemperature(RBRInstrument *instrument,
  *
  * \param [in] instrument the instrument connection
  * \param [in] temperature the default temperature
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
+ * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
@@ -482,7 +531,7 @@ RBRInstrumentError RBRInstrument_getPressure(RBRInstrument *instrument,
  *
  * \param [in] instrument the instrument connection
  * \param [in] pressure the default absolute pressure
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
+ * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
@@ -517,7 +566,7 @@ RBRInstrumentError RBRInstrument_getAtmosphere(RBRInstrument *instrument,
  *
  * \param [in] instrument the instrument connection
  * \param [in] atmosphere the default atmospheric pressure
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
+ * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
@@ -552,7 +601,7 @@ RBRInstrumentError RBRInstrument_getDensity(RBRInstrument *instrument,
  *
  * \param [in] instrument the instrument connection
  * \param [in] density the default water density
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
+ * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
@@ -587,7 +636,7 @@ RBRInstrumentError RBRInstrument_getSalinity(RBRInstrument *instrument,
  *
  * \param [in] instrument the instrument connection
  * \param [in] salinity the default salinity
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
+ * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
@@ -622,7 +671,7 @@ RBRInstrumentError RBRInstrument_getAvgSoundSpeed(RBRInstrument *instrument,
  *
  * \param [in] instrument the instrument connection
  * \param [in] avgSoundSpeed the default average speed of sound
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
+ * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
