@@ -53,9 +53,29 @@ extern "C" {
 #define RBRINSTRUMENT_CALIBRATION_EQUATION_MAX 31
 
 /**
+ * \brief The maximum number of characters in the name of a sensor parameter.
+ *
+ * Does not include any null terminator.
+ */
+#define RBRINSTRUMENT_SENSOR_PARAMETER_NAME_MAX 63
+
+/**
+ * \brief The maximum number of characters in a sensor parameter value.
+ *
+ * Does not include any null terminator.
+ */
+#define RBRINSTRUMENT_SENSOR_PARAMETER_VALUE_MAX 63
+
+/**
+ * \brief The maximum number of sensor parameters for a channel.
+ */
+#define RBRINSTRUMENT_SENSOR_PARAMETERS_MAX 8
+
+/**
  * \brief A channel calibration.
  *
  * \see RBRInstrumentChannel
+ * \see RBRInstrument_setCalibration()
  */
 typedef struct RBRInstrumentCalibration
 {
@@ -196,6 +216,7 @@ typedef struct RBRInstrumentChannels
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
+ * \see RBRInstrument_getSensorParameters()
  * \see https://docs.rbr-global.com/display/L3DOC/channels
  * \see https://docs.rbr-global.com/display/L3DOC/channel
  * \see https://docs.rbr-global.com/display/L3DOC/calibration
@@ -680,6 +701,93 @@ RBRInstrumentError RBRInstrument_getAvgSoundSpeed(RBRInstrument *instrument,
  */
 RBRInstrumentError RBRInstrument_setAvgSoundSpeed(RBRInstrument *instrument,
                                                   float avgSoundSpeed);
+
+/**
+ * \brief A sensor parameter.
+ *
+ * \see RBRInstrumentSensorParameters
+ * \see RBRInstrument_setSensorParameter()
+ */
+typedef struct RBRInstrumentSensorParameter
+{
+    /** \brief The name of the parameter as a null-terminated C string. */
+    char name[RBRINSTRUMENT_SENSOR_PARAMETER_NAME_MAX + 1];
+    /** \brief The parameter value as a null-terminated C string. */
+    char value[RBRINSTRUMENT_SENSOR_PARAMETER_VALUE_MAX + 1];
+} RBRInstrumentSensorParameter;
+
+/**
+ * \brief A collection of sensor parameters.
+ *
+ * \see RBRInstrument_getSensorParameters()
+ */
+typedef struct RBRInstrumentSensorParameters
+{
+    /** \brief The number of populated sensor parameters. */
+    size_t count;
+    /**
+     * \brief The sensor parameters.
+     *
+     * The first RBRInstrumentSensorParameters.count entries will be populated.
+     */
+    RBRInstrumentSensorParameter
+        parameters[RBRINSTRUMENT_SENSOR_PARAMETERS_MAX];
+} RBRInstrumentSensorParameters;
+
+/**
+ * \brief Retrieve the sensor parameters for a channel.
+ *
+ * To ease memory requirements, sensor parameters are not included with other
+ * channel information retrieved by RBRInstrument_getChannels().
+ *
+ * \param instrument the instrument connection
+ * \param [in] channel the index of the channel for which sensor parameters are
+ *                     to be retrieved
+ * \param [out] parameters the sensor parameters for the channel
+ * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
+ * \see RBRInstrument_getChannels()
+ * \see RBRInstrument_setSensorParameter()
+ * \see https://docs.rbr-global.com/display/L3DOC/sensor
+ */
+RBRInstrumentError RBRInstrument_getSensorParameters(
+    RBRInstrument *instrument,
+    uint8_t channel,
+    RBRInstrumentSensorParameters *parameters);
+
+/**
+ * \brief Set a sensor parameter for a channel.
+ *
+ * The parameter name must be at most #RBRINSTRUMENT_SENSOR_PARAMETER_NAME_MAX
+ * characters long followed by a null terminator. Similarly, the parameter
+ * value must be at most #RBRINSTRUMENT_SENSOR_PARAMETER_VALUE_MAX and
+ * null-terminated. If either exceed that length,
+ * #RBRINSTRUMENT_INVALID_PARAMETER_VALUE is returned and no instrument update
+ * is performed.
+ *
+ * Hardware errors may occur if:
+ *
+ * - the instrument is logging
+ * - the parameter name has not been defined at the RBR factory
+ *
+ * \param instrument the instrument connection
+ * \param [in] channel the index of the channel the sensor parameter of which
+ *                     is to be updated
+ * \param [in] parameter the sensor parameter for the channel
+ * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
+ * \return #RBRINSTRUMENT_HARDWARE_ERROR when the parameter cannot be changed
+ * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when a name/value is too long
+ * \see RBRInstrument_getChannels()
+ * \see RBRInstrument_getSensorParameters()
+ * \see https://docs.rbr-global.com/display/L3DOC/sensor
+ */
+RBRInstrumentError RBRInstrument_setSensorParameter(
+    RBRInstrument *instrument,
+    uint8_t channel,
+    RBRInstrumentSensorParameter *parameter);
 
 #ifdef __cplusplus
 }
