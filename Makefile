@@ -4,7 +4,7 @@
 ##
 ## This makefile provides three different targets of interest to the end user:
 ##
-## - `library` will build the library (`bin/librbr.a`)
+## - `lib` will build the library (`bin/librbr.a`)
 ## - `docs` will generate the documentation via Doxygen (in `docs/`)
 ## - `test` will run library tests (from `tests/`)
 ##
@@ -45,9 +45,9 @@ ARFLAGS := crsU
 ## minimize the friction of pulling in library updates.
 CFLAGS := -Werror -Wall -Wextra -pedantic -pedantic-errors -std=c99 -g
 
-all: library docs test
+all: lib docs test
 
-library: bin bin/librbr.a(src/RBRInstrument.o)
+lib: bin bin/librbr.a(src/RBRInstrument.o)
 
 bin:
 	mkdir bin
@@ -56,7 +56,7 @@ bin:
 docs:
 	doxygen Doxyfile
 
-test: library
+test: lib
 	@echo WARNING: Automated tests are unimplemented.
 
 .PHONY: clean
