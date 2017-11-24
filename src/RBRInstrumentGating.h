@@ -15,6 +15,17 @@
 extern "C" {
 #endif
 
+/** \brief The state of a gating condition. */
+typedef enum RBRInstrumentGatingState
+{
+    /** \brief The gating condition is disabled. */
+    NA,
+    /** \brief Logging is paused due to the gating. */
+    PAUSED,
+    /** \brief Logging is running due to the gating. */
+    RUNNING
+} RBRInstrumentGatingState;
+
 /**
  * \brief Means of instrument thresholding channel selection.
  *
@@ -57,7 +68,13 @@ typedef enum RBRInstrumentThresholdingCondition
 typedef struct RBRInstrumentThresholding
 {
     /** \brief Enables or disables thresholding. */
-    bool state;
+    bool enabled;
+    /**
+     * \brief The state of logging based on the thresholding configuration.
+     *
+     * \readonly
+     */
+    RBRInstrumentGatingState state;
     /**
      * \brief Whether the thresholding channel should be configured by index or
      * by label.
@@ -153,13 +170,13 @@ RBRInstrumentError RBRInstrument_setThresholding(
 typedef struct RBRInstrumentTwistActivation
 {
     /** \brief Enables or disables twist activation. */
-    bool state;
+    bool enabled;
     /**
-     * \brief Reflects the current position of the battery end cap.
+     * \brief The state of logging based on the twist activation configuration.
      *
      * \readonly
      */
-    bool location;
+    RBRInstrumentGatingState state;
 } RBRInstrumentTwistActivation;
 
 /**

@@ -180,26 +180,8 @@ typedef enum RBRInstrumentMemoryFormat
  * \brief Report a list of available memory formats.
  *
  * \a memoryFormats will be treated as a bit field representation of available
- * memory formats as defined by RBRInstrumentMemoryFormat. For example, if both
- * memory formats are supported:
- *
- * ~~~{.c}
- * RBRInstrumentMemoryFormat memoryFormats;
- * RBRInstrument_getAvailableMemoryFormats(instrument, &memoryFormats);
- * assert(memoryFormats == RBRINSTRUMENT_RAWBIN00
- *                       | RBRINSTRUMENT_CALBIN00);
- * ~~~
- *
- * And to check if a specific format is supported, e.g., EasyParse:
- *
- * ~~~{.c}
- * RBRInstrumentMemoryFormat memoryFormats;
- * RBRInstrument_getAvailableMemoryFormats(instrument, &memoryFormats);
- * if (memoryFormats | RBRINSTRUMENT_CALBIN00)
- * {
- *     ...
- * }
- * ~~~
+ * memory formats as defined by RBRInstrumentMemoryFormat. For details, consult
+ * [Working with Bit Fields](bitfields.md).
  *
  * \param [in] instrument the instrument connection
  * \param [out] memoryFormats available memory formats

@@ -141,28 +141,8 @@ typedef enum RBRInstrumentOutputFormat
  * \brief Report a list of available output formats.
  *
  * \a outputFormats will be treated as a bit field representation of available
- * output formats as defined by RBRInstrumentOutputFormat. For example, if all
- * four output formats are supported:
- *
- * ~~~{.c}
- * RBRInstrumentOutputFormat outputFormats;
- * RBRInstrument_getAvailableOutputFormats(instrument, &outputFormats);
- * assert(outputFormats == RBRINSTRUMENT_CALTEXT01
- *                       | RBRINSTRUMENT_CALTEXT02
- *                       | RBRINSTRUMENT_CALTEXT03
- *                       | RBRINSTRUMENT_CALTEXT04);
- * ~~~
- *
- * And to check if a specific format is supported, e.g., `caltext03`:
- *
- * ~~~{.c}
- * RBRInstrumentOutputFormat outputFormats;
- * RBRInstrument_getAvailableOutputFormats(instrument, &outputFormats);
- * if (outputFormats | RBRINSTRUMENT_CALTEXT03)
- * {
- *     ...
- * }
- * ~~~
+ * output formats as defined by RBRInstrumentOutputFormat. For details, consult
+ * [Working with Bit Fields](bitfields.md).
  *
  * \param [in] instrument the instrument connection
  * \param [out] outputFormats available output formats
