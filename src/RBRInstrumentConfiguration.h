@@ -421,286 +421,107 @@ RBRInstrumentError RBRInstrument_setInputTimeout(
     RBRInstrumentPeriod inputTimeout);
 
 /**
- * \brief Get the temperature coefficient used to correct the derived channel
- * for specific conductivity to 25°C.
+ * \brief Value settings the instrument uses for calculation of derived
+ * channels, or as defaults for physical parameters the instrument does not
+ * measure.
  *
- * Specified in degrees Celsius.
+ * See the command reference documentation for details on the use and default
+ * values for each of these parameters.
+ *
+ * \see RBRInstrument_getValueSetting()
+ * \see RBRInstrument_setValueSetting()
+ * \see https://docs.rbr-global.com/display/L3DOC/settings
+ */
+typedef enum RBRInstrumentValueSetting
+{
+    /**
+     * \brief The temperature coefficient used to correct the derived channel
+     * for specific conductivity to 25°C.
+     *
+     * Specified in degrees Celsius.
+     */
+    RBRINSTRUMENT_SETTING_SPECCONDTEMPCO,
+    /**
+     * \brief The height above the seabed at which the logger is deployed.
+     *
+     * Specified in metres.
+     */
+    RBRINSTRUMENT_SETTING_ALTITUDE,
+    /**
+     * \brief The default temperature.
+     *
+     * Specified in degrees Celsius.
+     */
+    RBRINSTRUMENT_SETTING_TEMPERATURE,
+    /**
+     * \brief The default absolute pressure.
+     *
+     * Specified in dbar.
+     */
+    RBRINSTRUMENT_SETTING_PRESSURE,
+    /**
+     * \brief The default atmospheric pressure.
+     *
+     * Specified in dbar.
+     */
+    RBRINSTRUMENT_SETTING_ATMOSPHERE,
+    /**
+     * \brief The default water density.
+     *
+     * Specified in g/cm³.
+     */
+    RBRINSTRUMENT_SETTING_DENSITY,
+    /**
+     * \brief The default salinity.
+     *
+     * Specified in PSU.
+     */
+    RBRINSTRUMENT_SETTING_SALINITY,
+    /**
+     * \brief The default average speed of sound.
+     *
+     * Specified in m/s.
+     */
+    RBRINSTRUMENT_SETTING_AVGSOUNDSPEED
+} RBRInstrumentValueSetting;
+
+/**
+ * \brief Read a value setting from the instrument.
  *
  * \param [in] instrument the instrument connection
- * \param [out] specCondTempCo specific conductivity temperature coefficient
+ * \param [in] setting the setting to retrieve
+ * \param [out] value the value of the setting
  * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see RBRInstrument_setSpecCondTempCo()
+ * \see RBRInstrument_setValueSetting()
  * \see https://docs.rbr-global.com/display/L3DOC/settings
  */
-RBRInstrumentError RBRInstrument_getSpecCondTempCo(RBRInstrument *instrument,
-                                                   float *specCondTempCo);
+RBRInstrumentError RBRInstrument_getValueSetting(
+    RBRInstrument *instrument,
+    RBRInstrumentValueSetting setting,
+    float *value);
 
 /**
- * \brief Set the temperature coefficient used to correct the derived channel
- * for specific conductivity to 25°C.
- *
- * Specified in degrees Celsius.
+ * \brief Write the a value setting to the instrument.
  *
  * A hardware error will occur if the instrument is logging.
  *
  * \param [in] instrument the instrument connection
- * \param [in] specCondTempCo specific conductivity temperature coefficient
+ * \param [in] setting the setting to retrieve
+ * \param [in] value the value of the setting
  * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
- * \see RBRInstrument_getSpecCondTempCo()
+ * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE if the value is NaN
+ * \see RBRInstrument_getValueSetting()
  * \see https://docs.rbr-global.com/display/L3DOC/settings
  */
-RBRInstrumentError RBRInstrument_setSpecCondTempCo(RBRInstrument *instrument,
-                                                   float specCondTempCo);
-
-/**
- * \brief Get the height above seabed at which the logger is deployed.
- *
- * Specified in metres.
- *
- * \param [in] instrument the instrument connection
- * \param [out] altitude the altitude of the deployment
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
- * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see RBRInstrument_setAltitude()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
- */
-RBRInstrumentError RBRInstrument_getAltitude(RBRInstrument *instrument,
-                                             float *altitude);
-
-/**
- * \brief Set the height above seabed at which the logger is deployed.
- *
- * Specified in metres.
- *
- * A hardware error will occur if the instrument is logging.
- *
- * \param [in] instrument the instrument connection
- * \param [in] altitude the altitude of the deployment
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
- * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
- * \see RBRInstrument_getAltitude()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
- */
-RBRInstrumentError RBRInstrument_setAltitude(RBRInstrument *instrument,
-                                             float altitude);
-
-/**
- * \brief Get the default temperature parameter value.
- *
- * Specified in degrees Celsius.
- *
- * \param [in] instrument the instrument connection
- * \param [out] temperature the default temperature
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
- * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see RBRInstrument_setTemperature()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
- */
-RBRInstrumentError RBRInstrument_getTemperature(RBRInstrument *instrument,
-                                                float *temperature);
-
-/**
- * \brief Set the default temperature parameter value.
- *
- * Specified in degrees Celsius.
- *
- * A hardware error will occur if the instrument is logging.
- *
- * \param [in] instrument the instrument connection
- * \param [in] temperature the default temperature
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
- * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
- * \see RBRInstrument_getTemperature()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
- */
-RBRInstrumentError RBRInstrument_setTemperature(RBRInstrument *instrument,
-                                                float temperature);
-
-/**
- * \brief Get the default absolute pressure parameter value.
- *
- * Specified in dbar.
- *
- * \param [in] instrument the instrument connection
- * \param [out] pressure the default absolute pressure
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
- * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see RBRInstrument_setPressure()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
- */
-RBRInstrumentError RBRInstrument_getPressure(RBRInstrument *instrument,
-                                             float *pressure);
-
-/**
- * \brief Set the default absolute pressure parameter value.
- *
- * Specified in dbar.
- *
- * A hardware error will occur if the instrument is logging.
- *
- * \param [in] instrument the instrument connection
- * \param [in] pressure the default absolute pressure
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
- * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
- * \see RBRInstrument_getPressure()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
- */
-RBRInstrumentError RBRInstrument_setPressure(RBRInstrument *instrument,
-                                             float pressure);
-
-/**
- * \brief Get the default atmospheric pressure parameter value.
- *
- * Specified in dbar.
- *
- * \param [in] instrument the instrument connection
- * \param [out] atmosphere the default atmospheric pressure
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
- * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see RBRInstrument_setAtmosphere()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
- */
-RBRInstrumentError RBRInstrument_getAtmosphere(RBRInstrument *instrument,
-                                               float *atmosphere);
-
-/**
- * \brief Set the default atmospheric pressure parameter value.
- *
- * Specified in dbar.
- *
- * A hardware error will occur if the instrument is logging.
- *
- * \param [in] instrument the instrument connection
- * \param [in] atmosphere the default atmospheric pressure
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
- * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
- * \see RBRInstrument_getAtmosphere()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
- */
-RBRInstrumentError RBRInstrument_setAtmosphere(RBRInstrument *instrument,
-                                               float atmosphere);
-
-/**
- * \brief Get the default water density parameter value.
- *
- * Specified in g/cm³.
- *
- * \param [in] instrument the instrument connection
- * \param [out] density the default water density
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
- * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see RBRInstrument_setDensity()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
- */
-RBRInstrumentError RBRInstrument_getDensity(RBRInstrument *instrument,
-                                            float *density);
-
-/**
- * \brief Set the default water density parameter value.
- *
- * Specified in g/cm³.
- *
- * A hardware error will occur if the instrument is logging.
- *
- * \param [in] instrument the instrument connection
- * \param [in] density the default water density
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
- * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
- * \see RBRInstrument_getDensity()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
- */
-RBRInstrumentError RBRInstrument_setDensity(RBRInstrument *instrument,
-                                            float density);
-
-/**
- * \brief Get the default salinity parameter value.
- *
- * Specified in PSU.
- *
- * \param [in] instrument the instrument connection
- * \param [out] salinity the default salinity
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
- * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see RBRInstrument_setSalinity()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
- */
-RBRInstrumentError RBRInstrument_getSalinity(RBRInstrument *instrument,
-                                             float *salinity);
-
-/**
- * \brief Set the default salinity parameter value.
- *
- * Specified in PSU.
- *
- * A hardware error will occur if the instrument is logging.
- *
- * \param [in] instrument the instrument connection
- * \param [in] salinity the default salinity
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
- * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
- * \see RBRInstrument_getSalinity()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
- */
-RBRInstrumentError RBRInstrument_setSalinity(RBRInstrument *instrument,
-                                             float salinity);
-
-/**
- * \brief Get the default average speed of sound parameter value.
- *
- * Specified in m/s.
- *
- * \param [in] instrument the instrument connection
- * \param [out] avgSoundSpeed the default average speed of sound
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
- * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see RBRInstrument_setAvgSoundSpeed()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
- */
-RBRInstrumentError RBRInstrument_getAvgSoundSpeed(RBRInstrument *instrument,
-                                                  float *avgSoundSpeed);
-
-/**
- * \brief Set the default average speed of sound parameter value.
- *
- * Specified in m/s.
- *
- * A hardware error will occur if the instrument is logging.
- *
- * \param [in] instrument the instrument connection
- * \param [in] avgSoundSpeed the default average speed of sound
- * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
- * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
- * \see RBRInstrument_getAvgSoundSpeed()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
- */
-RBRInstrumentError RBRInstrument_setAvgSoundSpeed(RBRInstrument *instrument,
-                                                  float avgSoundSpeed);
+RBRInstrumentError RBRInstrument_setValueSetting(
+    RBRInstrument *instrument,
+    RBRInstrumentValueSetting setting,
+    float value);
 
 /**
  * \brief A sensor parameter.
