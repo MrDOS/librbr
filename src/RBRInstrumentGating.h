@@ -19,11 +19,11 @@ extern "C" {
 typedef enum RBRInstrumentGatingState
 {
     /** \brief The gating condition is disabled. */
-    NA,
+    RBRINSTRUMENT_GATING_NA,
     /** \brief Logging is paused due to the gating. */
-    PAUSED,
+    RBRINSTRUMENT_GATING_PAUSED,
     /** \brief Logging is running due to the gating. */
-    RUNNING
+    RBRINSTRUMENT_GATING_RUNNING
 } RBRInstrumentGatingState;
 
 /**

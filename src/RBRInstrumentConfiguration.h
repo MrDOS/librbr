@@ -435,54 +435,58 @@ RBRInstrumentError RBRInstrument_setInputTimeout(
 typedef enum RBRInstrumentValueSetting
 {
     /**
-     * \brief The temperature coefficient used to correct the derived channel
-     * for specific conductivity to 25°C.
+     * The temperature coefficient used to correct the derived channel for
+     * specific conductivity to 25°C.
      *
      * Specified in degrees Celsius.
      */
     RBRINSTRUMENT_SETTING_SPECCONDTEMPCO,
     /**
-     * \brief The height above the seabed at which the logger is deployed.
+     * The height above the seabed at which the logger is deployed.
      *
      * Specified in metres.
      */
     RBRINSTRUMENT_SETTING_ALTITUDE,
     /**
-     * \brief The default temperature.
+     * The default temperature.
      *
      * Specified in degrees Celsius.
      */
     RBRINSTRUMENT_SETTING_TEMPERATURE,
     /**
-     * \brief The default absolute pressure.
+     * The default absolute pressure.
      *
      * Specified in dbar.
      */
     RBRINSTRUMENT_SETTING_PRESSURE,
     /**
-     * \brief The default atmospheric pressure.
+     * The default atmospheric pressure.
      *
      * Specified in dbar.
      */
     RBRINSTRUMENT_SETTING_ATMOSPHERE,
     /**
-     * \brief The default water density.
+     * The default water density.
      *
      * Specified in g/cm³.
      */
     RBRINSTRUMENT_SETTING_DENSITY,
     /**
-     * \brief The default salinity.
+     * The default salinity.
      *
      * Specified in PSU.
      */
     RBRINSTRUMENT_SETTING_SALINITY,
     /**
-     * \brief The default average speed of sound.
+     * The default average speed of sound.
      *
      * Specified in m/s.
      */
-    RBRINSTRUMENT_SETTING_AVGSOUNDSPEED
+    RBRINSTRUMENT_SETTING_AVGSOUNDSPEED,
+    /** The number of specific value settings. */
+    RBRINSTRUMENT_SETTING_COUNT,
+    /** An unknown or unrecognized value setting. */
+    RBRINSTRUMENT_UNKNOWN_SETTING
 } RBRInstrumentValueSetting;
 
 /**
@@ -494,6 +498,8 @@ typedef enum RBRInstrumentValueSetting
  * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
+ * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when an unrecognized setting
+ *                                                is requested
  * \see RBRInstrument_setValueSetting()
  * \see https://docs.rbr-global.com/display/L3DOC/settings
  */
@@ -514,7 +520,9 @@ RBRInstrumentError RBRInstrument_getValueSetting(
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
- * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE if the value is NaN
+ * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when an unrecognized setting
+ *                                                is requested or when the
+ *                                                value is NaN
  * \see RBRInstrument_getValueSetting()
  * \see https://docs.rbr-global.com/display/L3DOC/settings
  */

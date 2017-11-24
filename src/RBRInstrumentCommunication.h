@@ -29,7 +29,11 @@ typedef enum RBRInstrumentLink
     /** Serial connectivity. */
     RBRINSTRUMENT_LINK_SERIAL,
     /** Wi-Fi connectivity. */
-    RBRINSTRUMENT_LINK_WIFI
+    RBRINSTRUMENT_LINK_WIFI,
+    /** The number of specific link types. */
+    RBRINSTRUMENT_LINK_COUNT,
+    /** An unknown or unrecognized link type. */
+    RBRINSTRUMENT_UNKNOWN_LINK
 } RBRInstrumentLink;
 
 /**
@@ -223,12 +227,12 @@ RBRInstrumentError RBRInstrument_sleep(RBRInstrument *instrument);
 typedef enum RBRInstrumentWiFiState
 {
     /** \brief The Wi-Fi connection is disabled. */
-    NA,
+    RBRINSTRUMENT_WIFI_NA,
     /** \brief The Wi-Fi radio is powered up and ready to communicate. */
-    ON,
+    RBRINSTRUMENT_WIFI_ON,
     /** \brief The Wi-Fi radio is powered down. */
-    OFF
-} RBRInstrumentGatingState;
+    RBRINSTRUMENT_WIFI_OFF
+} RBRInstrumentWiFiState;
 
 /**
  * \brief Instrument `wifi` command parameters.
