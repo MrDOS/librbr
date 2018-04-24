@@ -3,7 +3,7 @@
  *
  * \brief Instrument commands and structures pertaining to vehicle support.
  *
- * \see https://docs.rbr-global.com/display/L3DOC/Vehicle+support
+ * \see https://docs.rbr-global.com/L3commandreference/commands/vehicle-support
  * \author Samuel Coleman <samuel.coleman@rbr-global.com>
  * \copyright Copyright (c) 2017 RBR Ltd
  */
@@ -20,8 +20,8 @@ extern "C" {
  *
  * \see RBRInstrumentRegimes
  * \see RBRInstrumentDirectionDependentSampling
- * \see https://docs.rbr-global.com/display/L3DOC/regimes
- * \see https://docs.rbr-global.com/display/L3DOC/ddsampling
+ * \see https://docs.rbr-global.com/L3commandreference/commands/vehicle-support/regimes
+ * \see https://docs.rbr-global.com/L3commandreference/commands/vehicle-support/ddsampling
  */
 typedef enum RBRInstrumentDirection
 {
@@ -36,7 +36,7 @@ typedef enum RBRInstrumentDirection
  * determination of the current regime and bin.
  *
  * \see RBRInstrumentRegimes
- * \see https://docs.rbr-global.com/display/L3DOC/regimes
+ * \see https://docs.rbr-global.com/L3commandreference/commands/vehicle-support/regimes
  */
 typedef enum RBRInstrumentRegimesReference
 {
@@ -51,7 +51,7 @@ typedef enum RBRInstrumentRegimesReference
  *
  * \see RBRInstrument_getRegimes()
  * \see RBRInstrument_setRegimes()
- * \see https://docs.rbr-global.com/display/L3DOC/regimes
+ * \see https://docs.rbr-global.com/L3commandreference/commands/vehicle-support/regimes
  */
 typedef struct RBRInstrumentRegimes
 {
@@ -76,7 +76,7 @@ typedef struct RBRInstrumentRegimes
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the feature is unavailable
- * \see https://docs.rbr-global.com/display/L3DOC/regimes
+ * \see https://docs.rbr-global.com/L3commandreference/commands/vehicle-support/regimes
  */
 RBRInstrumentError RBRInstrument_getRegimes(
     RBRInstrument *instrument,
@@ -101,7 +101,7 @@ RBRInstrumentError RBRInstrument_getRegimes(
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when too many regimes are
  *                                                requested
- * \see https://docs.rbr-global.com/display/L3DOC/regimes
+ * \see https://docs.rbr-global.com/L3commandreference/commands/vehicle-support/regimes
  */
 RBRInstrumentError RBRInstrument_setRegimes(
     RBRInstrument *instrument,
@@ -112,7 +112,7 @@ RBRInstrumentError RBRInstrument_setRegimes(
  *
  * \see RBRInstrument_getRegime()
  * \see RBRInstrument_setRegime()
- * \see https://docs.rbr-global.com/display/L3DOC/regime
+ * \see https://docs.rbr-global.com/L3commandreference/commands/vehicle-support/regime
  */
 typedef struct RBRInstrumentRegime
 {
@@ -166,7 +166,7 @@ typedef struct RBRInstrumentRegime
  *                                       an invalid regime index is given
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE if an invalid regime index
  *                                                is given
- * \see https://docs.rbr-global.com/display/L3DOC/regime
+ * \see https://docs.rbr-global.com/L3commandreference/commands/vehicle-support/regime
  */
 RBRInstrumentError RBRInstrument_getRegime(
     RBRInstrument *instrument,
@@ -189,7 +189,7 @@ RBRInstrumentError RBRInstrument_getRegime(
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when parameter values are out
  *                                                of range
- * \see https://docs.rbr-global.com/display/L3DOC/regime
+ * \see https://docs.rbr-global.com/L3commandreference/commands/vehicle-support/regime
  */
 RBRInstrumentError RBRInstrument_setRegime(
     RBRInstrument *instrument,
@@ -200,7 +200,7 @@ RBRInstrumentError RBRInstrument_setRegime(
  *
  * \see RBRInstrument_getDirectionDependentSampling()
  * \see RBRInstrument_setDirectionDependentSampling()
- * \see https://docs.rbr-global.com/display/L3DOC/ddsampling
+ * \see https://docs.rbr-global.com/L3commandreference/commands/vehicle-support/ddsampling
  */
 typedef struct RBRInstrumentDirectionDependentSampling
 {
@@ -247,7 +247,7 @@ typedef struct RBRInstrumentDirectionDependentSampling
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the feature is unavailable
- * \see https://docs.rbr-global.com/display/L3DOC/ddsampling
+ * \see https://docs.rbr-global.com/L3commandreference/commands/vehicle-support/ddsampling
  */
 RBRInstrumentError RBRInstrument_getDirectionDependentSampling(
     RBRInstrument *instrument,
@@ -270,7 +270,7 @@ RBRInstrumentError RBRInstrument_getDirectionDependentSampling(
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when parameter values are out
  *                                                of range
- * \see https://docs.rbr-global.com/display/L3DOC/ddsampling
+ * \see https://docs.rbr-global.com/L3commandreference/commands/vehicle-support/ddsampling
  */
 RBRInstrumentError RBRInstrument_setDirectionDependentSampling(
     RBRInstrument *instrument,

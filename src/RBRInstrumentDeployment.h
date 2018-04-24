@@ -3,7 +3,7 @@
  *
  * \brief Instrument commands and structures pertaining to deployments.
  *
- * \see https://docs.rbr-global.com/display/L3DOC/Deployment
+ * \see https://docs.rbr-global.com/L3commandreference/commands/deployments
  * \author Samuel Coleman <samuel.coleman@rbr-global.com>
  * \copyright Copyright (c) 2017 RBR Ltd
  */
@@ -31,7 +31,7 @@ extern "C" {
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if an error would occur when enabling
  *                                       logging
  * \see RBRInstrument_enable()
- * \see https://docs.rbr-global.com/display/L3DOC/verify
+ * \see https://docs.rbr-global.com/L3commandreference/commands/deployments/verify
  */
 RBRInstrumentError RBRInstrument_verify(
     RBRInstrument *instrument,
@@ -54,7 +54,7 @@ RBRInstrumentError RBRInstrument_verify(
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when an error occurs enabling logging
- * \see https://docs.rbr-global.com/display/L3DOC/enable
+ * \see https://docs.rbr-global.com/L3commandreference/commands/deployments/enable
  */
 RBRInstrumentError RBRInstrument_enable(
     RBRInstrument *instrument,
@@ -75,7 +75,7 @@ RBRInstrumentError RBRInstrument_enable(
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument was not logging
- * \see https://docs.rbr-global.com/display/L3DOC/disable
+ * \see https://docs.rbr-global.com/L3commandreference/commands/deployments/disable
  */
 RBRInstrumentError RBRInstrument_disable(
     RBRInstrument *instrument,
@@ -86,7 +86,7 @@ RBRInstrumentError RBRInstrument_disable(
  *
  * \see RBRInstrument_getSimulation()
  * \see RBRInstrument_setSimulation()
- * \see https://docs.rbr-global.com/display/L3DOC/simulation
+ * \see https://docs.rbr-global.com/L3commandreference/commands/deployments/simulation
  */
 typedef struct RBRInstrumentSimulation
 {
@@ -109,7 +109,7 @@ typedef struct RBRInstrumentSimulation
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the feature is unavailable
- * \see https://docs.rbr-global.com/display/L3DOC/regimes
+ * \see https://docs.rbr-global.com/L3commandreference/commands/deployments/simulation
  */
 RBRInstrumentError RBRInstrument_getSimulation(
     RBRInstrument *instrument,
@@ -134,7 +134,7 @@ RBRInstrumentError RBRInstrument_getSimulation(
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when an out-of-bounds
  *                                                simulation period is
  *                                                requested
- * \see https://docs.rbr-global.com/display/L3DOC/regimes
+ * \see https://docs.rbr-global.com/L3commandreference/commands/deployments/simulation
  */
 RBRInstrumentError RBRInstrument_setSimulation(
     RBRInstrument *instrument,

@@ -3,7 +3,7 @@
  *
  * \brief Instrument commands and structures for miscellaneous commands.
  *
- * \see https://docs.rbr-global.com/display/L3DOC/Other+Information
+ * \see https://docs.rbr-global.com/L3commandreference/commands/other-information
  * \author Samuel Coleman <samuel.coleman@rbr-global.com>
  * \copyright Copyright (c) 2017 RBR Ltd
  */
@@ -40,7 +40,7 @@ extern "C" {
  * \brief Instrument `id` command parameters.
  *
  * \see RBRInstrument_getId()
- * \see https://docs.rbr-global.com/display/L3DOC/id
+ * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/id
  */
 typedef struct RBRInstrumentId
 {
@@ -62,7 +62,7 @@ typedef struct RBRInstrumentId
  * \return #RBRINSTRUMENT_SUCCESS when the information is successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see https://docs.rbr-global.com/display/L3DOC/id
+ * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/id
  */
 RBRInstrumentError RBRInstrument_getId(RBRInstrument *instrument,
                                        RBRInstrumentId *id);
@@ -71,7 +71,7 @@ RBRInstrumentError RBRInstrument_getId(RBRInstrument *instrument,
  * \brief Instrument `hwrev` command parameters.
  *
  * \see RBRInstrument_getHardwareRevision()
- * \see https://docs.rbr-global.com/display/L3DOC/hwrev
+ * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/hwrev
  */
 typedef struct RBRInstrumentHardwareRevision
 {
@@ -91,7 +91,7 @@ typedef struct RBRInstrumentHardwareRevision
  * \return #RBRINSTRUMENT_SUCCESS when the information is successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see https://docs.rbr-global.com/display/L3DOC/hwrev
+ * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/hwrev
  */
 RBRInstrumentError RBRInstrument_getHardwareRevision(
     RBRInstrument *instrument,
@@ -120,7 +120,7 @@ typedef enum RBRInstrumentPowerSource
  * \brief Instrument `power` command parameters.
  *
  * \see RBRInstrument_getPower()
- * \see https://docs.rbr-global.com/display/L3DOC/power
+ * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/power
  */
 typedef struct RBRInstrumentPower
 {
@@ -141,7 +141,7 @@ typedef struct RBRInstrumentPower
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if an error occurs reading voltages
- * \see https://docs.rbr-global.com/display/L3DOC/power
+ * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/power
  */
 RBRInstrumentError RBRInstrument_getPower(RBRInstrument *instrument,
                                           RBRInstrumentPower *power);
@@ -175,7 +175,7 @@ typedef enum RBRInstrumentPowerInternalBatteryType
  * \brief Instrument `powerinternal` command parameters.
  *
  * \see RBRInstrument_getPowerInternal()
- * \see https://docs.rbr-global.com/display/L3DOC/powerinternal
+ * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/powerinternal
  */
 typedef struct RBRInstrumentPowerInternal
 {
@@ -204,7 +204,7 @@ typedef struct RBRInstrumentPowerInternal
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \see RBRInstrument_setPowerInternalBatteryType()
  * \see RBRInstrument_resetPowerInternalUsed()
- * \see https://docs.rbr-global.com/display/L3DOC/powerinternal
+ * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/powerinternal
  */
 RBRInstrumentError RBRInstrument_getPowerInternal(
     RBRInstrument *instrument,
@@ -220,7 +220,7 @@ RBRInstrumentError RBRInstrument_getPowerInternal(
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the instrument is logging
  * \see RBRInstrument_getPowerInternal()
- * \see https://docs.rbr-global.com/display/L3DOC/powerinternal
+ * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/powerinternal
  */
 RBRInstrumentError RBRInstrument_setPowerInternalBatteryType(
     RBRInstrument *instrument,
@@ -235,7 +235,7 @@ RBRInstrumentError RBRInstrument_setPowerInternalBatteryType(
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the instrument is logging
  * \see RBRInstrument_getPowerInternal()
- * \see https://docs.rbr-global.com/display/L3DOC/powerinternal
+ * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/powerinternal
  */
 RBRInstrumentError RBRInstrument_resetPowerInternalUsed(
     RBRInstrument *instrument);
@@ -275,7 +275,7 @@ typedef enum RBRInstrumentPowerExternalBatteryType
  * \brief Instrument `powerexternal` command parameters.
  *
  * \see RBRInstrument_getPowerExternal()
- * \see https://docs.rbr-global.com/display/L3DOC/powerexternal
+ * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/powerexternal
  */
 typedef struct RBRInstrumentPowerExternal
 {
@@ -304,7 +304,7 @@ typedef struct RBRInstrumentPowerExternal
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \see RBRInstrument_setPowerExternalBatteryType()
  * \see RBRInstrument_resetPowerExternalUsed()
- * \see https://docs.rbr-global.com/display/L3DOC/powerexternal
+ * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/powerexternal
  */
 RBRInstrumentError RBRInstrument_getPowerExternal(
     RBRInstrument *instrument,
@@ -319,7 +319,7 @@ RBRInstrumentError RBRInstrument_getPowerExternal(
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \see RBRInstrument_getPowerExternal()
- * \see https://docs.rbr-global.com/display/L3DOC/powerexternal
+ * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/powerexternal
  */
 RBRInstrumentError RBRInstrument_setPowerExternalBatteryType(
     RBRInstrument *instrument,
@@ -333,7 +333,7 @@ RBRInstrumentError RBRInstrument_setPowerExternalBatteryType(
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \see RBRInstrument_getPowerExternal()
- * \see https://docs.rbr-global.com/display/L3DOC/powerexternal
+ * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/powerexternal
  */
 RBRInstrumentError RBRInstrument_resetPowerExternalUsed(
     RBRInstrument *instrument);

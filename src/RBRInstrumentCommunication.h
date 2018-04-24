@@ -4,7 +4,7 @@
  * \brief Instrument commands and structures pertaining to the communication
  * interfaces of the instrument.
  *
- * \see https://docs.rbr-global.com/display/L3DOC/Communications
+ * \see https://docs.rbr-global.com/L3commandreference/commands/communications
  * \author Samuel Coleman <samuel.coleman@rbr-global.com>
  * \copyright Copyright (c) 2017 RBR Ltd
  */
@@ -20,7 +20,7 @@ extern "C" {
  * \brief Instrument link types.
  *
  * \see RBRInstrument_getLink()
- * \see https://docs.rbr-global.com/display/L3DOC/link
+ * \see https://docs.rbr-global.com/L3commandreference/commands/communications/link
  */
 typedef enum RBRInstrumentLink
 {
@@ -44,7 +44,7 @@ typedef enum RBRInstrumentLink
  * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see https://docs.rbr-global.com/display/L3DOC/link
+ * \see https://docs.rbr-global.com/L3commandreference/commands/communications/link
  */
 RBRInstrumentError RBRInstrument_getLink(
     RBRInstrument *instrument,
@@ -61,7 +61,7 @@ RBRInstrumentError RBRInstrument_getLink(
  * \see RBRInstrument_getSerial()
  * \see RBRInstrument_setSerial()
  * \see RBRInstrument_getAvailableSerialBaudRates()
- * \see https://docs.rbr-global.com/display/L3DOC/serial
+ * \see https://docs.rbr-global.com/L3commandreference/commands/communications/serial
  */
 typedef enum RBRInstrumentSerialBaudRate
 {
@@ -105,7 +105,7 @@ typedef enum RBRInstrumentSerialBaudRate
  * \see RBRInstrument_getSerial()
  * \see RBRInstrument_setSerial()
  * \see RBRInstrument_getAvailableSerialModes()
- * \see https://docs.rbr-global.com/display/L3DOC/serial
+ * \see https://docs.rbr-global.com/L3commandreference/commands/communications/serial
  */
 typedef enum RBRInstrumentSerialMode
 {
@@ -126,7 +126,7 @@ typedef enum RBRInstrumentSerialMode
  *
  * \see RBRInstrument_getSerial()
  * \see RBRInstrument_setSerial()
- * \see https://docs.rbr-global.com/display/L3DOC/serial
+ * \see https://docs.rbr-global.com/L3commandreference/commands/communications/serial
  */
 typedef struct RBRInstrumentSerial
 {
@@ -145,7 +145,7 @@ typedef struct RBRInstrumentSerial
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \see RBRInstrument_setSerial()
- * \see https://docs.rbr-global.com/display/L3DOC/serial
+ * \see https://docs.rbr-global.com/L3commandreference/commands/communications/serial
  */
 RBRInstrumentError RBRInstrument_getSerial(RBRInstrument *instrument,
                                            RBRInstrumentSerial *serial);
@@ -167,7 +167,7 @@ RBRInstrumentError RBRInstrument_getSerial(RBRInstrument *instrument,
  * \see RBRInstrument_getSerial()
  * \see RBRInstrument_getAvailableSerialBaudRates()
  * \see RBRInstrument_getAvailableSerialModes()
- * \see https://docs.rbr-global.com/display/L3DOC/sensor
+ * \see https://docs.rbr-global.com/L3commandreference/commands/communications/serial
  */
 RBRInstrumentError RBRInstrument_setSerial(RBRInstrument *instrument,
                                            const RBRInstrumentSerial *serial);
@@ -184,7 +184,7 @@ RBRInstrumentError RBRInstrument_setSerial(RBRInstrument *instrument,
  * \return #RBRINSTRUMENT_SUCCESS when the baud rates are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see https://docs.rbr-global.com/display/L3DOC/serial
+ * \see https://docs.rbr-global.com/L3commandreference/commands/communications/serial
  */
 RBRInstrumentError RBRInstrument_getAvailableSerialBaudRates(
     RBRInstrument *instrument,
@@ -202,7 +202,7 @@ RBRInstrumentError RBRInstrument_getAvailableSerialBaudRates(
  * \return #RBRINSTRUMENT_SUCCESS when the modes are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see https://docs.rbr-global.com/display/L3DOC/serial
+ * \see https://docs.rbr-global.com/L3commandreference/commands/communications/serial
  */
 RBRInstrumentError RBRInstrument_getAvailableSerialModes(
     RBRInstrument *instrument,
@@ -215,7 +215,7 @@ RBRInstrumentError RBRInstrument_getAvailableSerialModes(
  * \param [in] instrument the instrument connection
  * \return #RBRINSTRUMENT_SUCCESS when the instrument has been put to sleep
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see https://docs.rbr-global.com/display/L3DOC/sleep
+ * \see https://docs.rbr-global.com/L3commandreference/commands/communications/sleep
  */
 RBRInstrumentError RBRInstrument_sleep(RBRInstrument *instrument);
 
@@ -239,7 +239,7 @@ typedef enum RBRInstrumentWiFiState
  *
  * \see RBRInstrument_getWiFi()
  * \see RBRInstrument_setWiFi()
- * \see https://docs.rbr-global.com/display/L3DOC/wifi
+ * \see https://docs.rbr-global.com/L3commandreference/commands/communications/wifi
  */
 typedef struct RBRInstrumentWiFi
 {
@@ -283,7 +283,7 @@ typedef struct RBRInstrumentWiFi
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the feature is unavailable
  * \see RBRInstrument_setWiFi()
- * \see https://docs.rbr-global.com/display/L3DOC/wifi
+ * \see https://docs.rbr-global.com/L3commandreference/commands/communications/wifi
  */
 RBRInstrumentError RBRInstrument_getWiFi(RBRInstrument *instrument,
                                          RBRInstrumentWiFi *wifi);
@@ -302,7 +302,7 @@ RBRInstrumentError RBRInstrument_getWiFi(RBRInstrument *instrument,
  * \see RBRInstrument_getSerial()
  * \see RBRInstrument_getAvailableSerialBaudRates()
  * \see RBRInstrument_getAvailableSerialModes()
- * \see https://docs.rbr-global.com/display/L3DOC/sensor
+ * \see https://docs.rbr-global.com/L3commandreference/commands/communications/wifi
  */
 RBRInstrumentError RBRInstrument_setWiFi(RBRInstrument *instrument,
                                          const RBRInstrumentWiFi *wifi);

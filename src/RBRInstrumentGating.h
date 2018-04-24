@@ -3,7 +3,7 @@
  *
  * \brief Instrument commands and structures pertaining to gated sampling.
  *
- * \see https://docs.rbr-global.com/display/L3DOC/Gated+Sampling
+ * \see https://docs.rbr-global.com/L3commandreference/commands/gated-sampling
  * \author Samuel Coleman <samuel.coleman@rbr-global.com>
  * \copyright Copyright (c) 2017 RBR Ltd
  */
@@ -30,7 +30,7 @@ typedef enum RBRInstrumentGatingState
  * \brief Means of instrument thresholding channel selection.
  *
  * \see RBRInstrumentThresholding
- * \see https://docs.rbr-global.com/display/L3DOC/thresholding
+ * \see https://docs.rbr-global.com/L3commandreference/commands/gated-sampling/thresholding
  */
 typedef enum RBRInstrumentThresholdingChannelSelection
 {
@@ -44,7 +44,7 @@ typedef enum RBRInstrumentThresholdingChannelSelection
  * \brief Possible instrument thresholding conditions.
  *
  * \see RBRInstrumentThresholding
- * \see https://docs.rbr-global.com/display/L3DOC/thresholding
+ * \see https://docs.rbr-global.com/L3commandreference/commands/gated-sampling/thresholding
  */
 typedef enum RBRInstrumentThresholdingCondition
 {
@@ -63,7 +63,7 @@ typedef enum RBRInstrumentThresholdingCondition
  *
  * \see RBRInstrument_getThresholding()
  * \see RBRInstrument_setThresholding()
- * \see https://docs.rbr-global.com/display/L3DOC/thresholding
+ * \see https://docs.rbr-global.com/L3commandreference/commands/gated-sampling/thresholding
  */
 typedef struct RBRInstrumentThresholding
 {
@@ -130,7 +130,7 @@ typedef struct RBRInstrumentThresholding
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the feature is unavailable
- * \see https://docs.rbr-global.com/display/L3DOC/thresholding
+ * \see https://docs.rbr-global.com/L3commandreference/commands/gated-sampling/thresholding
  */
 RBRInstrumentError RBRInstrument_getThresholding(
     RBRInstrument *instrument,
@@ -154,7 +154,7 @@ RBRInstrumentError RBRInstrument_getThresholding(
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when parameter values are out
  *                                                of range
- * \see https://docs.rbr-global.com/display/L3DOC/thresholding
+ * \see https://docs.rbr-global.com/L3commandreference/commands/gated-sampling/thresholding
  */
 RBRInstrumentError RBRInstrument_setThresholding(
     RBRInstrument *instrument,
@@ -165,7 +165,7 @@ RBRInstrumentError RBRInstrument_setThresholding(
  *
  * \see RBRInstrument_getTwistActivation()
  * \see RBRInstrument_setTwistActivation()
- * \see https://docs.rbr-global.com/display/L3DOC/twistactivation
+ * \see https://docs.rbr-global.com/L3commandreference/commands/gated-sampling/twistactivation
  */
 typedef struct RBRInstrumentTwistActivation
 {
@@ -188,7 +188,7 @@ typedef struct RBRInstrumentTwistActivation
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the feature is unavailable
- * \see https://docs.rbr-global.com/display/L3DOC/twistactivation
+ * \see https://docs.rbr-global.com/L3commandreference/commands/gated-sampling/twistactivation
  */
 RBRInstrumentError RBRInstrument_getTwistActivation(
     RBRInstrument *instrument,
@@ -208,7 +208,7 @@ RBRInstrumentError RBRInstrument_getTwistActivation(
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
- * \see https://docs.rbr-global.com/display/L3DOC/twistactivation
+ * \see https://docs.rbr-global.com/L3commandreference/commands/gated-sampling/twistactivation
  */
 RBRInstrumentError RBRInstrument_setTwistActivation(
     RBRInstrument *instrument,

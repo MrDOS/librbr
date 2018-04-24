@@ -266,7 +266,7 @@ typedef enum RBRInstrumentMessageType
  * For a non-comprehensive list of possible error messages, see the [command
  * reference page on error messages][0].
  *
- * [0]: https://docs.rbr-global.com/display/L3DOC/Error+messages.
+ * [0]: https://docs.rbr-global.com/L3commandreference/error-messages.
  */
 typedef struct RBRInstrumentMessage
 {

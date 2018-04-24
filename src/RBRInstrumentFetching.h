@@ -4,7 +4,7 @@
  * \brief Instrument commands and structures pertaining to on-demand data
  * acquisition.
  *
- * \see https://docs.rbr-global.com/display/L3DOC/Data+sample
+ * \see https://docs.rbr-global.com/L3commandreference/commands/data-sample
  * \author Samuel Coleman <samuel.coleman@rbr-global.com>
  * \copyright Copyright (c) 2017 RBR Ltd
  */

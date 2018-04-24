@@ -3,7 +3,7 @@
  *
  * \brief Instrument commands and structures pertaining to time and schedule.
  *
- * \see https://docs.rbr-global.com/display/L3DOC/Time+and+Schedule
+ * \see https://docs.rbr-global.com/L3commandreference/commands/time-and-schedule
  * \author Samuel Coleman <samuel.coleman@rbr-global.com>
  * \copyright Copyright (c) 2017 RBR Ltd
  */
@@ -28,7 +28,7 @@ extern "C" {
  *
  * \see RBRInstrument_getClock()
  * \see RBRInstrument_setClock()
- * \see https://docs.rbr-global.com/display/L3DOC/clock
+ * \see https://docs.rbr-global.com/L3commandreference/commands/time-and-schedule/clock
  */
 typedef struct RBRInstrumentClock
 {
@@ -71,7 +71,7 @@ typedef struct RBRInstrumentClock
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see https://docs.rbr-global.com/display/L3DOC/clock
+ * \see https://docs.rbr-global.com/L3commandreference/commands/time-and-schedule/clock
  */
 RBRInstrumentError RBRInstrument_getClock(RBRInstrument *instrument,
                                           RBRInstrumentClock *clock);
@@ -92,7 +92,7 @@ RBRInstrumentError RBRInstrument_getClock(RBRInstrument *instrument,
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when the clock values are out
  *                                                of range
- * \see https://docs.rbr-global.com/display/L3DOC/clock
+ * \see https://docs.rbr-global.com/L3commandreference/commands/time-and-schedule/clock
  */
 RBRInstrumentError RBRInstrument_setClock(RBRInstrument *instrument,
                                           const RBRInstrumentClock *clock);
@@ -101,7 +101,7 @@ RBRInstrumentError RBRInstrument_setClock(RBRInstrument *instrument,
  * \brief Possible instrument sampling modes.
  *
  * \see RBRInstrumentSampling
- * \see https://docs.rbr-global.com/display/L3DOC/sampling
+ * \see https://docs.rbr-global.com/L3commandreference/commands/time-and-schedule/sampling
  */
 typedef enum RBRInstrumentSamplingMode
 {
@@ -135,8 +135,8 @@ typedef enum RBRInstrumentSamplingMode
  *
  * \see RBRInstrumentSampling
  * \see RBRInstrumentGating.h
- * \see https://docs.rbr-global.com/display/L3DOC/sampling
- * \see https://docs.rbr-global.com/display/L3DOC/Gated+Sampling
+ * \see https://docs.rbr-global.com/L3commandreference/commands/time-and-schedule/sampling
+ * \see https://docs.rbr-global.com/L3commandreference/commands/gated-sampling
  */
 typedef enum RBRInstrumentGatingCondition
 {
@@ -169,7 +169,7 @@ typedef enum RBRInstrumentGatingCondition
  *
  * \see RBRInstrument_getSampling()
  * \see RBRInstrument_setSampling()
- * \see https://docs.rbr-global.com/display/L3DOC/sampling
+ * \see https://docs.rbr-global.com/L3commandreference/commands/time-and-schedule/sampling
  */
 typedef struct RBRInstrumentSampling
 {
@@ -230,7 +230,7 @@ typedef struct RBRInstrumentSampling
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see https://docs.rbr-global.com/display/L3DOC/sampling
+ * \see https://docs.rbr-global.com/L3commandreference/commands/time-and-schedule/sampling
  */
 RBRInstrumentError RBRInstrument_getSampling(
     RBRInstrument *instrument,
@@ -253,7 +253,7 @@ RBRInstrumentError RBRInstrument_getSampling(
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when parameter values are out
  *                                                of range
- * \see https://docs.rbr-global.com/display/L3DOC/sampling
+ * \see https://docs.rbr-global.com/L3commandreference/commands/time-and-schedule/sampling
  */
 RBRInstrumentError RBRInstrument_setSampling(
     RBRInstrument *instrument,
@@ -263,11 +263,10 @@ RBRInstrumentError RBRInstrument_setSampling(
  * \brief Possible instrument logging statuses.
  *
  * \see RBRInstrumentDeployment
+ * \see RBRInstrument_getDeployment()
  * \see RBRInstrument_enable()
- * \see RBRInstrument_getStatus()
- * \see https://docs.rbr-global.com/display/L3DOC/deploymdfent
- * \see https://docs.rbr-global.com/display/L3DOC/enable
- * \see https://docs.rbr-global.com/display/L3DOC/status
+ * \see https://docs.rbr-global.com/L3commandreference/commands/time-and-schedule/deployment
+ * \see https://docs.rbr-global.com/L3commandreference/commands/deployments/enable
  */
 typedef enum RBRInstrumentDeploymentStatus
 {
@@ -308,7 +307,7 @@ typedef enum RBRInstrumentDeploymentStatus
  *
  * \see RBRInstrument_getDeployment()
  * \see RBRInstrument_setDeployment()
- * \see https://docs.rbr-global.com/display/L3DOC/deploymdfent
+ * \see https://docs.rbr-global.com/L3commandreference/commands/time-and-schedule/deployment
  */
 typedef struct RBRInstrumentDeployment
 {
@@ -332,7 +331,7 @@ typedef struct RBRInstrumentDeployment
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see https://docs.rbr-global.com/display/L3DOC/deploymdfent
+ * \see https://docs.rbr-global.com/L3commandreference/commands/time-and-schedule/deployment
  */
 RBRInstrumentError RBRInstrument_getDeployment(
     RBRInstrument *instrument,
@@ -357,7 +356,7 @@ RBRInstrumentError RBRInstrument_getDeployment(
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when the start or end time
  *                                                values are out of range
- * \see https://docs.rbr-global.com/display/L3DOC/deploymdfent
+ * \see https://docs.rbr-global.com/L3commandreference/commands/time-and-schedule/deployment
  */
 RBRInstrumentError RBRInstrument_setDeployment(
     RBRInstrument *instrument,

@@ -11,7 +11,7 @@
  * strongly suggest that you disable streaming data to avoid wasted bandwidth
  * and parsing overhead to ignore the streaming data emitted by the instrument.
  *
- * \see https://docs.rbr-global.com/display/L3DOC/Other+Deployment+Settings
+ * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data
  * \author Samuel Coleman <samuel.coleman@rbr-global.com>
  * \copyright Copyright (c) 2017 RBR Ltd
  */
@@ -33,7 +33,7 @@ extern "C" {
  * \brief Response to the `outputformat channelslist` command.
  *
  * \see RBRInstrument_getChannelsList()
- * \see https://docs.rbr-global.com/display/L3DOC/outputformat
+ * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data/outputformat
  */
 typedef struct RBRInstrumentChannelsList
 {
@@ -68,7 +68,7 @@ typedef struct RBRInstrumentChannelsList
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the command is unavailable
  * \see RBRInstrument_getLabelsList()
- * \see https://docs.rbr-global.com/display/L3DOC/outputformat
+ * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data/outputformat
  */
 RBRInstrumentError RBRInstrument_getChannelsList(
     RBRInstrument *instrument,
@@ -78,7 +78,7 @@ RBRInstrumentError RBRInstrument_getChannelsList(
  * \brief Response to the `outputformat labelslist` command.
  *
  * \see RBRInstrument_getLabelsList()
- * \see https://docs.rbr-global.com/display/L3DOC/outputformat
+ * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data/outputformat
  */
 typedef struct RBRInstrumentLabelsList
 {
@@ -108,7 +108,7 @@ typedef struct RBRInstrumentLabelsList
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the command is unavailable
  * \see RBRInstrument_getChannelsList()
- * \see https://docs.rbr-global.com/display/L3DOC/outputformat
+ * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data/outputformat
  */
 RBRInstrumentError RBRInstrument_getLabelsList(
     RBRInstrument *instrument,
@@ -120,7 +120,7 @@ RBRInstrumentError RBRInstrument_getLabelsList(
  * \see RBRInstrument_getAvailableOutputFormats()
  * \see RBRInstrument_getOutputFormat()
  * \see RBRInstrument_setOutputFormat()
- * \see https://docs.rbr-global.com/display/L3DOC/outputformat
+ * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data/outputformat
  */
 typedef enum RBRInstrumentOutputFormat
 {
@@ -149,7 +149,7 @@ typedef enum RBRInstrumentOutputFormat
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see https://docs.rbr-global.com/display/L3DOC/outputformat
+ * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data/outputformat
  */
 RBRInstrumentError RBRInstrument_getAvailableOutputFormats(
     RBRInstrument *instrument,
@@ -163,7 +163,7 @@ RBRInstrumentError RBRInstrument_getAvailableOutputFormats(
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see https://docs.rbr-global.com/display/L3DOC/outputformat
+ * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data/outputformat
  */
 RBRInstrumentError RBRInstrument_getOutputFormat(
     RBRInstrument *instrument,
@@ -179,7 +179,7 @@ RBRInstrumentError RBRInstrument_getOutputFormat(
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when an unavailable output format is
  *                                       selected
- * \see https://docs.rbr-global.com/display/L3DOC/outputformat
+ * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data/outputformat
  */
 RBRInstrumentError RBRInstrument_setOutputFormat(
     RBRInstrument *instrument,
@@ -194,7 +194,7 @@ RBRInstrumentError RBRInstrument_setOutputFormat(
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when USB streaming is unavailable
- * \see https://docs.rbr-global.com/display/L3DOC/streamusb
+ * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data/streamusb
  */
 RBRInstrumentError RBRInstrument_getUSBStreamingState(
     RBRInstrument *instrument,
@@ -209,7 +209,7 @@ RBRInstrumentError RBRInstrument_getUSBStreamingState(
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when USB streaming is unavailable
- * \see https://docs.rbr-global.com/display/L3DOC/outputformat
+ * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data/streamusb
  */
 RBRInstrumentError RBRInstrument_setUSBStreamingState(
     RBRInstrument *instrument,
@@ -224,7 +224,7 @@ RBRInstrumentError RBRInstrument_setUSBStreamingState(
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when serial streaming is unavailable
- * \see https://docs.rbr-global.com/display/L3DOC/streamserial
+ * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data/streamserial
  */
 RBRInstrumentError RBRInstrument_getSerialStreamingState(
     RBRInstrument *instrument,
@@ -239,7 +239,7 @@ RBRInstrumentError RBRInstrument_getSerialStreamingState(
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when serial streaming is unavailable
- * \see https://docs.rbr-global.com/display/L3DOC/streamserial
+ * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data/streamserial
  */
 RBRInstrumentError RBRInstrument_setSerialStreamingState(
     RBRInstrument *instrument,
@@ -250,7 +250,7 @@ RBRInstrumentError RBRInstrument_setSerialStreamingState(
  * data transmission, and hold time.
  *
  * \see RBRInstrumentAuxOutput
- * \see https://docs.rbr-global.com/display/L3DOC/streamserial
+ * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data/streamserial
  */
 typedef enum RBRInstrumentAuxOutputActiveLevel
 {
@@ -265,7 +265,7 @@ typedef enum RBRInstrumentAuxOutputActiveLevel
  * is asleep.
  *
  * \see RBRInstrumentAuxOutput
- * \see https://docs.rbr-global.com/display/L3DOC/streamserial
+ * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data/streamserial
  */
 typedef enum RBRInstrumentAuxOutputSleepLevel
 {
@@ -283,7 +283,7 @@ typedef enum RBRInstrumentAuxOutputSleepLevel
  *
  * \see RBRInstrument_getAuxOutput()
  * \see RBRInstrument_setAuxOutput()
- * \see https://docs.rbr-global.com/display/L3DOC/streamserial
+ * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data/streamserial
  */
 typedef struct RBRInstrumentAuxOutput
 {
@@ -350,7 +350,7 @@ typedef struct RBRInstrumentAuxOutput
  *                                       unavailable
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when the auxiliary output
  *                                                signal index is not `1`
- * \see https://docs.rbr-global.com/display/L3DOC/streamserial
+ * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data/streamserial
  */
 RBRInstrumentError RBRInstrument_getAuxOutput(
     RBRInstrument *instrument,
@@ -372,7 +372,7 @@ RBRInstrumentError RBRInstrument_getAuxOutput(
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when parameter values are out
  *                                                of range
- * \see https://docs.rbr-global.com/display/L3DOC/streamserial
+ * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data/streamserial
  */
 RBRInstrumentError RBRInstrument_setAuxOutput(
     RBRInstrument *instrument,

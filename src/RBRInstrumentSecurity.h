@@ -4,7 +4,7 @@
  * \brief Instrument commands and structures pertaining to command security and
  * interaction.
  *
- * \see https://docs.rbr-global.com/display/L3DOC/Other+Information
+ * \see https://docs.rbr-global.com/L3commandreference/commands/security-and-interaction
  * \author Samuel Coleman <samuel.coleman@rbr-global.com>
  * \copyright Copyright (c) 2017 RBR Ltd
  */

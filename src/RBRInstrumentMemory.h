@@ -4,7 +4,7 @@
  * \brief Instrument commands and structures pertaining to memory and data
  * retrieval.
  *
- * \see https://docs.rbr-global.com/display/L3DOC/Memory+and+Data+Retrieval
+ * \see https://docs.rbr-global.com/L3commandreference/commands/memory-and-data-retrieval
  * \author Samuel Coleman <samuel.coleman@rbr-global.com>
  * \copyright Copyright (c) 2017 RBR Ltd
  */
@@ -33,7 +33,7 @@ typedef enum RBRInstrumentDataset
  * \brief Instrument `meminfo` command parameters.
  *
  * \see RBRInstrument_getMemoryInfo()
- * \see https://docs.rbr-global.com/display/L3DOC/meminfo
+ * \see https://docs.rbr-global.com/L3commandreference/commands/memory-and-data-retrieval/meminfo
  */
 typedef struct RBRInstrumentMemoryInfo
 {
@@ -66,17 +66,17 @@ typedef struct RBRInstrumentMemoryInfo
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when an invalid dataset is
  *                                                requested
- * \see https://docs.rbr-global.com/display/L3DOC/meminfo
+ * \see https://docs.rbr-global.com/L3commandreference/commands/memory-and-data-retrieval/meminfo
  */
 RBRInstrumentError RBRInstrument_getMemoryInfo(
     RBRInstrument *instrument,
     RBRInstrumentMemoryInfo *memoryInfo);
 
 /**
- * \brief Instrument `data` command parameters.
+ * \brief Instrument `readdata` command parameters.
  *
- * \see RBRInstrument_read()
- * \see https://docs.rbr-global.com/display/L3DOC/read
+ * \see RBRInstrument_readData()
+ * \see https://docs.rbr-global.com/L3commandreference/commands/memory-and-data-retrieval/readdata
  */
 typedef struct RBRInstrumentData
 {
@@ -93,7 +93,7 @@ typedef struct RBRInstrumentData
 /**
  * \brief Request a chunk of binary data from instrument data memory.
  *
- * When calling RBRInstrument_read(), \a data must be populated:
+ * When calling RBRInstrument_readData(), \a data must be populated:
  *
  * - RBRInstrumentData.dataset must be the index of the dataset to read from
  * - RBRInstrumentData.length must be the maximum amount of data to read
@@ -125,7 +125,7 @@ typedef struct RBRInstrumentData
  * data.dataset = RBRINSTRUMENT_STANDARD_DATASET;
  * data.length = 1400;
  * data.offset = 2800;
- * RBRInstrument_read(instrument, &data);
+ * RBRInstrument_readData(instrument, &data);
  * fwrite(data.data, data.length, 1, datasetFile);
  * ~~~
  *
@@ -137,10 +137,10 @@ typedef struct RBRInstrumentData
  * \return #RBRINSTRUMENT_HARDWARE_ERROR in the event of a CRC failure
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when an invalid dataset is
  *                                                requested
- * \see https://docs.rbr-global.com/display/L3DOC/meminfo
+ * \see https://docs.rbr-global.com/L3commandreference/commands/memory-and-data-retrieval/readdata
  */
-RBRInstrumentError RBRInstrument_read(RBRInstrument *instrument,
-                                      RBRInstrumentData *data);
+RBRInstrumentError RBRInstrument_readData(RBRInstrument *instrument,
+                                          RBRInstrumentData *data);
 
 /**
  * \brief Clear the data storage area of the flash memory.
@@ -153,7 +153,7 @@ RBRInstrumentError RBRInstrument_read(RBRInstrument *instrument,
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the memory failed to erase
- * \see https://docs.rbr-global.com/display/L3DOC/meminfo
+ * \see https://docs.rbr-global.com/L3commandreference/commands/memory-and-data-retrieval/memclear
  */
 RBRInstrumentError RBRInstrument_memoryClear(RBRInstrument *instrument);
 
@@ -164,7 +164,7 @@ RBRInstrumentError RBRInstrument_memoryClear(RBRInstrument *instrument);
  * \see RBRInstrument_getCurrentMemoryFormat()
  * \see RBRInstrument_getNewMemoryFormat()
  * \see RBRInstrument_setNewMemoryFormat()
- * \see https://docs.rbr-global.com/display/L3DOC/memformat
+ * \see https://docs.rbr-global.com/L3commandreference/commands/memory-and-data-retrieval/memformat
  */
 typedef enum RBRInstrumentMemoryFormat
 {
@@ -188,7 +188,7 @@ typedef enum RBRInstrumentMemoryFormat
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see https://docs.rbr-global.com/display/L3DOC/memformat
+ * \see https://docs.rbr-global.com/L3commandreference/commands/memory-and-data-retrieval/memformat
  */
 RBRInstrumentError RBRInstrument_getAvailableMemoryFormats(
     RBRInstrument *instrument,
@@ -207,7 +207,7 @@ RBRInstrumentError RBRInstrument_getAvailableMemoryFormats(
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see https://docs.rbr-global.com/display/L3DOC/memformat
+ * \see https://docs.rbr-global.com/L3commandreference/commands/memory-and-data-retrieval/memformat
  */
 RBRInstrumentError RBRInstrument_getCurrentMemoryFormat(
     RBRInstrument *instrument,
@@ -221,7 +221,7 @@ RBRInstrumentError RBRInstrument_getCurrentMemoryFormat(
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see https://docs.rbr-global.com/display/L3DOC/memformat
+ * \see https://docs.rbr-global.com/L3commandreference/commands/memory-and-data-retrieval/memformat
  */
 RBRInstrumentError RBRInstrument_getNewMemoryFormat(
     RBRInstrument *instrument,
@@ -243,7 +243,7 @@ RBRInstrumentError RBRInstrument_getNewMemoryFormat(
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the instrument is logging or if
  *                                       an unavailable memory format is
  *                                       selected
- * \see https://docs.rbr-global.com/display/L3DOC/memformat
+ * \see https://docs.rbr-global.com/L3commandreference/commands/memory-and-data-retrieval/memformat
  */
 RBRInstrumentError RBRInstrument_setNewMemoryFormat(
     RBRInstrument *instrument,

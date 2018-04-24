@@ -4,7 +4,7 @@
  * \brief Instrument commands and structures pertaining to instrument
  * configuration information and calibration.
  *
- * \see https://docs.rbr-global.com/display/L3DOC/Configuration+Information+and+Calibration
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration
  * \author Samuel Coleman <samuel.coleman@rbr-global.com>
  * \copyright Copyright (c) 2017 RBR Ltd
  */
@@ -113,7 +113,7 @@ typedef struct RBRInstrumentChannel
      *
      * E.g., “temp09”, “pres19”, “cond05”.
      *
-     * \see https://docs.rbr-global.com/display/L3DOC/Supported+Channel+Types
+     * \see https://docs.rbr-global.com/L3commandreference/supported-channel-types
      */
     char type[RBRINSTRUMENT_CHANNEL_TYPE_MAX + 1];
     /** \brief The internal address to which the channel responds. */
@@ -162,9 +162,9 @@ typedef struct RBRInstrumentChannel
  * `channel`, and `calibration` commands.
  *
  * \see RBRInstrument_getChannels()
- * \see https://docs.rbr-global.com/display/L3DOC/channels
- * \see https://docs.rbr-global.com/display/L3DOC/channel
- * \see https://docs.rbr-global.com/display/L3DOC/calibration
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/channels
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/channel
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/calibration
  */
 typedef struct RBRInstrumentChannels
 {
@@ -217,9 +217,9 @@ typedef struct RBRInstrumentChannels
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \see RBRInstrument_getSensorParameters()
- * \see https://docs.rbr-global.com/display/L3DOC/channels
- * \see https://docs.rbr-global.com/display/L3DOC/channel
- * \see https://docs.rbr-global.com/display/L3DOC/calibration
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/channels
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/channel
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/calibration
  */
 RBRInstrumentError RBRInstrument_getChannels(RBRInstrument *instrument,
                                              RBRInstrumentChannels *channels);
@@ -235,7 +235,7 @@ RBRInstrumentError RBRInstrument_getChannels(RBRInstrument *instrument,
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
  * \see RBRInstrument_getChannels()
- * \see https://docs.rbr-global.com/display/L3DOC/channel
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/channel
  */
 RBRInstrumentError RBRInstrument_setChannelStatus(RBRInstrument *instrument,
                                                   uint8_t channel,
@@ -266,7 +266,7 @@ RBRInstrumentError RBRInstrument_setChannelStatus(RBRInstrument *instrument,
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when no coefficients are
  *                                                populated
  * \see RBRInstrument_getChannels()
- * \see https://docs.rbr-global.com/display/L3DOC/calibration
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/calibration
  */
 RBRInstrumentError RBRInstrument_setCalibration(
     RBRInstrument *instrument,
@@ -286,7 +286,7 @@ RBRInstrumentError RBRInstrument_setCalibration(
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \see RBRInstrument_setFetchPowerOffDelay()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/settings
  */
 RBRInstrumentError RBRInstrument_getFetchPowerOffDelay(
     RBRInstrument *instrument,
@@ -307,7 +307,7 @@ RBRInstrumentError RBRInstrument_getFetchPowerOffDelay(
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
  * \see RBRInstrument_getFetchPowerOffDelay()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/settings
  */
 RBRInstrumentError RBRInstrument_setFetchPowerOffDelay(
     RBRInstrument *instrument,
@@ -326,7 +326,7 @@ RBRInstrumentError RBRInstrument_setFetchPowerOffDelay(
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \see RBRInstrument_setSensorPowerAlwaysOn()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/settings
  */
 RBRInstrumentError RBRInstrument_isSensorPowerAlwaysOn(
     RBRInstrument *instrument,
@@ -344,7 +344,7 @@ RBRInstrumentError RBRInstrument_isSensorPowerAlwaysOn(
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
  * \see RBRInstrument_isSensorPowerAlwaysOn()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/settings
  */
 RBRInstrumentError RBRInstrument_setSensorPowerAlwaysOn(
     RBRInstrument *instrument,
@@ -362,7 +362,7 @@ RBRInstrumentError RBRInstrument_setSensorPowerAlwaysOn(
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \see RBRInstrument_setCastDetection()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/settings
  */
 RBRInstrumentError RBRInstrument_getCastDetection(RBRInstrument *instrument,
                                                   bool *castDetection);
@@ -379,7 +379,7 @@ RBRInstrumentError RBRInstrument_getCastDetection(RBRInstrument *instrument,
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
  * \see RBRInstrument_getCastDetection()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/settings
  */
 RBRInstrumentError RBRInstrument_setCastDetection(RBRInstrument *instrument,
                                                   bool castDetection);
@@ -396,7 +396,7 @@ RBRInstrumentError RBRInstrument_setCastDetection(RBRInstrument *instrument,
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \see RBRInstrument_setInputTimeout()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/settings
  */
 RBRInstrumentError RBRInstrument_getInputTimeout(
     RBRInstrument *instrument,
@@ -414,7 +414,7 @@ RBRInstrumentError RBRInstrument_getInputTimeout(
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging
  * \see RBRInstrument_getInputTimeout()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/settings
  */
 RBRInstrumentError RBRInstrument_setInputTimeout(
     RBRInstrument *instrument,
@@ -430,7 +430,7 @@ RBRInstrumentError RBRInstrument_setInputTimeout(
  *
  * \see RBRInstrument_getValueSetting()
  * \see RBRInstrument_setValueSetting()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/settings
  */
 typedef enum RBRInstrumentValueSetting
 {
@@ -501,7 +501,7 @@ typedef enum RBRInstrumentValueSetting
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when an unrecognized setting
  *                                                is requested
  * \see RBRInstrument_setValueSetting()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/settings
  */
 RBRInstrumentError RBRInstrument_getValueSetting(
     RBRInstrument *instrument,
@@ -524,7 +524,7 @@ RBRInstrumentError RBRInstrument_getValueSetting(
  *                                                is requested or when the
  *                                                value is NaN
  * \see RBRInstrument_getValueSetting()
- * \see https://docs.rbr-global.com/display/L3DOC/settings
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/settings
  */
 RBRInstrumentError RBRInstrument_setValueSetting(
     RBRInstrument *instrument,
@@ -578,7 +578,7 @@ typedef struct RBRInstrumentSensorParameters
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \see RBRInstrument_getChannels()
  * \see RBRInstrument_setSensorParameter()
- * \see https://docs.rbr-global.com/display/L3DOC/sensor
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/sensor
  */
 RBRInstrumentError RBRInstrument_getSensorParameters(
     RBRInstrument *instrument,
@@ -611,7 +611,7 @@ RBRInstrumentError RBRInstrument_getSensorParameters(
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when a name/value is too long
  * \see RBRInstrument_getChannels()
  * \see RBRInstrument_getSensorParameters()
- * \see https://docs.rbr-global.com/display/L3DOC/sensor
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/sensor
  */
 RBRInstrumentError RBRInstrument_setSensorParameter(
     RBRInstrument *instrument,
