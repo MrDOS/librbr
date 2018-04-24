@@ -176,7 +176,7 @@ typedef enum RBRInstrumentGeneration
  * \brief Callback to read data from the physical instrument.
  *
  * Library functions will call this user code to read data from the instrument.
- * This function should block until data any available (even if only a single
+ * This function should block until data is available (even if only a single
  * byte) or until the timeout has elapsed, then return. It will be called
  * multiple times in quick succession if the library requires more data.
  *
