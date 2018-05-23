@@ -14,13 +14,13 @@
 extern "C" {
 #endif
 
+#include "RBRInstrumentConfiguration.h"
 #include "RBRInstrumentSchedule.h"
 #include "RBRInstrumentGating.h"
 #include "RBRInstrumentVehicle.h"
 #include "RBRInstrumentStreaming.h"
 #include "RBRInstrumentDeployment.h"
 #include "RBRInstrumentMemory.h"
-#include "RBRInstrumentConfiguration.h"
 #include "RBRInstrumentCommunication.h"
 #include "RBRInstrumentOther.h"
 #include "RBRInstrumentFetching.h"

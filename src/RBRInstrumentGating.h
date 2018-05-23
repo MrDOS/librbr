@@ -92,7 +92,7 @@ typedef struct RBRInstrumentThresholding
      * field will only be used when RBRInstrumentThresholding.channelSelection
      * is set to #RBRINSTRUMENT_THRESHOLD_CHANNEL_BY_INDEX.
      */
-    uint8_t channelIndex;
+    RBRInstrumentChannelIndex channelIndex;
     /**
      * \brief The label of the channel to use for the threshold check.
      *

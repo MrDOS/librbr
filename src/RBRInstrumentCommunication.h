@@ -257,14 +257,14 @@ typedef struct RBRInstrumentWiFi
      *
      * Specified in seconds. Must be in the range 5—600.
      */
-    size_t timeout;
+    int32_t timeout;
     /**
      * \brief How long the instrument will wait between commands after the
      * first command before powering down the Wi-Fi radio.
      *
      * Specified in seconds. Must be in the range 5—600.
      */
-    size_t commandTimeout;
+    int32_t commandTimeout;
     /**
      * \brief The speed of the internal connection between the instrument's CPU
      * and the Wi-Fi radio.

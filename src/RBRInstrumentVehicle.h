@@ -62,7 +62,7 @@ typedef struct RBRInstrumentRegimes
      *
      * Must be in the range 0–3.
      */
-    uint8_t count;
+    int32_t count;
     /** \brief The pressure type used for regime and bin determination. */
     RBRInstrumentRegimesReference reference;
 } RBRInstrumentRegimes;
@@ -107,6 +107,9 @@ RBRInstrumentError RBRInstrument_setRegimes(
     RBRInstrument *instrument,
     const RBRInstrumentRegimes *regimes);
 
+/** \brief A regime identifier. */
+typedef uint8_t RBRInstrumentRegimeIndex;
+
 /**
  * \brief Instrument `regime` command parameters.
  *
@@ -124,7 +127,7 @@ typedef struct RBRInstrumentRegime
      *
      * Must be in the range 1–3.
      */
-    uint8_t index;
+    RBRInstrumentRegimeIndex index;
     /**
      * \brief The first boundary in a region.
      *

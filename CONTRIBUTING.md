@@ -64,14 +64,33 @@ Technical pedantry:
   This means, among other things:
   * No GNU extensions.
   * Use only compile-time constant-size arrays.
+  * Use C-style (`/* ... */`) comments,
+    not C++-style comments (`// ...`).
+* Use types to help error checking.
+  Even if your compiler doesn't mind you
+  using a `uint8_t` interchangeably with `RBRInstrumentChannelIndex`,
+  using a specific type can assist static analysis tools
+  and makes type interchange mistakes easier
+  for human readers to spot.
+* Speaking of number types:
   * Always use specifically-sized types from `inttypes.h`
     (e.g., `uint8_t`, `int32_t`)
     instead of platform-specific types
     (e.g., `unsigned char`, `int`)
     when dealing with data.
   * Prefer specifically-sized types elsewhere, too.
-  * Use C-style (`/* ... */`) comments,
-    not C++-style comments (`// ...`).
+  * Prefer signed numbers over unsigned
+    wherever there's any chance that the value might be used
+    in arithmetic expressions
+    (i.e., where the number is a number,
+    not an identifier).
+  * Conventionally, `int32_t` is used as a counter
+    even where it's far larger than necessary.
+    This sort of consistency helps reduce mental overhead.
+* Most functions should return an `RBRInstrumentError`
+  and pass actual values back to the caller via out pointers.
+  Only the most trivial or pure functions
+  should return a value directly.
 * Use UpperCamelCase type names
   and camelCase variable names.
   Use TypeName_functionName for the names
@@ -122,19 +141,19 @@ A short example:
  * \param [in] becauseTheyFitOnTheLine a description of the second parameter
  * \return a description of the return value
  */
-uint32_t RBRInstrument_examplePrototype(RBRInstrument *instrument,
-                                        uint32_t theseParametersAreAligned,
-                                        uint32_t *becauseTheyFitOnTheLine);
+int32_t RBRInstrument_examplePrototype(RBRInstrument *instrument,
+                                       int32_t theseParametersAreAligned,
+                                       int32_t *becauseTheyFitOnTheLine);
 
-uint32_t RBRInstrument_exampleOfAReallyLongFunctionName(
+RBRInstrumentError RBRInstrument_exampleOfAReallyLongFunctionName(
     RBRInstrument *instrument,
-    uint32_t theseParametersAreAllWrappedAndBroken,
-    uint32_t becauseTheyWouldPushPastTheLineLengthLimit,
-    uint32_t evenIf,
+    int32_t theseParametersAreAllWrappedAndBroken,
+    int32_t becauseTheyWouldPushPastTheLineLengthLimit,
+    int32_t evenIf,
     uint8_t *someWouldFit,
-    size_t onTheSameLine)
+    int32_t onTheSameLine)
 {
-    size_t i;
+    int32_t i;
 
     for (i = 0; i < onTheSameLine; i++)
     {

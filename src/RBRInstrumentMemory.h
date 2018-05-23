@@ -40,11 +40,11 @@ typedef struct RBRInstrumentMemoryInfo
     /** \brief The index of the dataset being queried. */
     RBRInstrumentDataset dataset;
     /** \brief The number of bytes being used to store data in the dataset. */
-    uint32_t used;
+    int32_t used;
     /** \brief The number of bytes available for data storage. */
-    uint32_t remaining;
+    int32_t remaining;
     /** \brief The maximum total size of the dataset in bytes. */
-    uint32_t size;
+    int32_t size;
 } RBRInstrumentMemoryInfo;
 
 /**
@@ -83,9 +83,9 @@ typedef struct RBRInstrumentData
     /** \brief The index of the dataset being queried. */
     RBRInstrumentDataset dataset;
     /** \brief The amount of data read. */
-    uint32_t length;
+    int32_t length;
     /** \brief The offset in memory of the data. */
-    uint32_t offset;
+    int32_t offset;
     /** \brief The data read from the instrument. */
     void *data;
 } RBRInstrumentData;

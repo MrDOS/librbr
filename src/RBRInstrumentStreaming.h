@@ -38,7 +38,7 @@ extern "C" {
 typedef struct RBRInstrumentChannelsList
 {
     /** \brief The number of active channels. */
-    size_t count;
+    int32_t count;
     /** \brief The name and units for each active channel. */
     struct
     {
@@ -83,7 +83,7 @@ RBRInstrumentError RBRInstrument_getChannelsList(
 typedef struct RBRInstrumentLabelsList
 {
     /** \brief The number of active channels. */
-    size_t count;
+    int32_t count;
     /**
      * \brief The label for each active channel as null-terminated C strings.
      */
@@ -305,7 +305,7 @@ typedef struct RBRInstrumentAuxOutput
      * Specified in milliseconds. Must be in the range 10—120,000 (10 ms to 2
      * minutes). The default value is 1,000.
      */
-    uint32_t setup;
+    int32_t setup;
     /**
      * \brief The signal hold time.
      *
@@ -315,7 +315,7 @@ typedef struct RBRInstrumentAuxOutput
      * Specified in milliseconds. Must be in the range 10—120,000 (10 ms to 2
      * minutes). The default value is 1,000.
      */
-    uint32_t hold;
+    int32_t hold;
     /**
      * \brief The active level of the auxiliary output signal seen by the
      * external device during the setup time, data transmission, and hold time.

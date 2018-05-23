@@ -186,12 +186,12 @@ typedef struct RBRInstrumentPowerInternal
      *
      * \readonly
      */
-    uint32_t capacity;
+    int32_t capacity;
     /**
      * \brief The accumulated energy used from the internal battery since the
      * value was last reset.
      */
-    uint32_t used;
+    int32_t used;
 } RBRInstrumentPowerInternal;
 
 /**
@@ -286,12 +286,12 @@ typedef struct RBRInstrumentPowerExternal
      *
      * \readonly
      */
-    uint32_t capacity;
+    int32_t capacity;
     /**
      * \brief The accumulated energy used from the external battery since the
      * value was last reset.
      */
-    uint32_t used;
+    int32_t used;
 } RBRInstrumentPowerExternal;
 
 /**

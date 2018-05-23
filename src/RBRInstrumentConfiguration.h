@@ -71,6 +71,12 @@ extern "C" {
  */
 #define RBRINSTRUMENT_SENSOR_PARAMETERS_MAX 8
 
+/** \brief A channel identifier. */
+typedef uint8_t RBRInstrumentChannelIndex;
+
+/** \brief An internal module identifier. */
+typedef uint8_t RBRInstrumentModuleAddress;
+
 /**
  * \brief A channel calibration.
  *
@@ -97,7 +103,7 @@ typedef struct RBRInstrumentCalibration
      * Unused entries should be set to 0. Entries corresponding to the special
      * “value” value are set to #RBRINSTRUMENT_VALUE_COEFFICIENT.
      */
-    uint8_t n[RBRINSTRUMENT_CALIBRATION_N_COEFFICIENT_MAX];
+    RBRInstrumentChannelIndex n[RBRINSTRUMENT_CALIBRATION_N_COEFFICIENT_MAX];
 } RBRInstrumentCalibration;
 
 /**
@@ -117,7 +123,7 @@ typedef struct RBRInstrumentChannel
      */
     char type[RBRINSTRUMENT_CHANNEL_TYPE_MAX + 1];
     /** \brief The internal address to which the channel responds. */
-    uint8_t module;
+    RBRInstrumentModuleAddress module;
     /**
      * \brief The minimum power-on settling time required by this channel.
      *
@@ -169,14 +175,14 @@ typedef struct RBRInstrumentChannel
 typedef struct RBRInstrumentChannels
 {
     /** \brief The number of installed and configured instrument channels. */
-    uint8_t count;
+    int32_t count;
     /**
      * \brief The number of active channels, which excludes any turned off by
      * the user.
      *
      * \see RBRInstrumentChannel.status
      */
-    uint8_t on;
+    int32_t on;
     /**
      * \brief The maximum power-on settling settling time across all enabled
      * channels.
@@ -237,9 +243,10 @@ RBRInstrumentError RBRInstrument_getChannels(RBRInstrument *instrument,
  * \see RBRInstrument_getChannels()
  * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/channel
  */
-RBRInstrumentError RBRInstrument_setChannelStatus(RBRInstrument *instrument,
-                                                  uint8_t channel,
-                                                  bool status);
+RBRInstrumentError RBRInstrument_setChannelStatus(
+    RBRInstrument *instrument,
+    RBRInstrumentChannelIndex channel,
+    bool status);
 
 /**
  * \brief Update a channel's calibration coefficients.
@@ -270,7 +277,7 @@ RBRInstrumentError RBRInstrument_setChannelStatus(RBRInstrument *instrument,
  */
 RBRInstrumentError RBRInstrument_setCalibration(
     RBRInstrument *instrument,
-    uint8_t channel,
+    RBRInstrumentChannelIndex channel,
     const RBRInstrumentCalibration *calibration);
 
 /**
@@ -553,7 +560,7 @@ typedef struct RBRInstrumentSensorParameter
 typedef struct RBRInstrumentSensorParameters
 {
     /** \brief The number of populated sensor parameters. */
-    size_t count;
+    int32_t count;
     /**
      * \brief The sensor parameters.
      *
@@ -582,7 +589,7 @@ typedef struct RBRInstrumentSensorParameters
  */
 RBRInstrumentError RBRInstrument_getSensorParameters(
     RBRInstrument *instrument,
-    uint8_t channel,
+    RBRInstrumentChannelIndex channel,
     RBRInstrumentSensorParameters *parameters);
 
 /**
@@ -615,7 +622,7 @@ RBRInstrumentError RBRInstrument_getSensorParameters(
  */
 RBRInstrumentError RBRInstrument_setSensorParameter(
     RBRInstrument *instrument,
-    uint8_t channel,
+    RBRInstrumentChannelIndex channel,
     RBRInstrumentSensorParameter *parameter);
 
 #ifdef __cplusplus

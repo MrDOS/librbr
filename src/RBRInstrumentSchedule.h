@@ -59,7 +59,7 @@ typedef struct RBRInstrumentClock
         /** \brief The hours offset from UTC. */
         int8_t hours;
         /** \brief The minutes offset from UTC. */
-        uint8_t minutes;
+        int8_t minutes;
     } offsetFromUtc;
 } RBRInstrumentClock;
 
@@ -217,7 +217,7 @@ typedef struct RBRInstrumentSampling
      */
     RBRInstrumentPeriod burstInterval;
     /** \brief The number of measurements taken in each burst. */
-    uint16_t burstLength;
+    int32_t burstLength;
     /** \brief The sampling gating condition. */
     RBRInstrumentGatingCondition gate;
 } RBRInstrumentSampling;

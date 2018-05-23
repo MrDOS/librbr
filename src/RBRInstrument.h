@@ -215,7 +215,7 @@ typedef enum RBRInstrumentGeneration
 typedef RBRInstrumentError (*RBRInstrumentReadCallback)(
     const struct RBRInstrument *instrument,
     void *data,
-    size_t *length);
+    int32_t *length);
 
 /**
  * \brief Callback to write data to the physical instrument.
@@ -239,7 +239,7 @@ typedef RBRInstrumentError (*RBRInstrumentReadCallback)(
 typedef RBRInstrumentError (*RBRInstrumentWriteCallback)(
     const struct RBRInstrument *instrument,
     const void *const data,
-    size_t length);
+    int32_t length);
 
 /**
  * \brief The types of messages returned by the instrument.
@@ -341,10 +341,10 @@ typedef struct RBRInstrument
      * obliterated the more full the parse buffer gets, hence the advisory on
      * RBRInstrument_getLastMessage() to immediately assume message expiration.
      */
-    size_t messageLength;
+    int32_t messageLength;
 
     /** \brief The number of used bytes in the parse buffer. */
-    size_t parseBufferSize;
+    int32_t parseBufferSize;
 
     /** \brief Unparsed data received from the instrument. */
     uint8_t parseBuffer[RBRINSTRUMENT_PARSE_BUFFER_MAX];
