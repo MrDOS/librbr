@@ -42,6 +42,7 @@ General rules:
 
 Technical pedantry:
 
+* Use UTF-8 encoding for all files.
 * Wrap comment and code lines at 79 characters.
   * Where possible to do so
     and still fit on the line,
@@ -54,6 +55,8 @@ Technical pedantry:
     at the beginning of new lines,
     not trailing the previous line.
 * Use Unix-style line endings (`\n`).
+* Include a trailing newline
+  at the end of all files.
 * Use 4 spaces for indentation,
   and additional spaces for alignment.
 * Use C99 syntax,
