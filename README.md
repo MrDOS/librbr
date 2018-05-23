@@ -11,6 +11,14 @@ It targets C99
 and should be compilable
 on any compliant compiler.
 
+If you happen to have stumbled across this file
+in a source tree somewhere,
+you might be interested to know
+that this project is maintained
+[on Bitbucket].
+
+[on Bitbucket]: https://bitbucket.org/rbr/librbr
+
 ## Building
 
 The library can be built with GNU Make.
@@ -40,11 +48,11 @@ please see the `examples/` subdirectory.
 
 The library is primarily maintained by RBR
 and development is directed by our needs
-and the needs of our [OEM][1] customers.
-However, we're happy to take [contributions][2] generally.
+and the needs of our [OEM] customers.
+However, we're happy to take [contributions] generally.
 
-[1]: https://rbr-global.com/products/oem
-[2]: CONTRIBUTING.md
+[OEM]: https://rbr-global.com/products/oem
+[contributions]: CONTRIBUTING.md
 
 ## License
 
