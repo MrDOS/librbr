@@ -8,8 +8,9 @@
  * which are included by this one. As the end user, your include directives
  * need reference only this file.
  *
- * \author Samuel Coleman <samuel.coleman@rbr-global.com>
- * \copyright Copyright (c) 2017 RBR Ltd
+ * \copyright
+ * Copyright (c) 2018 RBR Ltd.
+ * Licensed under the Apache License, Version 2.0.
  */
 
 #ifndef LIBRBR_RBRINSTRUMENT_H

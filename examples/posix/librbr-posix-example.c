@@ -4,8 +4,9 @@
  * \brief Example of using the library to communicate with instruments in a
  * POSIX environment.
  *
- * \author Samuel Coleman <samuel.coleman@rbr-global.com>
- * \copyright Copyright (c) 2017 RBR Ltd
+ * \copyright
+ * Copyright (c) 2018 RBR Ltd.
+ * Licensed under the Apache License, Version 2.0.
  */
 
 #include <errno.h>

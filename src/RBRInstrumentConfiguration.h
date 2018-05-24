@@ -5,8 +5,10 @@
  * configuration information and calibration.
  *
  * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration
- * \author Samuel Coleman <samuel.coleman@rbr-global.com>
- * \copyright Copyright (c) 2017 RBR Ltd
+ *
+ * \copyright
+ * Copyright (c) 2018 RBR Ltd.
+ * Licensed under the Apache License, Version 2.0.
  */
 
 #ifndef LIBRBR_RBRINSTRUMENTCONFIGURATION_H

@@ -35,8 +35,9 @@
 ## the originals in `.unc-backup.md5~` files. These can be cleaned up
 ## automatically with `make tidy`.
 ##
-## \author Samuel Coleman <samuel.coleman@rbr-global.com>
-## \copyright Copyright (c) 2017 RBR Ltd
+## \copyright
+## Copyright (c) 2018 RBR Ltd.
+## Licensed under the Apache License, Version 2.0.
 
 SCRIPT_DIR="`dirname "$0"`"
 

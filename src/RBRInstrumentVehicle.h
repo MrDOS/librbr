@@ -4,8 +4,10 @@
  * \brief Instrument commands and structures pertaining to vehicle support.
  *
  * \see https://docs.rbr-global.com/L3commandreference/commands/vehicle-support
- * \author Samuel Coleman <samuel.coleman@rbr-global.com>
- * \copyright Copyright (c) 2017 RBR Ltd
+ *
+ * \copyright
+ * Copyright (c) 2018 RBR Ltd.
+ * Licensed under the Apache License, Version 2.0.
  */
 
 #ifndef LIBRBR_RBRINSTRUMENTVEHICLE_H
