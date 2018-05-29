@@ -47,7 +47,9 @@ CFLAGS := -Werror -Wall -Wextra -pedantic -pedantic-errors -std=c99 -g
 
 all: lib docs test
 
-lib: bin bin/librbr.a(src/RBRInstrument.o)
+lib: bin bin/librbr.a(src/RBRInstrument.o \
+                      src/RBRInstrumentInternal.o \
+                      src/RBRInstrumentOther.o)
 
 bin:
 	mkdir bin
@@ -62,7 +64,3 @@ test: lib
 .PHONY: clean
 clean:
 	rm -Rf bin/ docs/
-
-.PHONY: tidy
-tidy:
-	rm -f src/*.unc-backup*

@@ -3,3 +3,7 @@ LDFLAGS := -L../../bin
 LDLIBS := -lrbr
 
 example: librbr-posix-example
+
+.PHONY: clean
+clean:
+	rm -Rf librbr-posix-example

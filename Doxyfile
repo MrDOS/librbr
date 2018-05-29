@@ -12,6 +12,10 @@ ALIASES += "nol2=This parameter is unavailable for Logger2 instruments."
 
 # Include anything in the repository root and the library source code.
 INPUT = . src
+# There should be nothing of interest (as far as documentation is concerned) in
+# the implementation files or in library-internal functions: everything
+# intended for consumption by the end user is encompassed in headers.
+EXCLUDE_PATTERNS = */src/*.c #*/src/RBRInstrumentInternal.*
 
 # Include the makefile and shell scripts.
 FILTER_SOURCE_FILES = YES

@@ -16,6 +16,7 @@
 #include <sys/select.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <termios.h>
 
 #include "RBRInstrument.h"
 
@@ -23,21 +24,37 @@
 
 RBRInstrumentError instrumentRead(const struct RBRInstrument *instrument,
                                   void *data,
-                                  size_t *length)
+                                  int32_t *length)
 {
-    instrument = instrument;
-    data = data;
-    length = length;
-    return RBRINSTRUMENT_SUCCESS;
+    int *instrumentFd = (int *) RBRInstrument_getUserData(instrument);
+
+    /* A select() call to enforce a read timeout is unnecessary because we
+     * configured the serial port in noncanonical mode and specified a read
+     * timeout on the port itself. */
+    *length = read(*instrumentFd,
+                   data,
+                   *length);
+    if (*length == 0)
+    {
+        return RBRINSTRUMENT_TIMEOUT;
+    }
+    else if (*length < 0)
+    {
+        return RBRINSTRUMENT_CALLBACK_ERROR;
+    }
+    else
+    {
+        return RBRINSTRUMENT_SUCCESS;
+    }
 }
 
 RBRInstrumentError instrumentWrite(const struct RBRInstrument *instrument,
                                    const void *const data,
-                                   size_t length)
+                                   int32_t length)
 {
     int *instrumentFd = (int *) RBRInstrument_getUserData(instrument);
-    const uint8_t *byteData = (const uint8_t *) data;
-    size_t written = 0;
+    const uint8_t *const byteData = (const uint8_t *const) data;
+    int32_t written = 0;
 
     while (written < length)
     {
@@ -49,6 +66,9 @@ RBRInstrumentError instrumentWrite(const struct RBRInstrument *instrument,
             .tv_usec = 0
         };
 
+        /* We could just loop on write(), but we want to enforce a timeout, so
+         * select() kills two birds with one stone: making sure the output
+         * device is ready to be written to, and handling the timeout. */
         int instrumentReady = select(*instrumentFd + 1,
                                      NULL,
                                      &instrumentFdSet,
@@ -63,15 +83,17 @@ RBRInstrumentError instrumentWrite(const struct RBRInstrument *instrument,
             return RBRINSTRUMENT_TIMEOUT;
         }
 
-        ssize_t chunkWritten = write(*instrumentFd,
+        int32_t chunkWritten = write(*instrumentFd,
                                      byteData + written,
                                      length - written);
+        /* select() told us we were good to go, so a 0-byte write is probably
+         * an error, not just an unready device. */
         if (chunkWritten <= 0)
         {
             return RBRINSTRUMENT_CALLBACK_ERROR;
         }
 
-        written += (size_t) chunkWritten;
+        written += chunkWritten;
     }
 
     return RBRINSTRUMENT_SUCCESS;
@@ -96,9 +118,25 @@ int main(int argc, char *argv[])
 
     devicePath = argv[1];
 
-    if ((instrumentFd = open(devicePath, O_RDWR)) < 0)
+    if ((instrumentFd = open(devicePath, O_RDWR | O_NOCTTY)) < 0)
     {
         fprintf(stderr, "%s: Failed to open device: %s!\n",
+                programName,
+                strerror(errno));
+        return EXIT_FAILURE;
+    }
+
+    struct termios portSettings;
+    memset(&portSettings, 0, sizeof(struct termios));
+    portSettings.c_iflag = 0;
+    portSettings.c_oflag = 0;
+    portSettings.c_cflag = B19200 | CS8 | CLOCAL | CREAD;
+    portSettings.c_lflag = 0;
+    portSettings.c_cc[VMIN] = 0;
+    portSettings.c_cc[VTIME] = INSTRUMENT_TIMEOUT_SEC * 10;
+    if (tcsetattr(instrumentFd, TCSANOW, &portSettings) < 0)
+    {
+        fprintf(stderr, "%s: Failed to configure serial port: %s!\n",
                 programName,
                 strerror(errno));
         return EXIT_FAILURE;
@@ -110,11 +148,31 @@ int main(int argc, char *argv[])
              instrumentWrite,
              (void *) &instrumentFd)) != RBRINSTRUMENT_SUCCESS)
     {
-        fprintf(stderr, "%s: Failed to establish instrument connection!\n",
-                programName);
+        fprintf(stderr, "%s: Failed to establish instrument connection: %s!\n",
+                programName,
+                RBRInstrument_getInstrumentErrorString(error));
         status = EXIT_FAILURE;
         goto fileCleanup;
     }
+
+    printf("Looks like I'm connected to a Gen%d instrument.\n",
+           instrument->generation + 1);
+
+    RBRInstrumentId id;
+    RBRInstrument_getId(instrument, &id);
+    printf("The instrument is an %s (fwtype %d), serial number %06d, with "
+           "firmware v%s.\n",
+           id.model,
+           id.fwtype,
+           id.serial,
+           id.version);
+
+    RBRInstrumentHardwareRevision hwrev;
+    RBRInstrument_getHardwareRevision(instrument, &hwrev);
+    printf("It's PCB rev%c, CPU rev%s, BSL v%c.\n",
+           hwrev.pcb,
+           hwrev.cpu,
+           hwrev.bsl);
 
     RBRInstrument_close(instrument);
 fileCleanup:

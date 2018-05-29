@@ -49,7 +49,7 @@ fi
 
 if [ $# -ge 1 ]
 then
-    uncrustify -c "$SCRIPT_DIR"/"uncrustify.cfg" --replace "$@"
+    uncrustify -c "$SCRIPT_DIR"/"uncrustify.cfg" --no-backup "$@"
 else
-    uncrustify -c "$SCRIPT_DIR"/"uncrustify.cfg" --replace src/*.[ch]
+    uncrustify -c "$SCRIPT_DIR"/"uncrustify.cfg" --no-backup src/*.[ch]
 fi
