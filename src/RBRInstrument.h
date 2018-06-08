@@ -188,6 +188,53 @@ typedef enum RBRInstrumentGeneration
 } RBRInstrumentGeneration;
 
 /**
+ * \brief Callback to get the current platform time in milliseconds.
+ *
+ * Return values must be positive and monotonically increasing.
+ *
+ * Library functions will call this user code to determine whether an
+ * instrument has likely gone to sleep (based on time of last communication).
+ * The time returned should be independent of any instrument (i.e., a real
+ * system time) and, while it must return a number of milliseconds, that number
+ * need be relative only to other values returned by the callback (i.e.,
+ * doesn't need to be an RTC time). On POSIX systems, the value can easily be
+ * based on CLOCK_BOOTTIME (or CLOCK_MONOTONIC on older systems where
+ * CLOCK_BOOTTIME is unavailable).
+ *
+ * \param [out] time the current platform time in milliseconds
+ * \return #RBRINSTRUMENT_SUCCESS when the time is successfully retrieved
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \see RBRInstrumentReadCallback() for details on how the values returned from
+ *                                  user callback functions are used
+ */
+typedef RBRInstrumentError (*RBRInstrumentTimeCallback)(
+    int64_t *time);
+
+/**
+ * \brief Callback to suspend instrument activity for a fixed amount of time.
+ *
+ * Library functions will call this user code when they know the instrument
+ * will be unavailable particularly when waking the instrument from sleep.
+ *
+ * Library functions will call this user code to determine whether an
+ * instrument has likely gone to sleep (based on time of last communication).
+ * The time returned should be independent of any instrument (i.e., a real
+ * system time) and, while it must return a number of milliseconds, that number
+ * need be relative only to other values returned by the callback (i.e.,
+ * doesn't need to be an RTC time). On POSIX systems, the value can easily be
+ * based on CLOCK_BOOTTIME (or CLOCK_MONOTONIC on older systems where
+ * CLOCK_BOOTTIME is unavailable).
+ *
+ * \param [out] time the current platform time in milliseconds
+ * \return #RBRINSTRUMENT_SUCCESS when the time is successfully retrieved
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ * \see RBRInstrumentReadCallback() for details on how the values returned from
+ *                                  user callback functions are used
+ */
+typedef RBRInstrumentError (*RBRInstrumentSleepCallback)(
+    int64_t time);
+
+/**
  * \brief Callback to read data from the physical instrument.
  *
  * Library functions will call this user code to read data from the instrument.
