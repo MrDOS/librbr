@@ -8,10 +8,8 @@
  * Licensed under the Apache License, Version 2.0.
  */
 
-/* Required for memcmp, memset, strlen. */
+/* Required for memcpy, memcmp, memset, strlen. */
 #include <string.h>
-/* Required for sprintf. */
-#include <stdio.h>
 /* Required for free/malloc. */
 #include <stdlib.h>
 
@@ -22,6 +20,8 @@
 #define RBRINSTRUMENT_ID_LOGGER1_PREFIX_LEN 3
 #define RBRINSTRUMENT_ID_LOGGER23_PREFIX "RBR RBR"
 #define RBRINSTRUMENT_ID_LOGGER23_PREFIX_LEN 7
+
+#define RBRINSTRUMENT_NO_ACTIVITY -1
 
 const char *RBRInstrument_getInstrumentErrorString(RBRInstrumentError error)
 {
@@ -54,14 +54,16 @@ const char *RBRInstrument_getInstrumentErrorString(RBRInstrumentError error)
 static RBRInstrumentError RBRInstrument_populateGeneration(
     RBRInstrument *instrument)
 {
+#define OLD_ID_COMMAND "A\r\n"
+#define OLD_ID_COMMAND_LEN (sizeof(OLD_ID_COMMAND) - 1)
+
+    memcpy(instrument->commandBuffer, OLD_ID_COMMAND, OLD_ID_COMMAND_LEN);
+    instrument->commandBufferLength = OLD_ID_COMMAND_LEN;
+
     instrument->generation = RBRINSTRUMENT_UNKNOWN_GENERATION;
 
     /* First, see if we're any sort of RBR instrument, and eliminate Logger1
      * instruments. */
-    instrument->commandBufferLength = sprintf(
-        (char *) instrument->commandBuffer,
-        "A");
-
     RBR_TRY(RBRInstrument_converse(instrument));
 
     /*
@@ -119,11 +121,16 @@ static RBRInstrumentError RBRInstrument_populateGeneration(
 }
 
 RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
+                                      RBRInstrumentTimeCallback timeCallback,
+                                      RBRInstrumentSleepCallback sleepCallback,
                                       RBRInstrumentReadCallback readCallback,
                                       RBRInstrumentWriteCallback writeCallback,
                                       void *userData)
 {
-    if (readCallback == NULL || writeCallback == NULL)
+    if (timeCallback == NULL
+        || sleepCallback == NULL
+        || readCallback == NULL
+        || writeCallback == NULL)
     {
         return RBRINSTRUMENT_MISSING_CALLBACK;
     }
@@ -139,9 +146,12 @@ RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
     }
 
     memset(*instrument, 0, sizeof(RBRInstrument));
+    (*instrument)->timeCallback      = timeCallback;
+    (*instrument)->sleepCallback     = sleepCallback;
     (*instrument)->readCallback      = readCallback;
     (*instrument)->writeCallback     = writeCallback;
     (*instrument)->userData          = userData;
+    (*instrument)->lastActivityTime  = RBRINSTRUMENT_NO_ACTIVITY;
     (*instrument)->message.type      = RBRINSTRUMENTMESSAGE_UNKNOWN_TYPE;
     (*instrument)->managedAllocation = allocated;
 

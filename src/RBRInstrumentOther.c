@@ -8,9 +8,7 @@
  * Licensed under the Apache License, Version 2.0.
  */
 
-/* Required for sprintf. */
-#include <stdio.h>
-/* Required for memset, strcmp, strcpy. */
+/* Required for memcpy, memset, strcmp, strcpy. */
 #include <string.h>
 /* Required for strtol. */
 #include <stdlib.h>
@@ -21,9 +19,11 @@
 RBRInstrumentError RBRInstrument_getId(RBRInstrument *instrument,
                                        RBRInstrumentId *id)
 {
-    instrument->commandBufferLength = sprintf(
-        (char *) instrument->commandBuffer,
-        "id");
+#define ID_COMMAND "id\r\n"
+#define ID_COMMAND_LEN (sizeof(ID_COMMAND) - 1)
+
+    memcpy(instrument->commandBuffer, ID_COMMAND, ID_COMMAND_LEN);
+    instrument->commandBufferLength = ID_COMMAND_LEN;
 
     RBR_TRY(RBRInstrument_converse(instrument));
 
@@ -62,9 +62,11 @@ RBRInstrumentError RBRInstrument_getHardwareRevision(
     RBRInstrument *instrument,
     RBRInstrumentHardwareRevision *hwrev)
 {
-    instrument->commandBufferLength = sprintf(
-        (char *) instrument->commandBuffer,
-        "hwrev");
+#define HWREV_COMMAND "hwrev\r\n"
+#define HWREV_COMMAND_LEN (sizeof(HWREV_COMMAND) - 1)
+
+    memcpy(instrument->commandBuffer, HWREV_COMMAND, HWREV_COMMAND_LEN);
+    instrument->commandBufferLength = HWREV_COMMAND_LEN;
 
     RBR_TRY(RBRInstrument_converse(instrument));
 

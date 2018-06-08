@@ -48,6 +48,7 @@ CFLAGS := -Werror -Wall -Wextra -pedantic -pedantic-errors -std=c99 -g
 all: lib docs test
 
 lib: bin bin/librbr.a(src/RBRInstrument.o \
+                      src/RBRInstrumentCommunication.o \
                       src/RBRInstrumentInternal.o \
                       src/RBRInstrumentOther.o)
 

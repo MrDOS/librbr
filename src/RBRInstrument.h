@@ -201,6 +201,7 @@ typedef enum RBRInstrumentGeneration
  * based on CLOCK_BOOTTIME (or CLOCK_MONOTONIC on older systems where
  * CLOCK_BOOTTIME is unavailable).
  *
+ * \param [in] instrument the instrument for which the time is being requested
  * \param [out] time the current platform time in milliseconds
  * \return #RBRINSTRUMENT_SUCCESS when the time is successfully retrieved
  * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
@@ -208,6 +209,7 @@ typedef enum RBRInstrumentGeneration
  *                                  user callback functions are used
  */
 typedef RBRInstrumentError (*RBRInstrumentTimeCallback)(
+    const struct RBRInstrument *instrument,
     int64_t *time);
 
 /**
@@ -225,6 +227,7 @@ typedef RBRInstrumentError (*RBRInstrumentTimeCallback)(
  * based on CLOCK_BOOTTIME (or CLOCK_MONOTONIC on older systems where
  * CLOCK_BOOTTIME is unavailable).
  *
+ * \param [in] instrument the instrument for which sleep is being requested
  * \param [out] time the current platform time in milliseconds
  * \return #RBRINSTRUMENT_SUCCESS when the time is successfully retrieved
  * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
@@ -232,6 +235,7 @@ typedef RBRInstrumentError (*RBRInstrumentTimeCallback)(
  *                                  user callback functions are used
  */
 typedef RBRInstrumentError (*RBRInstrumentSleepCallback)(
+    const struct RBRInstrument *instrument,
     int64_t time);
 
 /**
@@ -394,6 +398,12 @@ typedef struct RBRInstrument
      */
     RBRInstrumentGeneration generation;
 
+    /** \brief Callback to get the current platform time in milliseconds. */
+    RBRInstrumentTimeCallback timeCallback;
+
+    /** \brief Callback to suspend activity for a fixed amount of time. */
+    RBRInstrumentSleepCallback sleepCallback;
+
     /** \brief Called to read data from the physical instrument. */
     RBRInstrumentReadCallback readCallback;
 
@@ -408,6 +418,14 @@ typedef struct RBRInstrument
 
     /** \brief The number of used bytes in the response buffer. */
     int32_t responseBufferLength;
+
+    /**
+     * \brief The time at which instrument communication last occurred.
+     *
+     * Used to determine whether the instrument needs to be woken before
+     * further commands are sent.
+     */
+    int64_t lastActivityTime;
 
     /**
      * \brief The length in bytes of the most recent response.
@@ -497,7 +515,7 @@ typedef struct RBRInstrument
  *
  * If you pass pre-allocated memory, its contents will be discarded.
  *
- * Both callbacks must be given. If either are given as null pointers,
+ * All callbacks must be given. If any are given as null pointers,
  * #RBRINSTRUMENT_MISSING_CALLBACK is returned and the instrument connection
  * will not be opened.
  *
@@ -518,6 +536,8 @@ typedef struct RBRInstrument
  * instrument connection.
  *
  * \param [in,out] instrument the context object to populate
+ * \param [in] timeCallback called to get the current platform time
+ * \param [in] sleepCallback called to suspend activity
  * \param [in] readCallback called to read data from the physical instrument
  * \param [in] writeCallback called to write data to the physical instrument
  * \param [in] userData arbitrary user data; useful in callbacks
@@ -530,6 +550,8 @@ typedef struct RBRInstrument
  * \see RBRInstrument_close()
  */
 RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
+                                      RBRInstrumentTimeCallback timeCallback,
+                                      RBRInstrumentSleepCallback sleepCallback,
                                       RBRInstrumentReadCallback readCallback,
                                       RBRInstrumentWriteCallback writeCallback,
                                       void *userData);

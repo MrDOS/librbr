@@ -9,6 +9,8 @@
  * Licensed under the Apache License, Version 2.0.
  */
 
+#define _POSIX_C_SOURCE 199309L
+
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -17,10 +19,37 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <termios.h>
+#include <time.h>
 
 #include "RBRInstrument.h"
 
 #define INSTRUMENT_TIMEOUT_SEC 3
+
+RBRInstrumentError instrumentTime(const struct RBRInstrument *instrument,
+                                  int64_t *time)
+{
+    /* Unused. */
+    instrument = instrument;
+
+    struct timespec result;
+    clock_gettime(CLOCK_MONOTONIC, &result);
+    *time = (result.tv_sec * 1000) + (result.tv_nsec / 1000000);
+    return RBRINSTRUMENT_SUCCESS;
+}
+
+RBRInstrumentError instrumentSleep(const struct RBRInstrument *instrument,
+                                   int64_t time)
+{
+    /* Unused. */
+    instrument = instrument;
+
+    struct timespec sleep = {
+        .tv_sec  =  time / 1000,
+        .tv_nsec = (time % 1000) * 1000000
+    };
+    nanosleep(&sleep, NULL);
+    return RBRINSTRUMENT_SUCCESS;
+}
 
 RBRInstrumentError instrumentRead(const struct RBRInstrument *instrument,
                                   void *data,
@@ -130,7 +159,7 @@ int main(int argc, char *argv[])
     memset(&portSettings, 0, sizeof(struct termios));
     portSettings.c_iflag = 0;
     portSettings.c_oflag = 0;
-    portSettings.c_cflag = B19200 | CS8 | CLOCAL | CREAD;
+    portSettings.c_cflag = B115200 | CS8 | CLOCAL | CREAD;
     portSettings.c_lflag = 0;
     portSettings.c_cc[VMIN] = 0;
     portSettings.c_cc[VTIME] = INSTRUMENT_TIMEOUT_SEC * 10;
@@ -144,6 +173,8 @@ int main(int argc, char *argv[])
 
     if ((error = RBRInstrument_open(
              &instrument,
+             instrumentTime,
+             instrumentSleep,
              instrumentRead,
              instrumentWrite,
              (void *) &instrumentFd)) != RBRINSTRUMENT_SUCCESS)

@@ -1,6 +1,7 @@
 # Generated artifacts.
 bin/
 docs/
+examples/posix/librbr-posix-example
 
 # Temporary files.
 *~

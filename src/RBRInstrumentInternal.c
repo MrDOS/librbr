@@ -13,10 +13,15 @@
 /* Required for memcmp, memcpy, memmove, strlen, strstr. */
 #include <string.h>
 
-#include <stdio.h>
-
 #include "RBRInstrument.h"
 #include "RBRInstrumentInternal.h"
+
+/** \brief 10-second command timeout. */
+#define COMMAND_TIMEOUT (10 * 1000)
+
+#define WAKE_COMMAND "\r"
+#define WAKE_COMMAND_LEN 1
+#define WAKE_COMMAND_WAIT 10
 
 #define COMMAND_TERMINATOR "\r\n"
 #define COMMAND_TERMINATOR_LEN 2
@@ -52,6 +57,19 @@ void *memmem(void *ptr1, size_t num1,
 
 RBRInstrumentError RBRInstrument_sendCommand(RBRInstrument *instrument)
 {
+    /* See whether we need to wake the instrument. */
+    int64_t now;
+    RBR_TRY(instrument->timeCallback(instrument, &now));
+
+    if (instrument->lastActivityTime < 0
+        || now - instrument->lastActivityTime > COMMAND_TIMEOUT)
+    {
+        RBR_TRY(instrument->writeCallback(instrument,
+                                          WAKE_COMMAND,
+                                          WAKE_COMMAND_LEN));
+        RBR_TRY(instrument->sleepCallback(instrument, WAKE_COMMAND_WAIT));
+    }
+
     /* Make sure the command is CRLF-terminated. */
     if (instrument->commandBufferLength < COMMAND_TERMINATOR_LEN
         || memcmp(instrument->commandBuffer
@@ -67,9 +85,12 @@ RBRInstrumentError RBRInstrument_sendCommand(RBRInstrument *instrument)
     }
 
     /* Send the command to the instrument. */
-    return instrument->writeCallback(instrument,
-                                     instrument->commandBuffer,
-                                     instrument->commandBufferLength);
+    RBR_TRY(instrument->writeCallback(instrument,
+                                      instrument->commandBuffer,
+                                      instrument->commandBufferLength));
+    RBR_TRY(instrument->timeCallback(instrument,
+                                     &instrument->lastActivityTime));
+    return RBRINSTRUMENT_SUCCESS;
 }
 
 /**
@@ -170,6 +191,8 @@ RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument)
                     instrument->message.type = RBRINSTRUMENTMESSAGE_ERROR;
                     numbered = true;
                 }
+                /* TODO: Warnings are only produced by `verify` and `enable`,
+                 * and are found at the _end_ of the response. */
                 else if (*beginning == 'W')
                 {
                     instrument->message.type = RBRINSTRUMENTMESSAGE_WARNING;
