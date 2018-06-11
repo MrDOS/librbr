@@ -18,13 +18,8 @@
 
 RBRInstrumentError RBRInstrument_sleep(RBRInstrument *instrument)
 {
-#define SLEEP_COMMAND "sleep\r\n"
-#define SLEEP_COMMAND_LEN (sizeof(SLEEP_COMMAND) - 1)
+    RBR_TRY(RBRInstrument_sendCommand(instrument, "sleep"));
 
-    memcpy(instrument->commandBuffer, SLEEP_COMMAND, SLEEP_COMMAND_LEN);
-    instrument->commandBufferLength = SLEEP_COMMAND_LEN;
-
-    RBR_TRY(RBRInstrument_sendCommand(instrument));
     instrument->lastActivityTime = RBRINSTRUMENT_NO_ACTIVITY;
     return RBRINSTRUMENT_SUCCESS;
 }

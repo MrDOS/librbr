@@ -54,17 +54,11 @@ const char *RBRInstrument_getInstrumentErrorString(RBRInstrumentError error)
 static RBRInstrumentError RBRInstrument_populateGeneration(
     RBRInstrument *instrument)
 {
-#define OLD_ID_COMMAND "A\r\n"
-#define OLD_ID_COMMAND_LEN (sizeof(OLD_ID_COMMAND) - 1)
-
-    memcpy(instrument->commandBuffer, OLD_ID_COMMAND, OLD_ID_COMMAND_LEN);
-    instrument->commandBufferLength = OLD_ID_COMMAND_LEN;
-
     instrument->generation = RBRINSTRUMENT_UNKNOWN_GENERATION;
 
     /* First, see if we're any sort of RBR instrument, and eliminate Logger1
      * instruments. */
-    RBR_TRY(RBRInstrument_converse(instrument));
+    RBR_TRY(RBRInstrument_converse(instrument, "A"));
 
     /*
      * The response format for the “classic” identification command (“A”) is:

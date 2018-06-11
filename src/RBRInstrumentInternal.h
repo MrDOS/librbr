@@ -36,23 +36,25 @@ extern "C" {
 } while (0)
 
 /**
- * Send a command to the instrument. The command will be read from
- * RBRInstrument.commandBuffer, bounded by RBRInstrument.commandBufferLength
- * (i.e., the buffer is _not_ interpreted as a null-terminated C string).
- * If the command has not been terminated with `\r\n`, this function will do
- * that for you.
+ * Send a command to the instrument. The command will be formatted into
+ * RBRInstrument.commandBuffer and RBRInstrument.commandBufferLength will be
+ * updated accordingly. If the command does not include a terminating `\r\n`,
+ * it will be added for you.
  *
  * This command performs no response parsing. For that, use
  * RBRInstrument_readResponse().
  *
  * \param [in] instrument the instrument connection
+ * \param [in] command the command to send as a printf-style format string
  * \return #RBRINSTRUMENT_SUCCESS when the command is successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \see RBRInstrument_readResponse() to read the command response
  * \see RBRInstrument_converse() for a send/receive shortcut
  */
-RBRInstrumentError RBRInstrument_sendCommand(RBRInstrument *instrument);
+RBRInstrumentError RBRInstrument_sendCommand(RBRInstrument *instrument,
+                                             const char *command,
+                                             ...);
 
 /**
  * Read a response from the instrument. This function will block until a
@@ -82,6 +84,7 @@ RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument);
  * one function call.
  *
  * \param [in] instrument the instrument connection
+ * \param [in] command the command to send as a printf-style format string
  * \return #RBRINSTRUMENT_SUCCESS when the command was successfully sent and a
  *                                response was read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
@@ -90,7 +93,9 @@ RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument);
  * \see RBRInstrument_sendCommand() to send a command
  * \see RBRInstrument_readResponse() to read the command response
  */
-RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument);
+RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
+                                          const char *command,
+                                          ...);
 
 /** \brief A parameter (key/value pair) from an instrument response. */
 typedef struct RBRInstrumentResponseParameter

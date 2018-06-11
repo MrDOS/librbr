@@ -8,10 +8,14 @@
  * Licensed under the Apache License, Version 2.0.
  */
 
+/* Required for va_list, va_start, va_end. */
+#include <stdarg.h>
 /* Required for strtol. */
 #include <stdlib.h>
 /* Required for memcmp, memcpy, memmove, strlen, strstr. */
 #include <string.h>
+/* Required for vsprintf. */
+#include <stdio.h>
 
 #include "RBRInstrument.h"
 #include "RBRInstrumentInternal.h"
@@ -55,20 +59,15 @@ void *memmem(void *ptr1, size_t num1,
     return NULL;
 }
 
-RBRInstrumentError RBRInstrument_sendCommand(RBRInstrument *instrument)
+static RBRInstrumentError RBRInstrument_vSendCommand(RBRInstrument *instrument,
+                                                     const char *command,
+                                                     va_list format)
 {
-    /* See whether we need to wake the instrument. */
-    int64_t now;
-    RBR_TRY(instrument->timeCallback(instrument, &now));
-
-    if (instrument->lastActivityTime < 0
-        || now - instrument->lastActivityTime > COMMAND_TIMEOUT)
-    {
-        RBR_TRY(instrument->writeCallback(instrument,
-                                          WAKE_COMMAND,
-                                          WAKE_COMMAND_LEN));
-        RBR_TRY(instrument->sleepCallback(instrument, WAKE_COMMAND_WAIT));
-    }
+    /* Prepare the command. */
+    instrument->commandBufferLength = vsprintf(
+        (char *) instrument->commandBuffer,
+        command,
+        format);
 
     /* Make sure the command is CRLF-terminated. */
     if (instrument->commandBufferLength < COMMAND_TERMINATOR_LEN
@@ -84,6 +83,19 @@ RBRInstrumentError RBRInstrument_sendCommand(RBRInstrument *instrument)
         instrument->commandBufferLength += 2;
     }
 
+    /* See whether we need to wake the instrument. */
+    int64_t now;
+    RBR_TRY(instrument->timeCallback(instrument, &now));
+
+    if (instrument->lastActivityTime < 0
+        || now - instrument->lastActivityTime > COMMAND_TIMEOUT)
+    {
+        RBR_TRY(instrument->writeCallback(instrument,
+                                          WAKE_COMMAND,
+                                          WAKE_COMMAND_LEN));
+        RBR_TRY(instrument->sleepCallback(instrument, WAKE_COMMAND_WAIT));
+    }
+
     /* Send the command to the instrument. */
     RBR_TRY(instrument->writeCallback(instrument,
                                       instrument->commandBuffer,
@@ -91,6 +103,18 @@ RBRInstrumentError RBRInstrument_sendCommand(RBRInstrument *instrument)
     RBR_TRY(instrument->timeCallback(instrument,
                                      &instrument->lastActivityTime));
     return RBRINSTRUMENT_SUCCESS;
+}
+
+RBRInstrumentError RBRInstrument_sendCommand(RBRInstrument *instrument,
+                                             const char *command,
+                                             ...)
+{
+    RBRInstrumentError err;
+    va_list format;
+    va_start(format, command);
+    err = RBRInstrument_vSendCommand(instrument, command, format);
+    va_end(format);
+    return err;
 }
 
 /**
@@ -238,12 +262,12 @@ bool RBRInstrument_parseResponse(char *buffer,
                 hasParameters = false;
             /* Fallthrough. */
             case ' ':
-                goto done;
+                goto foundCommandEnd;
             default:
                 commandEnd++;
             }
         }
-done:
+foundCommandEnd:
         *commandEnd = '\0';
         parameter->nextKey = commandEnd + 1;
     }
@@ -268,23 +292,56 @@ done:
         return false;
     }
 
-    parameter->nextKey = strstr(parameter->value, PARAMETER_SEPARATOR);
-    if (parameter->nextKey != NULL)
-    {
-        /* Null-terminate the value. */
-        *parameter->nextKey = '\0';
-        parameter->nextKey += PARAMETER_SEPARATOR_LEN;
-        return true;
-    }
-    else
+    /*
+     * L3 uses the pipe character as the separator for parameters returning
+     * lists. E.g.,
+     *
+     *     >> memformat availabletypes type
+     *     << memformat type = calbin00, availabletypes = rawbin00|calbin00
+     *
+     * However, L2 used a comma:
+     *
+     *     >> memformat support type
+     *     << memformat support = rawbin00, calbin00, type = rawbin00
+     *
+     * So to find the end of the value, we need to seek forward to the next
+     * value separator, then seek _backwards_ to find the parameter separator.
+     * Any earlier parameter separator might be part of the value.
+     */
+    parameter->nextKey = strstr(parameter->value, PARAMETER_VALUE_SEPARATOR);
+    if (parameter->nextKey == NULL)
     {
         return false;
     }
+
+    while (memcmp(parameter->nextKey,
+                  PARAMETER_SEPARATOR,
+                  PARAMETER_SEPARATOR_LEN) != 0)
+    {
+        parameter->nextKey--;
+    }
+
+    /* Null-terminate the value. */
+    *parameter->nextKey = '\0';
+    parameter->nextKey += PARAMETER_SEPARATOR_LEN;
+
+    return true;
 }
 
-RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument)
+RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
+                                          const char *command,
+                                          ...)
 {
-    RBR_TRY(RBRInstrument_sendCommand(instrument));
-    RBR_TRY(RBRInstrument_readResponse(instrument));
-    return RBRINSTRUMENT_SUCCESS;
+    RBRInstrumentError err;
+    va_list format;
+    va_start(format, command);
+    err = RBRInstrument_vSendCommand(instrument, command, format);
+    va_end(format);
+
+    if (err != RBRINSTRUMENT_SUCCESS)
+    {
+        return err;
+    }
+
+    return RBRInstrument_readResponse(instrument);
 }

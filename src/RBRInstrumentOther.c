@@ -19,15 +19,9 @@
 RBRInstrumentError RBRInstrument_getId(RBRInstrument *instrument,
                                        RBRInstrumentId *id)
 {
-#define ID_COMMAND "id\r\n"
-#define ID_COMMAND_LEN (sizeof(ID_COMMAND) - 1)
-
-    memcpy(instrument->commandBuffer, ID_COMMAND, ID_COMMAND_LEN);
-    instrument->commandBufferLength = ID_COMMAND_LEN;
-
-    RBR_TRY(RBRInstrument_converse(instrument));
-
     memset(id, 0, sizeof(RBRInstrumentId));
+
+    RBR_TRY(RBRInstrument_converse(instrument, "id"));
 
     bool more = false;
     char *command = NULL;
@@ -62,15 +56,9 @@ RBRInstrumentError RBRInstrument_getHardwareRevision(
     RBRInstrument *instrument,
     RBRInstrumentHardwareRevision *hwrev)
 {
-#define HWREV_COMMAND "hwrev\r\n"
-#define HWREV_COMMAND_LEN (sizeof(HWREV_COMMAND) - 1)
-
-    memcpy(instrument->commandBuffer, HWREV_COMMAND, HWREV_COMMAND_LEN);
-    instrument->commandBufferLength = HWREV_COMMAND_LEN;
-
-    RBR_TRY(RBRInstrument_converse(instrument));
-
     memset(hwrev, 0, sizeof(RBRInstrumentHardwareRevision));
+
+    RBR_TRY(RBRInstrument_converse(instrument, "hwrev"));
 
     bool more = false;
     char *command = NULL;
