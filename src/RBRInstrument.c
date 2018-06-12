@@ -23,7 +23,7 @@
 
 #define RBRINSTRUMENT_NO_ACTIVITY -1
 
-const char *RBRInstrument_getInstrumentErrorString(RBRInstrumentError error)
+const char *RBRInstrumentError_name(RBRInstrumentError error)
 {
     switch (error)
     {
@@ -48,6 +48,42 @@ const char *RBRInstrument_getInstrumentErrorString(RBRInstrumentError error)
     case RBRINSTRUMENT_UNKNOWN_ERROR:
     default:
         return "unknown error";
+    }
+}
+
+const char *RBRInstrumentGeneration_name(RBRInstrumentGeneration generation)
+{
+    switch (generation)
+    {
+    case RBRINSTRUMENT_LOGGER1:
+        return "Logger1";
+    case RBRINSTRUMENT_LOGGER2:
+        return "Logger2";
+    case RBRINSTRUMENT_LOGGER3:
+        return "Logger3";
+    case RBRINSTRUMENT_GENERATION_COUNT:
+        return "generation count";
+    case RBRINSTRUMENT_UNKNOWN_GENERATION:
+    default:
+        return "unknown generation";
+    }
+}
+
+const char *RBRInstrumentMessageType_name(RBRInstrumentMessageType type)
+{
+    switch (type)
+    {
+    case RBRINSTRUMENT_MESSAGE_INFO:
+        return "info";
+    case RBRINSTRUMENT_MESSAGE_WARNING:
+        return "warning";
+    case RBRINSTRUMENT_MESSAGE_ERROR:
+        return "error";
+    case RBRINSTRUMENT_MESSAGE_TYPE_COUNT:
+        return "type count";
+    case RBRINSTRUMENT_MESSAGE_UNKNOWN_TYPE:
+    default:
+        return "unknown type";
     }
 }
 
@@ -146,7 +182,7 @@ RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
     (*instrument)->writeCallback     = writeCallback;
     (*instrument)->userData          = userData;
     (*instrument)->lastActivityTime  = RBRINSTRUMENT_NO_ACTIVITY;
-    (*instrument)->message.type      = RBRINSTRUMENTMESSAGE_UNKNOWN_TYPE;
+    (*instrument)->message.type      = RBRINSTRUMENT_MESSAGE_UNKNOWN_TYPE;
     (*instrument)->managedAllocation = allocated;
 
     RBRInstrumentError err;
@@ -175,6 +211,12 @@ RBRInstrumentError RBRInstrument_close(RBRInstrument *instrument)
     }
 
     return RBRINSTRUMENT_SUCCESS;
+}
+
+RBRInstrumentGeneration RBRInstrument_getGeneration(
+    const RBRInstrument *instrument)
+{
+    return instrument->generation;
 }
 
 void *RBRInstrument_getUserData(const RBRInstrument *instrument)

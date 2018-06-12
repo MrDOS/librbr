@@ -22,14 +22,29 @@ extern "C" {
 typedef enum RBRInstrumentDataset
 {
     /** EasyParse events */
-    RBRINSTRUMENT_EASYPARSE_EVENTS_DATASET = 0,
+    RBRINSTRUMENT_DATASET_EASYPARSE_EVENTS = 0,
     /** Standard data */
-    RBRINSTRUMENT_STANDARD_DATASET = 1,
+    RBRINSTRUMENT_DATASET_STANDARD = 1,
     /** EasyParse sample data */
-    RBRINSTRUMENT_EASYPARSE_SAMPLE_DATA_DATASET = 1,
+    RBRINSTRUMENT_DATASET_EASYPARSE_SAMPLE_DATA = 1,
     /** EasyParse deployment header */
-    RBRINSTRUMENT_EASYPARSE_DEPLOYMENT_HEADER_DATASET = 2
+    RBRINSTRUMENT_DATASET_EASYPARSE_DEPLOYMENT_HEADER = 2
 } RBRInstrumentDataset;
+
+/**
+ * \brief Get a human-readable string name for a dataset.
+ *
+ * Contrary to convention for values returned by other enum `_name` functions,
+ * instances of “EasyParse” found in the names returned by this function are
+ * capitalized: “EasyParse sample data” instead of “easyparse sample data”.
+ * And, because the standard and EasyParse sample data datasets share an
+ * identifier, “standard or EasyParse data” is returned for that value.
+ *
+ * \param [in] dataset the dataset
+ * \return a string name for the dataset
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentDataset_name(RBRInstrumentDataset dataset);
 
 /**
  * \brief Instrument `meminfo` command parameters.
@@ -116,7 +131,7 @@ typedef struct RBRInstrumentData
  *
  * A hardware error will be reported if the CRC check of the read data fails.
  * In this case, the message returned by RBRInstrument_getLastMessage() will be
- * of type #RBRINSTRUMENTMESSAGE_ERROR, but it will _not_ have an error number
+ * of type #RBRINSTRUMENT_MESSAGE_ERROR, but it will _not_ have an error number
  * or message (RBRInstrumentMessage.number will be `0` and
  * RBRInstrumentMessage.message will be `NULL`).
  *
@@ -170,13 +185,22 @@ RBRInstrumentError RBRInstrument_memoryClear(RBRInstrument *instrument);
  */
 typedef enum RBRInstrumentMemoryFormat
 {
-    /** No format/empty memory */
-    RBRINSTRUMENT_NONE = 0,
-    /** “Standard” format, `rawbin00` */
-    RBRINSTRUMENT_RAWBIN00 = 1 << 0,
-    /** “EasyParse” format, `calbin00` */
-    RBRINSTRUMENT_CALBIN00 = 1 << 1
+    /** No format/empty memory. */
+    RBRINSTRUMENT_MEMFORMAT_NONE = 0,
+    /** “Standard” format, `rawbin00`. */
+    RBRINSTRUMENT_MEMFORMAT_RAWBIN00 = 1 << 0,
+    /** “EasyParse” format, `calbin00`. */
+    RBRINSTRUMENT_MEMFORMAT_CALBIN00 = 1 << 1
 } RBRInstrumentMemoryFormat;
+
+/**
+ * \brief Get a human-readable string name for a memory format.
+ *
+ * \param [in] format the memory format
+ * \return a string name for the memory format
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentMemoryFormat_name(RBRInstrumentMemoryFormat format);
 
 /**
  * \brief Report a list of available memory formats.
@@ -202,7 +226,7 @@ RBRInstrumentError RBRInstrument_getAvailableMemoryFormats(
  * Retrieves the format of the data presently stored in memory, either for a
  * deployment in progress or for one which has finished. If the memory is
  * completely empty because it has been cleared, the response will be
- * #RBRINSTRUMENT_NONE.
+ * #RBRINSTRUMENT_MEMFORMAT_NONE.
  *
  * \param [in] instrument the instrument connection
  * \param [out] memoryFormat the current memory format

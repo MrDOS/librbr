@@ -34,6 +34,15 @@ typedef enum RBRInstrumentDirection
 } RBRInstrumentDirection;
 
 /**
+ * \brief Get a human-readable string name for an instrument direction.
+ *
+ * \param [in] direction the direction
+ * \return a string name for the direction
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentDirection_name(RBRInstrumentDirection direction);
+
+/**
  * \brief The types of pressure available for use a reference for the
  * determination of the current regime and bin.
  *
@@ -47,6 +56,16 @@ typedef enum RBRInstrumentRegimesReference
     /** Sea pressure is used as the reference. */
     RBRINSTRUMENT_REGIMES_SEA_PRESSURE
 } RBRInstrumentRegimesReference;
+
+/**
+ * \brief Get a human-readable string name for a regime pressure reference.
+ *
+ * \param [in] reference the pressure reference
+ * \return a string name for the pressure reference
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentRegimesReference_name(
+    RBRInstrumentRegimesReference reference);
 
 /**
  * \brief Instrument `regimes` command parameters.

@@ -137,7 +137,7 @@ static void RBRInstrument_removeLastResponse(RBRInstrument *instrument)
 RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument)
 {
     /* Reset the message state. */
-    instrument->message.type = RBRINSTRUMENTMESSAGE_UNKNOWN_TYPE;
+    instrument->message.type = RBRINSTRUMENT_MESSAGE_UNKNOWN_TYPE;
     instrument->message.number = 0;
     instrument->message.message = NULL;
 
@@ -212,14 +212,14 @@ RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument)
                 bool numbered = false;
                 if (*beginning == 'E')
                 {
-                    instrument->message.type = RBRINSTRUMENTMESSAGE_ERROR;
+                    instrument->message.type = RBRINSTRUMENT_MESSAGE_ERROR;
                     numbered = true;
                 }
                 /* TODO: Warnings are only produced by `verify` and `enable`,
                  * and are found at the _end_ of the response. */
                 else if (*beginning == 'W')
                 {
-                    instrument->message.type = RBRINSTRUMENTMESSAGE_WARNING;
+                    instrument->message.type = RBRINSTRUMENT_MESSAGE_WARNING;
                     numbered = true;
                 }
 
@@ -235,7 +235,7 @@ RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument)
                 }
                 else
                 {
-                    instrument->message.type = RBRINSTRUMENTMESSAGE_INFO;
+                    instrument->message.type = RBRINSTRUMENT_MESSAGE_INFO;
                     instrument->message.message = (char *) beginning;
                 }
 

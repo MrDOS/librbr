@@ -181,13 +181,13 @@ int main(int argc, char *argv[])
     {
         fprintf(stderr, "%s: Failed to establish instrument connection: %s!\n",
                 programName,
-                RBRInstrument_getInstrumentErrorString(error));
+                RBRInstrumentError_name(error));
         status = EXIT_FAILURE;
         goto fileCleanup;
     }
 
-    printf("Looks like I'm connected to a Gen%d instrument.\n",
-           instrument->generation + 1);
+    printf("Looks like I'm connected to a %s instrument.\n",
+           RBRInstrumentGeneration_name(RBRInstrument_getGeneration(instrument)));
 
     RBRInstrumentId id;
     RBRInstrument_getId(instrument, &id);

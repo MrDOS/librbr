@@ -29,6 +29,15 @@ typedef enum RBRInstrumentGatingState
 } RBRInstrumentGatingState;
 
 /**
+ * \brief Get a human-readable string name for a gating state.
+ *
+ * \param [in] state the gating state
+ * \return a string name for the gating state
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentGatingState_name(RBRInstrumentGatingState state);
+
+/**
  * \brief Means of instrument thresholding channel selection.
  *
  * \see RBRInstrumentThresholding
@@ -41,6 +50,17 @@ typedef enum RBRInstrumentThresholdingChannelSelection
     /** The channel is set by label. */
     RBRINSTRUMENT_THRESHOLD_CHANNEL_BY_LABEL
 } RBRInstrumentThresholdingChannelSelection;
+
+/**
+ * \brief Get a human-readable string name for a means of thresholding channel
+ * selection.
+ *
+ * \param [in] selection the channel selection type
+ * \return a string name for the channel selection type
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentThresholdingChannelSelection_name(
+    RBRInstrumentThresholdingChannelSelection selection);
 
 /**
  * \brief Possible instrument thresholding conditions.
@@ -59,6 +79,16 @@ typedef enum RBRInstrumentThresholdingCondition
     /** An unknown or unrecognized thresholding condition. */
     RBRINSTRUMENT_UNKNOWN_THRESHOLDING_CONDITION
 } RBRInstrumentThresholdingCondition;
+
+/**
+ * \brief Get a human-readable string name for a thresholding condition.
+ *
+ * \param [in] condition the thresholding condition
+ * \return a string name for the thresholding condition
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentThresholdingCondition_name(
+    RBRInstrumentThresholdingCondition condition);
 
 /**
  * \brief Instrument `thresholding` command parameters.

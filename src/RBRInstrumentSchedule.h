@@ -133,6 +133,15 @@ typedef enum RBRInstrumentSamplingMode
 } RBRInstrumentSamplingMode;
 
 /**
+ * \brief Get a human-readable string name for a sampling mode.
+ *
+ * \param [in] mode the sampling mode
+ * \return a string name for the sampling mode
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentSamplingMode_name(RBRInstrumentSamplingMode mode);
+
+/**
  * \brief Possible instrument gating conditions.
  *
  * \see RBRInstrumentSampling
@@ -163,6 +172,16 @@ typedef enum RBRInstrumentGatingCondition
     /** An unknown or unrecognized sampling mode. */
     RBRINSTRUMENT_UNKNOWN_GATING_CONDITION
 } RBRInstrumentGatingCondition;
+
+/**
+ * \brief Get a human-readable string name for a gating condition.
+ *
+ * \param [in] condition the gating condition
+ * \return a string name for the gating condition
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentGatingCondition_name(
+    RBRInstrumentGatingCondition condition);
 
 /**
  * \brief Instrument `sampling` command parameters.
@@ -303,6 +322,16 @@ typedef enum RBRInstrumentDeploymentStatus
     /** An unknown or unrecognized status. */
     RBRINSTRUMENT_UNKNOWN_STATUS
 } RBRInstrumentDeploymentStatus;
+
+/**
+ * \brief Get a human-readable string name for a deployment status.
+ *
+ * \param [in] status the deployment status
+ * \return a string name for the deployment status
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentDeploymentStatus_name(
+    RBRInstrumentDeploymentStatus status);
 
 /**
  * \brief Instrument `deployment` command parameters.

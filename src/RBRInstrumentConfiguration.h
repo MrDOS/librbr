@@ -499,6 +499,15 @@ typedef enum RBRInstrumentValueSetting
 } RBRInstrumentValueSetting;
 
 /**
+ * \brief Get a human-readable string name for an instrument value setting.
+ *
+ * \param [in] setting the value setting
+ * \return a string name for the value setting
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentValueSetting_name(RBRInstrumentValueSetting setting);
+
+/**
  * \brief Read a value setting from the instrument.
  *
  * \param [in] instrument the instrument connection

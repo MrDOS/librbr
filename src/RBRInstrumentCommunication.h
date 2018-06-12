@@ -39,6 +39,15 @@ typedef enum RBRInstrumentLink
 } RBRInstrumentLink;
 
 /**
+ * \brief Get a human-readable string name for a communication link.
+ *
+ * \param [in] link the communication link
+ * \return a string name for the communication link
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentLink_name(RBRInstrumentLink link);
+
+/**
  * \brief Get the type of connectivity for the instrument connection.
  *
  * \param [in] instrument the instrument connection
@@ -98,6 +107,15 @@ typedef enum RBRInstrumentSerialBaudRate
 } RBRInstrumentSerialBaudRate;
 
 /**
+ * \brief Get a human-readable string name for a baud rate.
+ *
+ * \param [in] baud the baud rate
+ * \return a string name for the baud rate
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentSerialBaudRate_name(RBRInstrumentSerialBaudRate baud);
+
+/**
  * \brief Instrument serial modes.
  *
  * All modes are 8N1, use no flow control, and are full-duplex unless otherwise
@@ -122,6 +140,15 @@ typedef enum RBRInstrumentSerialMode
     /** 0-3.3V logic, idle low. */
     RBRINSTRUMENT_UART_IDLE_LOW = 1 << 4
 } RBRInstrumentSerialMode;
+
+/**
+ * \brief Get a human-readable string name for a serial mode.
+ *
+ * \param [in] mode the serial mode
+ * \return a string name for the serial mode
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentSerialMode_name(RBRInstrumentSerialMode mode);
 
 /**
  * \brief Instrument `serial` command parameters.
@@ -235,6 +262,15 @@ typedef enum RBRInstrumentWiFiState
     /** \brief The Wi-Fi radio is powered down. */
     RBRINSTRUMENT_WIFI_OFF
 } RBRInstrumentWiFiState;
+
+/**
+ * \brief Get a human-readable string name for a Wi-Fi connection state.
+ *
+ * \param [in] state the Wi-Fi connection state
+ * \return a string name for the Wi-Fi connection state
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentWiFiState_name(RBRInstrumentWiFiState state);
 
 /**
  * \brief Instrument `wifi` command parameters.

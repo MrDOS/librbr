@@ -126,18 +126,29 @@ RBRInstrumentError RBRInstrument_getLabelsList(
  */
 typedef enum RBRInstrumentOutputFormat
 {
+    /** No format. */
+    RBRINSTRUMENT_OUTFORMAT_NONE = 0,
     /** Physical units to 4 decimal places. */
-    RBRINSTRUMENT_CALTEXT01 = 1 << 0,
+    RBRINSTRUMENT_OUTFORMAT_CALTEXT01 = 1 << 0,
     /** Physical units to 4 decimal places with units. */
-    RBRINSTRUMENT_CALTEXT02 = 1 << 1,
+    RBRINSTRUMENT_OUTFORMAT_CALTEXT02 = 1 << 1,
     /**
      * Physical units with sufficient significant digits to ensure no
      * resolution loss.
      */
-    RBRINSTRUMENT_CALTEXT03 = 1 << 2,
+    RBRINSTRUMENT_OUTFORMAT_CALTEXT03 = 1 << 2,
     /** Physical units expressed as “engineering-notation” floating point. */
-    RBRINSTRUMENT_CALTEXT04 = 1 << 3
+    RBRINSTRUMENT_OUTFORMAT_CALTEXT04 = 1 << 3
 } RBRInstrumentOutputFormat;
+
+/**
+ * \brief Get a human-readable string name for an output format.
+ *
+ * \param [in] format the output format
+ * \return a string name for the output format
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentOutputFormat_name(RBRInstrumentOutputFormat format);
 
 /**
  * \brief Report a list of available output formats.
@@ -263,6 +274,17 @@ typedef enum RBRInstrumentAuxOutputActiveLevel
 } RBRInstrumentAuxOutputActiveLevel;
 
 /**
+ * \brief Get a human-readable string name for a signal level of an active
+ * auxiliary output.
+ *
+ * \param [in] level the signal level
+ * \return a string name for the signal level
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentAuxOutputActiveLevel_name(
+    RBRInstrumentAuxOutputActiveLevel level);
+
+/**
  * \brief Possible levels of the auxiliary output signal while the instrument
  * is asleep.
  *
@@ -278,6 +300,17 @@ typedef enum RBRInstrumentAuxOutputSleepLevel
     /* Signal actively driven low. */
     RBRINSTRUMENT_SLEEP_LOW
 } RBRInstrumentAuxOutputSleepLevel;
+
+/**
+ * \brief Get a human-readable string name for a signal level of a sleeping
+ * auxiliary output.
+ *
+ * \param [in] level the signal level
+ * \return a string name for the signal level
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentAuxOutputSleepLevel_name(
+    RBRInstrumentAuxOutputSleepLevel level);
 
 /**
  * \brief Instrument `streamserial` command parameters relating to the

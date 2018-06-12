@@ -155,7 +155,7 @@ typedef enum RBRInstrumentError
  * {
  *     fprintf(stderr,
  *             "Encountered an error: %s!\n",
- *             RBRInstrument_getErrorString(error));
+ *             RBRInstrumentError_name(error));
  * }
  * ~~~
  *
@@ -168,7 +168,7 @@ typedef enum RBRInstrumentError
  * \param [in] error the error
  * \return a string name for the error
  */
-const char *RBRInstrument_getInstrumentErrorString(RBRInstrumentError error);
+const char *RBRInstrumentError_name(RBRInstrumentError error);
 
 struct RBRInstrument;
 
@@ -186,6 +186,19 @@ typedef enum RBRInstrumentGeneration
     /** An unknown or unrecognized instrument generation. */
     RBRINSTRUMENT_UNKNOWN_GENERATION
 } RBRInstrumentGeneration;
+
+/**
+ * \brief Get a human-readable string name for a generation.
+ *
+ * Contrary to convention for values returned by other enum `_name` functions,
+ * the generation names returned by this function are capitalized: “Logger3”
+ * instead of “logger3”.
+ *
+ * \param [in] generation the generation
+ * \return a string name for the generation
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentGeneration_name(RBRInstrumentGeneration generation);
 
 /**
  * \brief Callback to get the current platform time in milliseconds.
@@ -324,16 +337,25 @@ typedef RBRInstrumentError (*RBRInstrumentWriteCallback)(
 typedef enum RBRInstrumentMessageType
 {
     /** A success indicator or informational message. */
-    RBRINSTRUMENTMESSAGE_INFO,
+    RBRINSTRUMENT_MESSAGE_INFO,
     /** Typically indicates that the command succeeded but with caveats. */
-    RBRINSTRUMENTMESSAGE_WARNING,
+    RBRINSTRUMENT_MESSAGE_WARNING,
     /** A command failure. */
-    RBRINSTRUMENTMESSAGE_ERROR,
+    RBRINSTRUMENT_MESSAGE_ERROR,
     /** The number of specific types. */
-    RBRINSTRUMENTMESSAGE_TYPE_COUNT,
+    RBRINSTRUMENT_MESSAGE_TYPE_COUNT,
     /** The message has been incorrectly or incompletely populated. */
-    RBRINSTRUMENTMESSAGE_UNKNOWN_TYPE
+    RBRINSTRUMENT_MESSAGE_UNKNOWN_TYPE
 } RBRInstrumentMessageType;
+
+/**
+ * \brief Get a human-readable string name for a message type.
+ *
+ * \param [in] type the message type
+ * \return a string name for the message type
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentMessageType_name(RBRInstrumentMessageType type);
 
 /**
  * \brief A warning or error returned by the instrument.
@@ -350,11 +372,11 @@ typedef struct RBRInstrumentMessage
      *
      * Successful commands, as indicated by the command having returned
      * #RBRINSTRUMENT_SUCCESS, may yield informational or warning messages
-     * (types #RBRINSTRUMENTMESSAGE_INFO and #RBRINSTRUMENTMESSAGE_WARNING,
+     * (types #RBRINSTRUMENT_MESSAGE_INFO and #RBRINSTRUMENT_MESSAGE_WARNING,
      * respectively). Commands having resulted in a hardware error will yield
      * an error message (type #RBRINSTRUMENT_HARDWARE_ERROR). In any other
      * case, the message is unpopulated and its contents are irrelevant (type
-     * #RBRINSTRUMENTMESSAGE_UNKNOWN_TYPE).
+     * #RBRINSTRUMENT_MESSAGE_UNKNOWN_TYPE).
      *
      * - Informational messages will provide only a message (number as `0`).
      * - Warnings and errors will provide a number and occasionally a message.
@@ -569,6 +591,15 @@ RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
 RBRInstrumentError RBRInstrument_close(RBRInstrument *instrument);
 
 /**
+ * \brief Get the generation of an instrument.
+ *
+ * \param [in] instrument the instrument connection
+ * \return the instrument generation
+ */
+RBRInstrumentGeneration RBRInstrument_getGeneration(
+    const RBRInstrument *instrument);
+
+/**
  * \brief Get the pointer to arbitrary user data.
  *
  * Returns whatever arbitrary pointer the user has most recently provided,
@@ -608,7 +639,7 @@ void RBRInstrument_setUserData(RBRInstrument *instrument, void *userData);
  *
  * If the most recent instrument communication returned anything other than
  * #RBRINSTRUMENT_SUCCESS or #RBRINSTRUMENT_HARDWARE_ERROR, the message type
- * will be reset to #RBRINSTRUMENTMESSAGE_UNKNOWN_TYPE, the message number to
+ * will be reset to #RBRINSTRUMENT_MESSAGE_UNKNOWN_TYPE, the message number to
  * 0, and the message string to `NULL`.
  *
  * Error messages can be quite long: in particular, errors E0102 (“invalid

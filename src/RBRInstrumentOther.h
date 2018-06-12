@@ -119,6 +119,15 @@ typedef enum RBRInstrumentPowerSource
 } RBRInstrumentPowerSource;
 
 /**
+ * \brief Get a human-readable string name for a power source.
+ *
+ * \param [in] source the power source
+ * \return a string name for the power source
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentPowerSource_name(RBRInstrumentPowerSource source);
+
+/**
  * \brief Instrument `power` command parameters.
  *
  * \see RBRInstrument_getPower()
@@ -172,6 +181,20 @@ typedef enum RBRInstrumentPowerInternalBatteryType
     /** An unknown or unrecognized internal power battery type. */
     RBRINSTRUMENT_UNKNOWN_POWER_INTERNAL
 } RBRInstrumentPowerInternalBatteryType;
+
+/**
+ * \brief Get a human-readable string name for an internal battery type.
+ *
+ * Contrary to convention for values returned by other enum `_name` functions,
+ * the names of battery types will be formatted appropriately for the cell
+ * chemistry; e.g., “Li-SOCl₂”, not “lisocl2”. Values will be UTF-8-encoded.
+ *
+ * \param [in] type the battery type
+ * \return a string name for the battery type
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentPowerInternalBatteryType_name(
+    RBRInstrumentPowerInternalBatteryType type);
 
 /**
  * \brief Instrument `powerinternal` command parameters.
@@ -272,6 +295,22 @@ typedef enum RBRInstrumentPowerExternalBatteryType
     /** An unknown or unrecognized external power battery type. */
     RBRINSTRUMENT_UNKNOWN_POWER_EXTERNAL
 } RBRInstrumentPowerExternalBatteryType;
+
+/**
+ * \brief Get a human-readable string name for an external battery type.
+ *
+ * Contrary to convention for values returned by other enum `_name` functions,
+ * RBRfermata/RBRfermette product names will be correctly capitalized, and the
+ * names of battery types will be formatted appropriately for the cell
+ * chemistry; e.g., “RBRfermette³ Li-SOCl₂”, not “rbrfermette3 lisocl2”. Values
+ * will be UTF-8-encoded.
+ *
+ * \param [in] type the battery type
+ * \return a string name for the battery type
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentPowerExternalBatteryType_name(
+    RBRInstrumentPowerExternalBatteryType type);
 
 /**
  * \brief Instrument `powerexternal` command parameters.
