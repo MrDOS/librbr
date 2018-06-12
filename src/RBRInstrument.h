@@ -40,17 +40,16 @@ extern "C" {
 /**
  * \brief The size of the buffer storing instrument responses.
  *
- * Must be large enough to hold the largest chunk data you will want to
- * download in one request plus its 2B CRC.
+ * Must be large enough to hold the largest command response you will want to
+ * receive. This does not include download data, which is read directly into a
+ * user-managed buffer.
  *
  * A buffer of this size is included in RBRInstrument. Whether you let
  * RBRInstrument_open() perform its own allocation or you perform your own
  * allocation based on `sizeof(RBRInstrument)`, a buffer of this size is
  * included.
  */
-#define RBRINSTRUMENT_RESPONSE_BUFFER_MAX 1800
-/** \brief The maximum amount of data that can be downloaded at a time. */
-#define RBRINSTRUMENT_DOWNLOAD_MAX (RBRINSTRUMENT_RESPONSE_BUFFER_MAX - 2)
+#define RBRINSTRUMENT_RESPONSE_BUFFER_MAX 1024
 
 /** \brief The maximum number of channels present on an instrument. */
 #define RBRINSTRUMENT_CHANNEL_MAX 32

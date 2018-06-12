@@ -119,11 +119,16 @@ RBRInstrumentError RBRInstrument_sendCommand(RBRInstrument *instrument,
 
 /**
  * \brief Remove the last response from of the response buffer.
+ *
+ * \param [in] instrument the instrument connection
  */
 static void RBRInstrument_removeLastResponse(RBRInstrument *instrument)
 {
-    if (instrument->lastResponseLength <= 0)
+    if (instrument->lastResponseLength <= 0
+        || instrument->responseBufferLength == instrument->lastResponseLength)
     {
+        instrument->responseBufferLength = 0;
+        instrument->lastResponseLength = 0;
         return;
     }
 

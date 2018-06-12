@@ -13,6 +13,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/select.h>
@@ -61,8 +62,8 @@ RBRInstrumentError instrumentRead(const struct RBRInstrument *instrument,
      * configured the serial port in noncanonical mode and specified a read
      * timeout on the port itself. */
     *size = read(*instrumentFd,
-                   data,
-                   *size);
+                 data,
+                 *size);
     if (*size == 0)
     {
         return RBRINSTRUMENT_TIMEOUT;
@@ -186,8 +187,9 @@ int main(int argc, char *argv[])
         goto fileCleanup;
     }
 
-    printf("Looks like I'm connected to a %s instrument.\n",
-           RBRInstrumentGeneration_name(RBRInstrument_getGeneration(instrument)));
+    printf(
+        "Looks like I'm connected to a %s instrument.\n",
+        RBRInstrumentGeneration_name(RBRInstrument_getGeneration(instrument)));
 
     RBRInstrumentId id;
     RBRInstrument_getId(instrument, &id);
@@ -204,6 +206,51 @@ int main(int argc, char *argv[])
            hwrev.pcb,
            hwrev.cpu,
            hwrev.bsl);
+
+    RBRInstrumentMemoryInfo meminfo;
+    meminfo.dataset = RBRINSTRUMENT_DATASET_STANDARD;
+    RBRInstrument_getMemoryInfo(instrument, &meminfo);
+    printf("Dataset %s is %0.2f%% full (%" PRIi32 "B used).\n",
+           RBRInstrumentDataset_name(meminfo.dataset),
+           ((float) meminfo.used) / meminfo.size,
+           meminfo.used);
+
+    RBRInstrumentMemoryFormat memformat;
+    RBRInstrument_getCurrentMemoryFormat(instrument, &memformat);
+    printf("It's currently storing data of format %s.\n",
+           RBRInstrumentMemoryFormat_name(memformat));
+
+    char filename[PATH_MAX];
+    sprintf(filename, "%06d.bin", id.serial);
+    int bin_fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+
+    uint8_t buf[1024];
+    RBRInstrumentData data = {
+        .dataset = RBRINSTRUMENT_DATASET_STANDARD,
+        .size    = sizeof(buf),
+        .offset  = 0,
+        .data    = buf
+    };
+
+    RBRInstrumentError err;
+    printf("Downloading:\n");
+    while (data.offset < meminfo.used)
+    {
+        printf("\r%0.2f%% (%" PRIi32 "B/%" PRIi32 "B)",
+               (((float) data.offset) / meminfo.used) * 100,
+               data.offset,
+               meminfo.used);
+        err = RBRInstrument_readData(instrument, &data);
+        if (err != RBRINSTRUMENT_SUCCESS)
+        {
+            printf("\nError: %s", RBRInstrumentError_name(err));
+            break;
+        }
+
+        write(bin_fd, data.data, data.size);
+        data.offset += data.size;
+    }
+    printf("\nDone (%" PRIi32 "B).\n", data.offset);
 
     RBRInstrument_close(instrument);
 fileCleanup:
