@@ -53,21 +53,21 @@ RBRInstrumentError instrumentSleep(const struct RBRInstrument *instrument,
 
 RBRInstrumentError instrumentRead(const struct RBRInstrument *instrument,
                                   void *data,
-                                  int32_t *length)
+                                  int32_t *size)
 {
     int *instrumentFd = (int *) RBRInstrument_getUserData(instrument);
 
     /* A select() call to enforce a read timeout is unnecessary because we
      * configured the serial port in noncanonical mode and specified a read
      * timeout on the port itself. */
-    *length = read(*instrumentFd,
+    *size = read(*instrumentFd,
                    data,
-                   *length);
-    if (*length == 0)
+                   *size);
+    if (*size == 0)
     {
         return RBRINSTRUMENT_TIMEOUT;
     }
-    else if (*length < 0)
+    else if (*size < 0)
     {
         return RBRINSTRUMENT_CALLBACK_ERROR;
     }
@@ -79,13 +79,13 @@ RBRInstrumentError instrumentRead(const struct RBRInstrument *instrument,
 
 RBRInstrumentError instrumentWrite(const struct RBRInstrument *instrument,
                                    const void *const data,
-                                   int32_t length)
+                                   int32_t size)
 {
     int *instrumentFd = (int *) RBRInstrument_getUserData(instrument);
     const uint8_t *const byteData = (const uint8_t *const) data;
     int32_t written = 0;
 
-    while (written < length)
+    while (written < size)
     {
         fd_set instrumentFdSet;
         FD_SET(*instrumentFd, &instrumentFdSet);
@@ -114,7 +114,7 @@ RBRInstrumentError instrumentWrite(const struct RBRInstrument *instrument,
 
         int32_t chunkWritten = write(*instrumentFd,
                                      byteData + written,
-                                     length - written);
+                                     size - written);
         /* select() told us we were good to go, so a 0-byte write is probably
          * an error, not just an unready device. */
         if (chunkWritten <= 0)

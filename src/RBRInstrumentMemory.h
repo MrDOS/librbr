@@ -100,7 +100,7 @@ typedef struct RBRInstrumentData
     /** \brief The index of the dataset being queried. */
     RBRInstrumentDataset dataset;
     /** \brief The amount of data read. */
-    int32_t length;
+    int32_t size;
     /** \brief The offset in memory of the data. */
     int32_t offset;
     /** \brief The data read from the instrument. */
@@ -113,18 +113,18 @@ typedef struct RBRInstrumentData
  * When calling RBRInstrument_readData(), \a data must be populated:
  *
  * - RBRInstrumentData.dataset must be the index of the dataset to read from
- * - RBRInstrumentData.length must be the maximum amount of data to read
+ * - RBRInstrumentData.size must be the maximum amount of data to read
  * - RBRInstrumentData.offset must be the offset in memory of the data to read
  *
  * Upon return, \a data will have been modified to reflect the amount of data
  * read from the instrument and to provide access to it.
  *
- * - RBRInstrumentData.length will be set to the amount of data actually read
+ * - RBRInstrumentData.size will be set to the amount of data actually read
  *   from the instrument at the requested offset. Be sure to check this value
- *   as it may be less than the requested length, especially when nearing the
- *   end of the dataset!
- * - RBRInstrumentData.data will point to a buffer containing the data (of
- *   length RBRInstrumentData.length). This buffer will change upon subsequent
+ *   as it may be less than the requested size, especially when nearing the end
+ *   of the dataset!
+ * - RBRInstrumentData.data will point to a buffer containing the data (of size
+ *   RBRInstrumentData.size). This buffer will change upon subsequent
  *   instrument communication. You should either consume it before performing
  *   any further interaction with the instrument, or `memcpy()` it to your own
  *   buffer and update the pointer.
@@ -140,10 +140,10 @@ typedef struct RBRInstrumentData
  * ~~~{.c}
  * RBRInstrumentData data;
  * data.dataset = RBRINSTRUMENT_STANDARD_DATASET;
- * data.length = 1400;
- * data.offset = 2800;
+ * data.size    = 1400;
+ * data.offset  = 2800;
  * RBRInstrument_readData(instrument, &data);
- * fwrite(data.data, data.length, 1, datasetFile);
+ * fwrite(data.data, data.size, 1, datasetFile);
  * ~~~
  *
  * \param [in] instrument the instrument connection
@@ -153,7 +153,9 @@ typedef struct RBRInstrumentData
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR in the event of a CRC failure
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when an invalid dataset is
- *                                                requested
+ *                                                requested, or if more than
+ *                                                #RBRINSTRUMENT_DOWNLOAD_MAX
+ *                                                bytes of data is requested
  * \see https://docs.rbr-global.com/L3commandreference/commands/memory-and-data-retrieval/readdata
  */
 RBRInstrumentError RBRInstrument_readData(RBRInstrument *instrument,

@@ -49,6 +49,8 @@ extern "C" {
  * included.
  */
 #define RBRINSTRUMENT_RESPONSE_BUFFER_MAX 1800
+/** \brief The maximum amount of data that can be downloaded at a time. */
+#define RBRINSTRUMENT_DOWNLOAD_MAX (RBRINSTRUMENT_RESPONSE_BUFFER_MAX - 2)
 
 /** \brief The maximum number of channels present on an instrument. */
 #define RBRINSTRUMENT_CHANNEL_MAX 32
@@ -261,10 +263,10 @@ typedef RBRInstrumentError (*RBRInstrumentSleepCallback)(
  *
  * The library will provide a destination for data read from the instrument via
  * the \a data argument. The maximum amount of data which can be written to
- * this location is given by the \a length argument. Before returning
- * #RBRINSTRUMENT_SUCCESS, the value of \a length should be updated by the
+ * this location is given by the \a size argument. Before returning
+ * #RBRINSTRUMENT_SUCCESS, the value of \a size should be updated by the
  * callback to reflect the number of bytes written to \a data. When a value
- * other than #RBRINSTRUMENT_SUCCESS is returned, any new value of \a length
+ * other than #RBRINSTRUMENT_SUCCESS is returned, any new value of \a size
  * is ignored, as is any data written to \a data.
  *
  * The function should return #RBRINSTRUMENT_SUCCESS when data is successfully
@@ -285,8 +287,8 @@ typedef RBRInstrumentError (*RBRInstrumentSleepCallback)(
  * instrument by the user data pointer; the library is unopinionated.
  *
  * \param [in] instrument the instrument for which data is being requested
- * \param [in,out] data where up to \a length bytes of data can be written
- * \param [in,out] length initially, the maximum amount of data which can be
+ * \param [in,out] data where up to \a size bytes of data can be written
+ * \param [in,out] size initially, the maximum amount of data which can be
  *                        written to \a data; set by the callback to the number
  *                        of bytes actually written
  * \return #RBRINSTRUMENT_SUCCESS when data is successfully read
@@ -296,7 +298,7 @@ typedef RBRInstrumentError (*RBRInstrumentSleepCallback)(
 typedef RBRInstrumentError (*RBRInstrumentReadCallback)(
     const struct RBRInstrument *instrument,
     void *data,
-    int32_t *length);
+    int32_t *size);
 
 /**
  * \brief Callback to write data to the physical instrument.
@@ -317,7 +319,7 @@ typedef RBRInstrumentError (*RBRInstrumentReadCallback)(
  *
  * \param [in] instrument the instrument for which data is being sent
  * \param [in] data the data to be written to the instrument
- * \param [in] length the length of the data given by \a data
+ * \param [in] size the size of the data given by \a data
  * \return #RBRINSTRUMENT_SUCCESS when the data is successfully written
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
@@ -327,7 +329,7 @@ typedef RBRInstrumentError (*RBRInstrumentReadCallback)(
 typedef RBRInstrumentError (*RBRInstrumentWriteCallback)(
     const struct RBRInstrument *instrument,
     const void *const data,
-    int32_t length);
+    int32_t size);
 
 /**
  * \brief The types of messages returned by the instrument.
