@@ -24,7 +24,7 @@
 
 #include "RBRInstrument.h"
 
-#define INSTRUMENT_TIMEOUT_SEC 3
+#define INSTRUMENT_TIMEOUT_MSEC 400
 
 RBRInstrumentError instrumentTime(const struct RBRInstrument *instrument,
                                   int64_t *time)
@@ -92,8 +92,8 @@ RBRInstrumentError instrumentWrite(const struct RBRInstrument *instrument,
         FD_SET(*instrumentFd, &instrumentFdSet);
 
         struct timeval writeTimeout = (struct timeval) {
-            .tv_sec = INSTRUMENT_TIMEOUT_SEC,
-            .tv_usec = 0
+            .tv_sec =   INSTRUMENT_TIMEOUT_MSEC / 1000,
+            .tv_usec = (INSTRUMENT_TIMEOUT_MSEC % 1000) * 1000000
         };
 
         /* We could just loop on write(), but we want to enforce a timeout, so
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
     portSettings.c_cflag = B115200 | CS8 | CLOCAL | CREAD;
     portSettings.c_lflag = 0;
     portSettings.c_cc[VMIN] = 0;
-    portSettings.c_cc[VTIME] = INSTRUMENT_TIMEOUT_SEC * 10;
+    portSettings.c_cc[VTIME] = INSTRUMENT_TIMEOUT_MSEC / 10;
     if (tcsetattr(instrumentFd, TCSANOW, &portSettings) < 0)
     {
         fprintf(stderr, "%s: Failed to configure serial port: %s!\n",
@@ -240,15 +240,22 @@ int main(int argc, char *argv[])
                (((float) data.offset) / meminfo.used) * 100,
                data.offset,
                meminfo.used);
+        data.size = sizeof(buf);
         err = RBRInstrument_readData(instrument, &data);
-        if (err != RBRINSTRUMENT_SUCCESS)
+        if (err == RBRINSTRUMENT_SUCCESS)
+        {
+            write(bin_fd, data.data, data.size);
+            data.offset += data.size;
+        }
+        else if (err == RBRINSTRUMENT_TIMEOUT)
+        {
+            printf("\nWarning: timeout. Retrying...\n");
+        }
+        else
         {
             printf("\nError: %s", RBRInstrumentError_name(err));
             break;
         }
-
-        write(bin_fd, data.data, data.size);
-        data.offset += data.size;
     }
     printf("\nDone (%" PRIi32 "B).\n", data.offset);
 

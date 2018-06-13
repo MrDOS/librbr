@@ -2,6 +2,7 @@
 bin/
 docs/
 examples/posix/librbr-posix-example
+examples/*/*.bin
 
 # Temporary files.
 *~
