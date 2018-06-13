@@ -24,7 +24,7 @@
 
 #include "RBRInstrument.h"
 
-#define INSTRUMENT_TIMEOUT_MSEC 400
+#define INSTRUMENT_TIMEOUT_MSEC 500
 
 RBRInstrumentError instrumentTime(const struct RBRInstrument *instrument,
                                   int64_t *time)
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
     portSettings.c_cflag = B115200 | CS8 | CLOCAL | CREAD;
     portSettings.c_lflag = 0;
     portSettings.c_cc[VMIN] = 0;
-    portSettings.c_cc[VTIME] = INSTRUMENT_TIMEOUT_MSEC / 10;
+    portSettings.c_cc[VTIME] = INSTRUMENT_TIMEOUT_MSEC / 100;
     if (tcsetattr(instrumentFd, TCSANOW, &portSettings) < 0)
     {
         fprintf(stderr, "%s: Failed to configure serial port: %s!\n",
@@ -227,7 +227,6 @@ int main(int argc, char *argv[])
     uint8_t buf[1024];
     RBRInstrumentData data = {
         .dataset = RBRINSTRUMENT_DATASET_STANDARD,
-        .size    = sizeof(buf),
         .offset  = 0,
         .data    = buf
     };
