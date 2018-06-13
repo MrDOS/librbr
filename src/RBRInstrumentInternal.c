@@ -70,15 +70,15 @@ void *memmem(void *ptr1, size_t num1,
 static RBRInstrumentError RBRInstrument_wake(const RBRInstrument *instrument)
 {
     int64_t now;
-    RBR_TRY(instrument->timeCallback(instrument, &now));
+    RBR_TRY(instrument->callbacks.time(instrument, &now));
 
     if (instrument->lastActivityTime < 0
         || now - instrument->lastActivityTime > COMMAND_TIMEOUT)
     {
-        RBR_TRY(instrument->writeCallback(instrument,
-                                          WAKE_COMMAND,
-                                          WAKE_COMMAND_LEN));
-        RBR_TRY(instrument->sleepCallback(instrument, WAKE_COMMAND_WAIT));
+        RBR_TRY(instrument->callbacks.write(instrument,
+                                            WAKE_COMMAND,
+                                            WAKE_COMMAND_LEN));
+        RBR_TRY(instrument->callbacks.sleep(instrument, WAKE_COMMAND_WAIT));
     }
 
     return RBRINSTRUMENT_SUCCESS;
@@ -111,11 +111,11 @@ static RBRInstrumentError RBRInstrument_vSendCommand(RBRInstrument *instrument,
     RBR_TRY(RBRInstrument_wake(instrument));
 
     /* Send the command to the instrument. */
-    RBR_TRY(instrument->writeCallback(instrument,
-                                      instrument->commandBuffer,
-                                      instrument->commandBufferLength));
-    RBR_TRY(instrument->timeCallback(instrument,
-                                     &instrument->lastActivityTime));
+    RBR_TRY(instrument->callbacks.write(instrument,
+                                        instrument->commandBuffer,
+                                        instrument->commandBufferLength));
+    RBR_TRY(instrument->callbacks.time(instrument,
+                                       &instrument->lastActivityTime));
     return RBRINSTRUMENT_SUCCESS;
 }
 
@@ -186,7 +186,7 @@ static RBRInstrumentError RBRInstrument_readSingleResponse(
         readLength = RBRINSTRUMENT_RESPONSE_BUFFER_MAX
                      - instrument->responseBufferLength;
 
-        RBR_TRY(instrument->readCallback(
+        RBR_TRY(instrument->callbacks.read(
                     instrument,
                     instrument->responseBuffer
                     + instrument->responseBufferLength,

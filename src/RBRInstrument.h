@@ -331,6 +331,24 @@ typedef RBRInstrumentError (*RBRInstrumentWriteCallback)(
     int32_t size);
 
 /**
+ * \brief A set of callbacks from library to user code.
+ */
+typedef struct RBRInstrumentCallbacks
+{
+    /** \brief Callback to get the current platform time in milliseconds. */
+    RBRInstrumentTimeCallback time;
+
+    /** \brief Callback to suspend activity for a fixed amount of time. */
+    RBRInstrumentSleepCallback sleep;
+
+    /** \brief Called to read data from the physical instrument. */
+    RBRInstrumentReadCallback read;
+
+    /** \brief Called to write data to the physical instrument. */
+    RBRInstrumentWriteCallback write;
+} RBRInstrumentCallbacks;
+
+/**
  * \brief The types of messages returned by the instrument.
  *
  * Used by RBRInstrumentMessage.
@@ -421,17 +439,8 @@ typedef struct RBRInstrument
      */
     RBRInstrumentGeneration generation;
 
-    /** \brief Callback to get the current platform time in milliseconds. */
-    RBRInstrumentTimeCallback timeCallback;
-
-    /** \brief Callback to suspend activity for a fixed amount of time. */
-    RBRInstrumentSleepCallback sleepCallback;
-
-    /** \brief Called to read data from the physical instrument. */
-    RBRInstrumentReadCallback readCallback;
-
-    /** \brief Called to write data to the physical instrument. */
-    RBRInstrumentWriteCallback writeCallback;
+    /** \brief The set of callbacks to be used by the connection. */
+    RBRInstrumentCallbacks callbacks;
 
     /** \brief Arbitrary user data; useful in callbacks. */
     void *userData;
@@ -538,9 +547,11 @@ typedef struct RBRInstrument
  *
  * If you pass pre-allocated memory, its contents will be discarded.
  *
- * All callbacks must be given. If any are given as null pointers,
- * #RBRINSTRUMENT_MISSING_CALLBACK is returned and the instrument connection
- * will not be opened.
+ * The \a callbacks structure will be copied into the RBRInstruments structure;
+ * no reference to it is retained, so any subsequent modifications will not
+ * affect the connection. All callbacks must be given. If any are given as null
+ * pointers, #RBRINSTRUMENT_MISSING_CALLBACK is returned and the instrument
+ * connection will not be opened.
  *
  * Whenever callbacks are called, the data passed to them should be handled
  * immediately. The pointers passed will coincide with buffers within the
@@ -559,10 +570,7 @@ typedef struct RBRInstrument
  * instrument connection.
  *
  * \param [in,out] instrument the context object to populate
- * \param [in] timeCallback called to get the current platform time
- * \param [in] sleepCallback called to suspend activity
- * \param [in] readCallback called to read data from the physical instrument
- * \param [in] writeCallback called to write data to the physical instrument
+ * \param [in] callbacks the set of callbacks to be used by the connection
  * \param [in] userData arbitrary user data; useful in callbacks
  * \return #RBRINSTRUMENT_SUCCESS if the instrument was opened successfully
  * \return #RBRINSTRUMENT_ALLOCATION_FAILURE if memory allocation failed
@@ -573,10 +581,7 @@ typedef struct RBRInstrument
  * \see RBRInstrument_close()
  */
 RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
-                                      RBRInstrumentTimeCallback timeCallback,
-                                      RBRInstrumentSleepCallback sleepCallback,
-                                      RBRInstrumentReadCallback readCallback,
-                                      RBRInstrumentWriteCallback writeCallback,
+                                      const RBRInstrumentCallbacks *callbacks,
                                       void *userData);
 
 /**

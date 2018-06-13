@@ -151,16 +151,13 @@ static RBRInstrumentError RBRInstrument_populateGeneration(
 }
 
 RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
-                                      RBRInstrumentTimeCallback timeCallback,
-                                      RBRInstrumentSleepCallback sleepCallback,
-                                      RBRInstrumentReadCallback readCallback,
-                                      RBRInstrumentWriteCallback writeCallback,
+                                      const RBRInstrumentCallbacks *callbacks,
                                       void *userData)
 {
-    if (timeCallback == NULL
-        || sleepCallback == NULL
-        || readCallback == NULL
-        || writeCallback == NULL)
+    if (callbacks->time == NULL
+        || callbacks->sleep == NULL
+        || callbacks->read == NULL
+        || callbacks->write == NULL)
     {
         return RBRINSTRUMENT_MISSING_CALLBACK;
     }
@@ -176,10 +173,7 @@ RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
     }
 
     memset(*instrument, 0, sizeof(RBRInstrument));
-    (*instrument)->timeCallback      = timeCallback;
-    (*instrument)->sleepCallback     = sleepCallback;
-    (*instrument)->readCallback      = readCallback;
-    (*instrument)->writeCallback     = writeCallback;
+    memcpy(&(*instrument)->callbacks, callbacks, sizeof(RBRInstrumentCallbacks));
     (*instrument)->userData          = userData;
     (*instrument)->lastActivityTime  = RBRINSTRUMENT_NO_ACTIVITY;
     (*instrument)->message.type      = RBRINSTRUMENT_MESSAGE_UNKNOWN_TYPE;

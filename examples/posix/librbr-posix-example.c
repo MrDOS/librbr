@@ -172,12 +172,16 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
+    RBRInstrumentCallbacks callbacks = {
+        instrumentTime,
+        instrumentSleep,
+        instrumentRead,
+        instrumentWrite
+    };
+
     if ((error = RBRInstrument_open(
              &instrument,
-             instrumentTime,
-             instrumentSleep,
-             instrumentRead,
-             instrumentWrite,
+             &callbacks,
              (void *) &instrumentFd)) != RBRINSTRUMENT_SUCCESS)
     {
         fprintf(stderr, "%s: Failed to establish instrument connection: %s!\n",

@@ -163,7 +163,7 @@ static RBRInstrumentError RBRInstrument_fixedRead(
     {
         readLength = size - bufferLength;
 
-        RBR_TRY(instrument->readCallback(
+        RBR_TRY(instrument->callbacks.read(
                     instrument,
                     ((uint8_t *) data) + bufferLength,
                     &readLength));
