@@ -77,37 +77,37 @@ RBRInstrumentError RBRInstrument_getLink(
 typedef enum RBRInstrumentSerialBaudRate
 {
     /** None */
-    RBRINSTRUMENT_BAUD_NONE   =       0,
+    RBRINSTRUMENT_SERIAL_BAUD_NONE   =       0,
     /** 300 Bd */
-    RBRINSTRUMENT_BAUD_300    = 1 <<  0,
+    RBRINSTRUMENT_SERIAL_BAUD_300    = 1 <<  0,
     /** 600 Bd */
-    RBRINSTRUMENT_BAUD_600    = 1 <<  1,
+    RBRINSTRUMENT_SERIAL_BAUD_600    = 1 <<  1,
     /** 1,200 Bd */
-    RBRINSTRUMENT_BAUD_1200   = 1 <<  2,
+    RBRINSTRUMENT_SERIAL_BAUD_1200   = 1 <<  2,
     /** 2,400 Bd */
-    RBRINSTRUMENT_BAUD_2400   = 1 <<  3,
+    RBRINSTRUMENT_SERIAL_BAUD_2400   = 1 <<  3,
     /** 4,800 Bd */
-    RBRINSTRUMENT_BAUD_4800   = 1 <<  4,
+    RBRINSTRUMENT_SERIAL_BAUD_4800   = 1 <<  4,
     /** 9,600 Bd */
-    RBRINSTRUMENT_BAUD_9600   = 1 <<  5,
+    RBRINSTRUMENT_SERIAL_BAUD_9600   = 1 <<  5,
     /** 19,200 Bd */
-    RBRINSTRUMENT_BAUD_19200  = 1 <<  6,
+    RBRINSTRUMENT_SERIAL_BAUD_19200  = 1 <<  6,
     /** 28,800 Bd */
-    RBRINSTRUMENT_BAUD_28800  = 1 <<  7,
+    RBRINSTRUMENT_SERIAL_BAUD_28800  = 1 <<  7,
     /** 38,400 Bd */
-    RBRINSTRUMENT_BAUD_38400  = 1 <<  8,
+    RBRINSTRUMENT_SERIAL_BAUD_38400  = 1 <<  8,
     /** 57,600 Bd */
-    RBRINSTRUMENT_BAUD_57600  = 1 <<  9,
+    RBRINSTRUMENT_SERIAL_BAUD_57600  = 1 <<  9,
     /** 115,200 Bd */
-    RBRINSTRUMENT_BAUD_115200 = 1 << 10,
+    RBRINSTRUMENT_SERIAL_BAUD_115200 = 1 << 10,
     /** 230,400 Bd */
-    RBRINSTRUMENT_BAUD_230400 = 1 << 11,
+    RBRINSTRUMENT_SERIAL_BAUD_230400 = 1 << 11,
     /** 460,800 Bd */
-    RBRINSTRUMENT_BAUD_460800 = 1 << 12,
+    RBRINSTRUMENT_SERIAL_BAUD_460800 = 1 << 12,
     /** 921,600 Bd */
-    RBRINSTRUMENT_BAUD_921600 = 1 << 13,
+    RBRINSTRUMENT_SERIAL_BAUD_921600 = 1 << 13,
     /** Corresponds to the largest baud rate enum value. */
-    RBRINSTRUMENT_BAUD_MAX    = RBRINSTRUMENT_BAUD_921600
+    RBRINSTRUMENT_SERIAL_BAUD_MAX    = RBRINSTRUMENT_SERIAL_BAUD_921600
 } RBRInstrumentSerialBaudRate;
 
 /**
@@ -134,19 +134,19 @@ const char *RBRInstrumentSerialBaudRate_name(RBRInstrumentSerialBaudRate baud);
 typedef enum RBRInstrumentSerialMode
 {
     /** No serial mode */
-    RBRINSTRUMENT_NONE          =      0,
+    RBRINSTRUMENT_SERIAL_MODE_NONE          =      0,
     /** RS-232/EIA-232/TIA-232. */
-    RBRINSTRUMENT_RS232         = 1 << 0,
+    RBRINSTRUMENT_SERIAL_MODE_RS232         = 1 << 0,
     /** RS-485/EIA-485/TIA-485. */
-    RBRINSTRUMENT_RS485F        = 1 << 1,
+    RBRINSTRUMENT_SERIAL_MODE_RS485F        = 1 << 1,
     /** RS-485/EIA-485/TIA-485 (half-duplex). Unimplemented by the logger. */
-    RBRINSTRUMENT_RS485H        = 1 << 2,
+    RBRINSTRUMENT_SERIAL_MODE_RS485H        = 1 << 2,
     /** 0-3.3V logic, idle high. */
-    RBRINSTRUMENT_UART          = 1 << 3,
+    RBRINSTRUMENT_SERIAL_MODE_UART          = 1 << 3,
     /** 0-3.3V logic, idle low. */
-    RBRINSTRUMENT_UART_IDLE_LOW = 1 << 4,
+    RBRINSTRUMENT_SERIAL_MODE_UART_IDLE_LOW = 1 << 4,
     /** Corresponds to the largest UART mode enum value. */
-    RBRINSTRUMENT_UART_MAX      = RBRINSTRUMENT_UART_IDLE_LOW
+    RBRINSTRUMENT_SERIAL_MODE_MAX = RBRINSTRUMENT_SERIAL_MODE_UART_IDLE_LOW
 } RBRInstrumentSerialMode;
 
 /**
@@ -168,7 +168,7 @@ const char *RBRInstrumentSerialMode_name(RBRInstrumentSerialMode mode);
 typedef struct RBRInstrumentSerial
 {
     /** \brief The baud rate of the instrument. */
-    RBRInstrumentSerialBaudRate baud;
+    RBRInstrumentSerialBaudRate baudRate;
     /** \brief The serial mode of the instrument. */
     RBRInstrumentSerialMode mode;
 } RBRInstrumentSerial;
@@ -216,8 +216,14 @@ RBRInstrumentError RBRInstrument_setSerial(RBRInstrument *instrument,
  * rates as defined by RBRInstrumentSerialBaudRate. For details, consult
  * [Working with Bit Fields](bitfields.md).
  *
+ * The `serial availablebaudrates` command does not exist on Logger2
+ * instruments. This function will return #RBRINSTRUMENT_UNSUPPORTED when
+ * called for a Logger2 instrument, but \a baudRates will still be populated
+ * with the baud rates supported by all Logger2 instruments.
+ *
  * \param [in] instrument the instrument connection
  * \param [out] baudRates available serial baud rates
+ * \return #RBRINSTRUMENT_UNSUPPORTED for Logger2 instruments
  * \return #RBRINSTRUMENT_SUCCESS when the baud rates are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
@@ -234,8 +240,14 @@ RBRInstrumentError RBRInstrument_getAvailableSerialBaudRates(
  * defined by RBRInstrumentSerialMode. For details, consult [Working with Bit
  * Fields](bitfields.md).
  *
+ * The `serial availablemodes` command does not exist on Logger2 instruments.
+ * This function will return #RBRINSTRUMENT_UNSUPPORTED when called for a
+ * Logger2 instrument, but \a modes will still be populated with the serial
+ * modes supported by all Logger2 instruments.
+ *
  * \param [in] instrument the instrument connection
  * \param [out] modes available serial modes
+ * \return #RBRINSTRUMENT_UNSUPPORTED for Logger2 instruments
  * \return #RBRINSTRUMENT_SUCCESS when the modes are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback

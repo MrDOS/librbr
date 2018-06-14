@@ -125,7 +125,7 @@ typedef enum RBRInstrumentError
     RBRINSTRUMENT_CALLBACK_ERROR,
     /** A timeout occurred. */
     RBRINSTRUMENT_TIMEOUT,
-    /** The instrument is unsupported by the library. */
+    /** The instrument or command is unsupported by the library. */
     RBRINSTRUMENT_UNSUPPORTED,
     /**
      * The physical instrument reported a warning or error.
