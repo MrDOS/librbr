@@ -300,7 +300,7 @@ const char *RBRInstrumentMemoryFormat_name(RBRInstrumentMemoryFormat format)
     case RBRINSTRUMENT_MEMFORMAT_CALBIN00:
         return "calbin00";
     default:
-        return "unknown format";
+        return "unknown memory format";
     }
 }
 
@@ -325,19 +325,19 @@ RBRInstrumentError RBRInstrument_getAvailableMemoryFormats(
      *     << memformat availabletypes = rawbin00|calbin00
      */
     const char *generationCommand;
-    const char *typeSeparator;
-    int32_t typeSeparatorLen;
+    const char *separator;
+    int32_t separatorLen;
     if (instrument->generation == RBRINSTRUMENT_LOGGER2)
     {
         generationCommand = "memformat support";
-        typeSeparator = ", ";
-        typeSeparatorLen = 2;
+        separator = ", ";
+        separatorLen = 2;
     }
     else
     {
         generationCommand = "memformat availabletypes";
-        typeSeparator = "|";
-        typeSeparatorLen = 1;
+        separator = "|";
+        separatorLen = 1;
     }
     RBR_TRY(RBRInstrument_converse(instrument, generationCommand));
 
@@ -349,37 +349,36 @@ RBRInstrumentError RBRInstrument_getAvailableMemoryFormats(
         more = RBRInstrument_parseResponse(instrument->message.message,
                                            &command,
                                            &parameter);
-        if (strcmp(parameter.key, "availabletypes") == 0
-            || strcmp(parameter.key, "support") == 0)
+        if (strcmp(parameter.key, "availabletypes") != 0
+            && strcmp(parameter.key, "support") != 0)
         {
-#define RAWBIN00_VALUE "rawbin00"
-#define RAWBIN00_VALUE_LEN (sizeof(RAWBIN00_VALUE) - 1)
-#define CALBIN00_VALUE "calbin00"
-#define CALBIN00_VALUE_LEN (sizeof(CALBIN00_VALUE) - 1)
-
-            while (true)
-            {
-                if (memcmp(parameter.value,
-                           RAWBIN00_VALUE,
-                           RAWBIN00_VALUE_LEN) == 0)
-                {
-                    *memoryFormats |= RBRINSTRUMENT_MEMFORMAT_RAWBIN00;
-                }
-                else if (memcmp(parameter.value,
-                                CALBIN00_VALUE,
-                                CALBIN00_VALUE_LEN) == 0)
-                {
-                    *memoryFormats |= RBRINSTRUMENT_MEMFORMAT_CALBIN00;
-                }
-
-                parameter.value = strstr(parameter.value, typeSeparator);
-                if (parameter.value == NULL)
-                {
-                    break;
-                }
-                parameter.value += typeSeparatorLen;
-            }
+            continue;
         }
+
+        char *nextValue = parameter.value;
+        do
+        {
+            if ((nextValue = strstr(parameter.value, separator)) != NULL)
+            {
+                *nextValue = '\0';
+                nextValue += separatorLen;
+            }
+
+            for (int i = RBRINSTRUMENT_MEMFORMAT_NONE + 1;
+                 i <= RBRINSTRUMENT_MEMFORMAT_MAX;
+                 i <<= 1)
+            {
+                if (strcmp(RBRInstrumentMemoryFormat_name(i),
+                           parameter.value) == 0)
+                {
+                    *memoryFormats |= i;
+                }
+            }
+
+            parameter.value = nextValue;
+        } while (nextValue != NULL);
+
+        break;
     } while (more);
 
     return RBRINSTRUMENT_SUCCESS;
@@ -401,17 +400,24 @@ RBRInstrumentError RBRInstrument_getCurrentMemoryFormat(
         more = RBRInstrument_parseResponse(instrument->message.message,
                                            &command,
                                            &parameter);
-        if (strcmp(parameter.key, "type") == 0)
+        if (strcmp(parameter.key, "type") != 0)
         {
-            if (strcmp(parameter.value, "rawbin00") == 0)
+            continue;
+        }
+
+        for (int i = RBRINSTRUMENT_MEMFORMAT_RAWBIN00 + 1;
+             i <= RBRINSTRUMENT_MEMFORMAT_MAX;
+             i <<= 1)
+        {
+            if (strcmp(RBRInstrumentMemoryFormat_name(i),
+                       parameter.value) == 0)
             {
-                *memoryFormat = RBRINSTRUMENT_MEMFORMAT_RAWBIN00;
-            }
-            else if (strcmp(parameter.value, "calbin00") == 0)
-            {
-                *memoryFormat = RBRINSTRUMENT_MEMFORMAT_CALBIN00;
+                *memoryFormat = i;
+                break;
             }
         }
+
+        break;
     } while (more);
 
     return RBRINSTRUMENT_SUCCESS;
@@ -433,17 +439,24 @@ RBRInstrumentError RBRInstrument_getNewMemoryFormat(
         more = RBRInstrument_parseResponse(instrument->message.message,
                                            &command,
                                            &parameter);
-        if (strcmp(parameter.key, "newtype") == 0)
+        if (strcmp(parameter.key, "newtype") != 0)
         {
-            if (strcmp(parameter.value, "rawbin00") == 0)
+            continue;
+        }
+
+        for (int i = RBRINSTRUMENT_MEMFORMAT_RAWBIN00 + 1;
+             i <= RBRINSTRUMENT_MEMFORMAT_MAX;
+             i <<= 1)
+        {
+            if (strcmp(RBRInstrumentMemoryFormat_name(i),
+                       parameter.value) == 0)
             {
-                *memoryFormat = RBRINSTRUMENT_MEMFORMAT_RAWBIN00;
-            }
-            else if (strcmp(parameter.value, "calbin00") == 0)
-            {
-                *memoryFormat = RBRINSTRUMENT_MEMFORMAT_CALBIN00;
+                *memoryFormat = i;
+                break;
             }
         }
+
+        break;
     } while (more);
 
     return RBRINSTRUMENT_SUCCESS;
