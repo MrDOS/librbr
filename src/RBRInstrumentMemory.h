@@ -182,12 +182,14 @@ RBRInstrumentError RBRInstrument_memoryClear(RBRInstrument *instrument);
  */
 typedef enum RBRInstrumentMemoryFormat
 {
-    /** No format/empty memory. */
-    RBRINSTRUMENT_MEMFORMAT_NONE = 0,
+    /** No format. */
+    RBRINSTRUMENT_MEMFORMAT_NONE     =      0,
     /** “Standard” format, `rawbin00`. */
     RBRINSTRUMENT_MEMFORMAT_RAWBIN00 = 1 << 0,
     /** “EasyParse” format, `calbin00`. */
-    RBRINSTRUMENT_MEMFORMAT_CALBIN00 = 1 << 1
+    RBRINSTRUMENT_MEMFORMAT_CALBIN00 = 1 << 1,
+    /** Corresponds to the largest memory format enum value. */
+    RBRINSTRUMENT_MEMFORMAT_MAX      = RBRINSTRUMENT_MEMFORMAT_CALBIN00
 } RBRInstrumentMemoryFormat;
 
 /**

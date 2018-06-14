@@ -127,7 +127,7 @@ RBRInstrumentError RBRInstrument_getLabelsList(
 typedef enum RBRInstrumentOutputFormat
 {
     /** No format. */
-    RBRINSTRUMENT_OUTFORMAT_NONE = 0,
+    RBRINSTRUMENT_OUTFORMAT_NONE      = 0,
     /** Physical units to 4 decimal places. */
     RBRINSTRUMENT_OUTFORMAT_CALTEXT01 = 1 << 0,
     /** Physical units to 4 decimal places with units. */
@@ -138,7 +138,9 @@ typedef enum RBRInstrumentOutputFormat
      */
     RBRINSTRUMENT_OUTFORMAT_CALTEXT03 = 1 << 2,
     /** Physical units expressed as “engineering-notation” floating point. */
-    RBRINSTRUMENT_OUTFORMAT_CALTEXT04 = 1 << 3
+    RBRINSTRUMENT_OUTFORMAT_CALTEXT04 = 1 << 3,
+    /** Corresponds to the largest output format enum value. */
+    RBRINSTRUMENT_OUTFORMAT_MAX       = RBRINSTRUMENT_OUTFORMAT_CALTEXT04
 } RBRInstrumentOutputFormat;
 
 /**
