@@ -364,8 +364,31 @@ bool RBRInstrument_parseResponse(char *buffer,
             }
         }
 foundCommandEnd:
-        *commandEnd = '\0';
-        parameter->nextKey = commandEnd + 1;
+
+        /*
+         * All L3 commands return at least one parameter. However, lots of
+         * simple L2 commands (e.g., link) use the command itself as a
+         * parameter. E.g.,
+         *
+         *     >> link
+         *     << link = usb
+         *
+         * So before terminating the command, we'll check if it's also the
+         * first parameter key. If it is, we won't null terminate it: that will
+         * be done for us when it gets parsed as a value.
+         */
+        if (hasParameters
+            && memcmp(commandEnd,
+                      PARAMETER_VALUE_SEPARATOR,
+                      PARAMETER_VALUE_SEPARATOR_LEN) == 0)
+        {
+            parameter->nextKey = *command;
+        }
+        else
+        {
+            *commandEnd = '\0';
+            parameter->nextKey = commandEnd + 1;
+        }
     }
 
     if (!hasParameters || parameter->nextKey == NULL)
