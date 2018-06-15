@@ -8,6 +8,8 @@
  * Licensed under the Apache License, Version 2.0.
  */
 
+/* Required for isspace. */
+#include <ctype.h>
 /* Required for va_list, va_start, va_end. */
 #include <stdarg.h>
 /* Required for strtol. */
@@ -25,7 +27,7 @@
 
 #define WAKE_COMMAND "\r"
 #define WAKE_COMMAND_LEN 1
-#define WAKE_COMMAND_WAIT 10
+#define WAKE_COMMAND_WAIT 50
 
 #define COMMAND_TERMINATOR "\r\n"
 #define COMMAND_TERMINATOR_LEN 2
@@ -72,8 +74,14 @@ static RBRInstrumentError RBRInstrument_wake(const RBRInstrument *instrument)
     int64_t now;
     RBR_TRY(instrument->callbacks.time(instrument, &now));
 
-    if (instrument->lastActivityTime < 0
-        || now - instrument->lastActivityTime > COMMAND_TIMEOUT)
+    if (instrument->lastActivityTime > 0
+        && now - instrument->lastActivityTime < COMMAND_TIMEOUT)
+    {
+        return RBRINSTRUMENT_SUCCESS;
+    }
+
+    /* Send the wake sequence twice to make sure it gets noticed. */
+    for (int pass = 0; pass < 2; pass++)
     {
         RBR_TRY(instrument->callbacks.write(instrument,
                                             WAKE_COMMAND,
@@ -234,6 +242,16 @@ static void RBRInstrument_terminateResponse(
     *end = '\0';
     instrument->lastResponseLength =
         end + COMMAND_TERMINATOR_LEN - *beginning;
+
+    /* Fast-forward leftover line termination characters. This shouldn't happen
+     * in the middle of a standing conversation with an instrument, but it
+     * might happen when initially establishing communication with a streaming
+     * instrument: we'll be intruding on the data stream at who knows what
+     * point and might encounter anything. */
+    while (isspace(**beginning) && **beginning != '\0')
+    {
+        ++*beginning;
+    }
 
     /* Fast-forward leading “Ready: ” prompts in the buffer. */
     while (end - *beginning >= COMMAND_PROMPT_LEN
@@ -461,10 +479,28 @@ RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
     err = RBRInstrument_vSendCommand(instrument, command, format);
     va_end(format);
 
+    /* Can't use RBR_TRY because we need to call va_end() before returning. */
     if (err != RBRINSTRUMENT_SUCCESS)
     {
         return err;
     }
 
-    return RBRInstrument_readResponse(instrument);
+    /* To detect whether we've got the expected response or not, we'll locate
+     * the end of the first word in the command. */
+    int32_t commandLength = 0;
+    while (!isspace(instrument->commandBuffer[commandLength])
+        && instrument->commandBuffer[commandLength] != '\0')
+    {
+        commandLength++;
+    }
+
+    /* Now keep looking for a response until we find one which matches. */
+    do
+    {
+        RBR_TRY(RBRInstrument_readResponse(instrument));
+    } while (memcmp(instrument->message.message,
+                    instrument->commandBuffer,
+                    commandLength) != 0);
+
+    return RBRINSTRUMENT_SUCCESS;
 }

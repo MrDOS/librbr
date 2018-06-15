@@ -118,10 +118,10 @@ typedef struct RBRInstrumentData
  * - RBRInstrumentData.data must be a pointer to a location to which the data
  *   can be written
  *
- * Upon return, \a data will have been modified so that RBRInstrumentData.size
- * reflects the amount of data actually read from the instrument at the
- * requested offset. Be sure to check this value as it may be less than the
- * requested size, especially when nearing the end of the dataset!
+ * Upon return, \a data will have been modified so that the dataset, size, and
+ * offset reflect the the instrument response. Be sure to check the reported
+ * size as it may differ from the requested size, especially when the
+ * instrument is busy or if you're reading the last chunk of the dataset.
  *
  * A hardware error will be reported if the CRC check of the read data fails.
  * In this case, the message returned by RBRInstrument_getLastMessage() will be

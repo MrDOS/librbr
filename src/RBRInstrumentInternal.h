@@ -80,8 +80,15 @@ RBRInstrumentError RBRInstrument_sendCommand(RBRInstrument *instrument,
 RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument);
 
 /**
- * Combines RBRInstrument_sendCommand() and RBRInstrument_readResponse() into
- * one function call.
+ * \brief Send a command to the instrument and await an appropriate response.
+ *
+ * This function is more than just a combination of RBRInstrument_sendCommand()
+ * and RBRInstrument_readResponse(): because it knows which command was sent,
+ * it has some idea of which response should be received. As such, it will loop
+ * on RBRInstrument_readResponse() until the first word of the response matches
+ * the command sent. That means that a #RBRINSTRUMENT_TIMEOUT error returned
+ * from this function means that a timeout was reached waiting for the
+ * _correct_ response, not just _any_ response.
  *
  * \param [in] instrument the instrument connection
  * \param [in] command the command to send as a printf-style format string

@@ -94,7 +94,12 @@ static RBRInstrumentError RBRInstrument_populateGeneration(
 
     /* First, see if we're any sort of RBR instrument, and eliminate Logger1
      * instruments. */
-    RBR_TRY(RBRInstrument_converse(instrument, "A"));
+    RBR_TRY(RBRInstrument_sendCommand(instrument, "A"));
+    /* If this isn't an RBR instrument, it'll just time out. */
+    do
+    {
+        RBR_TRY(RBRInstrument_readResponse(instrument));
+    } while (memcmp(instrument->message.message, "RBR ", 4) != 0);
 
     /*
      * The response format for the “classic” identification command (“A”) is:
