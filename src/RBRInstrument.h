@@ -84,14 +84,14 @@ extern "C" {
 #define RBRINSTRUMENT_CHANNEL_LABEL_MAX 31
 
 /**
- * A date and time in seconds since the Unix epoch (1970-01-01T00:00:00Z).
- * Instrument functions operating on time (e.g., RBRInstrument_getClock(),
- * RBRInstrument_setClock()) will automatically convert to and from the
- * instrument's string time representation.
+ * A date and time in milliseconds since the Unix epoch
+ * (1970-01-01T00:00:00.000Z). Instrument functions operating on time (e.g.,
+ * RBRInstrument_getClock(), RBRInstrument_setClock()) will automatically
+ * convert to and from the instrument's string time representation.
  *
  * The valid range for any instrument date/time parameter is
- * 2000-01-01T00:00:00Z to 2099-12-31T23:59:59Z, inclusive. Passing a value
- * outside of this range will be detected by the library and will cause a
+ * 2000-01-01T00:00:00.000Z to 2099-12-31T23:59:59.000Z, inclusive. Passing a
+ * value outside of this range will be detected by the library and will cause a
  * #RBRINSTRUMENT_INVALID_PARAMETER_VALUE error, not a hardware error.
  */
 typedef int64_t RBRInstrumentDateTime;
@@ -330,8 +330,37 @@ typedef RBRInstrumentError (*RBRInstrumentWriteCallback)(
     const void *const data,
     int32_t size);
 
+struct RBRInstrumentSample;
+
+/**
+ * \brief Callback to feed streaming sample data into user code.
+ *
+ * Library functions will call this user code when a streaming sample has been
+ * received.
+ *
+ * As with other callbacks, the \a sample pointer should not be used after the
+ * callback returns.  Do not store copies of it; if you want to use the sample
+ * after your callback has returned, copy the data instead.
+ *
+ * This function is typically called as a side effect of parsing an instrument
+ * response to some other command, and may be called several times in
+ * succession if multiple samples have been received since the last instrument
+ * activity. As such, this callback should execute quickly to avoid blocking
+ * anything else.
+ *
+ * \param [in] instrument the instrument from which the sample was received
+ * \param [in] sample the sample received from the instrument
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
+ */
+typedef RBRInstrumentError (*RBRInstrumentSampleCallback)(
+    const struct RBRInstrument *instrument,
+    const struct RBRInstrumentSample *const sample);
+
 /**
  * \brief A set of callbacks from library to user code.
+ *
+ * RBRInstrument_open() requires all callbacks to be populated except for
+ * RBRInstrumentCallbacks.sample, which may be NULL when undesired.
  */
 typedef struct RBRInstrumentCallbacks
 {
@@ -346,6 +375,11 @@ typedef struct RBRInstrumentCallbacks
 
     /** \brief Called to write data to the physical instrument. */
     RBRInstrumentWriteCallback write;
+
+    /**
+     * \brief Called when streaming sample data has been received. Optional.
+     */
+    RBRInstrumentSampleCallback sample;
 } RBRInstrumentCallbacks;
 
 /**
@@ -549,9 +583,10 @@ typedef struct RBRInstrument
  *
  * The \a callbacks structure will be copied into the RBRInstruments structure;
  * no reference to it is retained, so any subsequent modifications will not
- * affect the connection. All callbacks must be given. If any are given as null
- * pointers, #RBRINSTRUMENT_MISSING_CALLBACK is returned and the instrument
- * connection will not be opened.
+ * affect the connection. All callbacks must be given except for
+ * RBRInstrumentCallbacks.sample. If any others are given as null pointers,
+ * #RBRINSTRUMENT_MISSING_CALLBACK is returned and the instrument connection
+ * will not be opened.
  *
  * Whenever callbacks are called, the data passed to them should be handled
  * immediately. The pointers passed will coincide with buffers within the

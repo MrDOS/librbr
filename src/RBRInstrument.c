@@ -159,7 +159,8 @@ RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
                                       const RBRInstrumentCallbacks *callbacks,
                                       void *userData)
 {
-    if (callbacks->time == NULL
+    if (callbacks == NULL
+        || callbacks->time == NULL
         || callbacks->sleep == NULL
         || callbacks->read == NULL
         || callbacks->write == NULL)
@@ -179,6 +180,9 @@ RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
 
     memset(*instrument, 0, sizeof(RBRInstrument));
     memcpy(&(*instrument)->callbacks, callbacks, sizeof(RBRInstrumentCallbacks));
+    /* We don't want the streaming sample data callback to be called before the
+     * constructor has finished. */
+    (*instrument)->callbacks.sample  = NULL;
     (*instrument)->userData          = userData;
     (*instrument)->lastActivityTime  = RBRINSTRUMENT_NO_ACTIVITY;
     (*instrument)->message.type      = RBRINSTRUMENT_MESSAGE_UNKNOWN_TYPE;
@@ -198,6 +202,9 @@ RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
         free(*instrument);
         return RBRINSTRUMENT_UNSUPPORTED;
     }
+
+    /* Enable the streaming callback, if applicable. */
+    (*instrument)->callbacks.sample = callbacks->sample;
 
     return RBRINSTRUMENT_SUCCESS;
 }

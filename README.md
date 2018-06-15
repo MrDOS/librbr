@@ -40,6 +40,7 @@ to make updating easier.
 ## Using
 
 * TODO: API introduction.
+* TODO: Streaming data introduction.
 
 For examples,
 please see the `examples/` subdirectory.

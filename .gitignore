@@ -1,8 +1,11 @@
 # Generated artifacts.
 bin/
 docs/
-examples/posix/librbr-posix-example
+examples/posix/posix-download
+examples/posix/posix-stream
 examples/*/*.bin
+examples/*/*.log
+examples/*/*.o
 
 # Temporary files.
 *~

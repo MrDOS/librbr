@@ -97,6 +97,6 @@ RBRInstrumentError RBRInstrument_reboot(RBRInstrument *instrument,
                                         int32_t delay)
 {
     RBR_TRY(RBRInstrument_permit(instrument, "reboot"));
-    RBR_TRY(RBRInstrument_sendCommand(instrument, "reboot %" PRIi32, delay));
+    RBR_TRY(RBRInstrument_sendCommand(instrument, "reboot %" PRId32, delay));
     return RBRINSTRUMENT_SUCCESS;
 }

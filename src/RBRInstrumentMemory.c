@@ -230,13 +230,13 @@ RBRInstrumentError RBRInstrument_readData(RBRInstrument *instrument,
     const char *generationCommand;
     if (instrument->generation == RBRINSTRUMENT_LOGGER2)
     {
-        generationCommand = "read data %d %" PRIi32 " %" PRIi32;
+        generationCommand = "read data %d %" PRId32 " %" PRId32;
     }
     else
     {
         generationCommand = "readdata dataset = %d"
-                            ", size = %" PRIi32
-                            ", offset = %" PRIi32;
+                            ", size = %" PRId32
+                            ", offset = %" PRId32;
     }
 
     /* Because the response format for L2 is so nonstandard, we'll have to

@@ -4,13 +4,6 @@
  * \brief Instrument commands and structures pertaining to real-time data
  * acquisition.
  *
- * Note that the library provides no facility for parsing or receiving
- * streaming data from the instrument. The ability to configure instrument
- * streaming is provided only as a convenience for other consumers of the data.
- * If you will only be communicating with the instrument via this library, we
- * strongly suggest that you disable streaming data to avoid wasted bandwidth
- * and parsing overhead to ignore the streaming data emitted by the instrument.
- *
  * \see https://docs.rbr-global.com/L3commandreference/commands/real-time-data
  *
  * \copyright
@@ -414,6 +407,38 @@ RBRInstrumentError RBRInstrument_getAuxOutput(
 RBRInstrumentError RBRInstrument_setAuxOutput(
     RBRInstrument *instrument,
     const RBRInstrumentAuxOutput *auxOutput);
+
+/**
+ * \brief An instrument sample.
+ */
+typedef struct RBRInstrumentSample
+{
+    /** \brief The timestamp of the sample. */
+    RBRInstrumentDateTime timestamp;
+    /** \brief The number of populated sample values. */
+    int32_t channels;
+    /**
+     * \brief The sample values.
+     *
+     * Only the first RBRInstrumentSample.channels values will be populated.
+     */
+    double values[RBRINSTRUMENT_CHANNEL_MAX];
+} RBRInstrumentSample;
+
+/**
+ * \brief Retrieve and parse data streamed from the instrument.
+ *
+ * This function waits for a streamed sample to arrive, parses it, then calls
+ * the RBRInstrumentSampleCallback provided to the instrument via
+ * RBRInstrumentCallbacks.sample.
+ *
+ * \param [in] instrument the instrument connection
+ * \return #RBRINSTRUMENT_SUCCESS when a streaming sample has been read
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
+ * \see RBRInstrument_fetchSample() for on-demand sample fetching
+ */
+RBRInstrumentError RBRInstrument_readSample(RBRInstrument *instrument);
 
 #ifdef __cplusplus
 }

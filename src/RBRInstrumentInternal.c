@@ -10,14 +10,18 @@
 
 /* Required for isspace. */
 #include <ctype.h>
+/* Required for INFINITY, NAN. */
+#include <math.h>
 /* Required for va_list, va_start, va_end. */
 #include <stdarg.h>
-/* Required for strtol. */
+/* Required for strtod, strtol. */
 #include <stdlib.h>
-/* Required for memcmp, memcpy, memmove, strlen, strstr. */
+/* Required for memcmp, memcpy, memmove, memset, strlen, strstr. */
 #include <string.h>
-/* Required for vsprintf. */
+/* Required for sscanf, vsprintf. */
 #include <stdio.h>
+/* Required for struct tm, mktime. */
+#include <time.h>
 
 #include "RBRInstrument.h"
 #include "RBRInstrumentInternal.h"
@@ -38,6 +42,11 @@
 #define PARAMETER_SEPARATOR_LEN 2
 #define PARAMETER_VALUE_SEPARATOR " = "
 #define PARAMETER_VALUE_SEPARATOR_LEN 3
+
+#define RBRINSTRUMENT_DATETIME_MIN  946684800000L
+#define RBRINSTRUMENT_DATETIME_MAX 4102444799000L
+#define OFFSET_UNINITIALIZED (-1)
+static RBRInstrumentDateTime localTimeOffset = OFFSET_UNINITIALIZED;
 
 /**
  * \brief Like strstr, but for memory.
@@ -263,6 +272,154 @@ static void RBRInstrument_terminateResponse(
     }
 }
 
+typedef enum RBRInstrumentSampleError
+{
+    RBRINSTRUMENT_SAMPLE_ERROR_VALUE_NO_ERROR = 0xFF,
+    RBRINSTRUMENT_SAMPLE_ERROR_VALUE_UNCALIBRATED = 0x01,
+    RBRINSTRUMENT_SAMPLE_ERROR_VALUE_ERROR = 0x02
+} RBRInstrumentSampleError;
+
+/**
+ * \brief Attempt to parse a sample from a response.
+ *
+ * \param [out] sample the sample
+ * \param [in] response the response to parse
+ * \return RBRINSTRUMENT_SUCCESS if the response is a sample
+ * \return RBRINSTRUMENT_INVALID_PARAMETER_VALUE if the response is not a
+ *                                               sample
+ */
+static RBRInstrumentError RBRInstrumentSample_parse(
+    RBRInstrumentSample *sample,
+    char *response)
+{
+    if (localTimeOffset == OFFSET_UNINITIALIZED)
+    {
+        struct tm instrumentMinTimestamp = {
+            .tm_year = 100,
+            .tm_mon = 0,
+            .tm_mday = 1,
+            .tm_hour = 0,
+            .tm_min = 0,
+            .tm_sec = 0
+        };
+        localTimeOffset =
+            RBRINSTRUMENT_DATETIME_MIN
+            - ((RBRInstrumentDateTime) mktime(&instrumentMinTimestamp) * 1000);
+    }
+
+    memset(sample, 0, sizeof(RBRInstrumentSample));
+
+    int32_t timestampLength;
+    struct tm split = {
+        0
+    };
+    if (sscanf(response,
+               "%d-%d-%d %d:%d:%d.%" PRId64 "%n",
+               &split.tm_year,
+               &split.tm_mon,
+               &split.tm_mday,
+               &split.tm_hour,
+               &split.tm_min,
+               &split.tm_sec,
+               &sample->timestamp,
+               &timestampLength) < 6)
+    {
+        return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
+    }
+
+    /* struct tm/mktime() expects years to be counted from 1900... */
+    split.tm_year -= 1900;
+    /* ...and months to be 0-based. */
+    split.tm_mon  -= 1;
+
+    /* Sanity check. */
+    if (split.tm_year < 100
+        || split.tm_year >= 200
+        || split.tm_mon > 11
+        || split.tm_mday > 31
+        || split.tm_hour > 23
+        || split.tm_min > 59
+        || split.tm_sec > 59
+        || sample->timestamp > 999)
+    {
+        return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
+    }
+
+    sample->timestamp +=
+        (((RBRInstrumentDateTime) mktime(&split)) * 1000) + localTimeOffset;
+
+    if (sample->timestamp < RBRINSTRUMENT_DATETIME_MIN
+        || sample->timestamp > RBRINSTRUMENT_DATETIME_MAX)
+    {
+        return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
+    }
+
+    char *values = response + timestampLength;
+    char *token;
+    /* Values are double-precision floating point. If they need to encode an
+     * error, it's stored in the trailing bits of a NaN. */
+    union
+    {
+        double value;
+        /* TODO: This compiler attribute is potentially non-portable, and the
+         * struct arrangement is endian-sensitive. Should be replaced with a
+         * uint64_t and manipulated through bitmasks and shifts. */
+        struct __attribute__ ((packed))
+        {
+            uint8_t  error;
+            uint16_t ignored1;
+            uint8_t  flag;
+            uint32_t ignored2;
+        }
+        error;
+    }
+    value;
+
+    while ((token = strtok(values, ",")) != NULL
+           && sample->channels < RBRINSTRUMENT_CHANNEL_MAX)
+    {
+        /* strtok wants NULL on all but the first pass. */
+        values = NULL;
+        /* The token will always have a leading space. */
+        token++;
+
+        if (strcmp(token, "nan") == 0)
+        {
+            value.value = NAN;
+        }
+        else if (strcmp(token, "inf") == 0)
+        {
+            value.value = INFINITY;
+        }
+        else if (strcmp(token, "-inf") == 0)
+        {
+            value.value = -INFINITY;
+        }
+        else if (strcmp(token, "###") == 0)
+        {
+            value.value = NAN;
+            value.error.flag = RBRINSTRUMENT_SAMPLE_ERROR_VALUE_UNCALIBRATED;
+        }
+        else if (memcmp(token, "Error-", 6) == 0)
+        {
+            /* Uh-oh. We'll encode the error in a NaN. Filtering, etc. will
+             * ignore the value and the sample formatter will output it just as
+             * we received it. */
+            value.value = NAN;
+            value.error.flag = RBRINSTRUMENT_SAMPLE_ERROR_VALUE_ERROR;
+            value.error.error = strtol(token + 6, NULL, 10);
+        }
+        else
+        {
+            value.value = strtod(token, NULL);
+        }
+
+        sample->values[sample->channels++] = value.value;
+    }
+
+    return RBRINSTRUMENT_SUCCESS;
+}
+
 /**
  * \brief Check for errors or warnings in an instrument response.
  *
@@ -335,7 +492,16 @@ RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument)
     instrument->message.number = 0;
     instrument->message.message = NULL;
 
-    /* Skip over streaming samples until we find a real command response. */
+    RBRInstrumentSample sample;
+
+    /*
+     * Skip over streaming samples until we find a real command response.
+     *
+     * TODO: What happens when we're inundated with streaming requests so we
+     * never hit a timeout but the expected response never shows up? Should we
+     * cap the number of streaming samples we accept without a corresponding
+     * command response?
+     */
     while (true)
     {
         RBRInstrument_removeLastResponse(instrument);
@@ -345,10 +511,11 @@ RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument)
         RBR_TRY(RBRInstrument_readSingleResponse(instrument, &end));
         RBRInstrument_terminateResponse(instrument, &beginning, end);
 
-        /* TODO: Identify and loop on streaming samples. */
-        if (false)
+        if (instrument->callbacks.sample != NULL
+            && RBRInstrumentSample_parse(&sample, beginning)
+            == RBRINSTRUMENT_SUCCESS)
         {
-            continue;
+            RBR_TRY(instrument->callbacks.sample(instrument, &sample));
         }
         else
         {
@@ -357,6 +524,32 @@ RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument)
                                                     end);
         }
     }
+}
+
+RBRInstrumentError RBRInstrument_readSample(RBRInstrument *instrument)
+{
+    /* Reset the message state. We won't be populating these, but we don't want
+     * to leave them in an invalid configuration. */
+    instrument->message.type = RBRINSTRUMENT_MESSAGE_UNKNOWN_TYPE;
+    instrument->message.number = 0;
+    instrument->message.message = NULL;
+
+    RBRInstrument_removeLastResponse(instrument);
+
+    char *beginning;
+    char *end;
+    RBR_TRY(RBRInstrument_readSingleResponse(instrument, &end));
+    RBRInstrument_terminateResponse(instrument, &beginning, end);
+
+    RBRInstrumentSample sample;
+    if (instrument->callbacks.sample != NULL
+        && RBRInstrumentSample_parse(&sample, beginning)
+        == RBRINSTRUMENT_SUCCESS)
+    {
+        return instrument->callbacks.sample(instrument, &sample);
+    }
+
+    return RBRINSTRUMENT_SUCCESS;
 }
 
 bool RBRInstrument_parseResponse(char *buffer,
@@ -489,7 +682,7 @@ RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
      * the end of the first word in the command. */
     int32_t commandLength = 0;
     while (!isspace(instrument->commandBuffer[commandLength])
-        && instrument->commandBuffer[commandLength] != '\0')
+           && instrument->commandBuffer[commandLength] != '\0')
     {
         commandLength++;
     }
