@@ -125,8 +125,9 @@ int main(int argc, char *argv[])
             break;
         }
     default:
-        printf("I don't know how I'm connected to the instrument, so I can't"
-               " enable streaming. Giving up.\n");
+        fprintf(stderr,
+                "I don't know how I'm connected to the instrument, so I can't"
+                " enable streaming. Giving up.\n");
         goto instrumentCleanup;
     }
 
