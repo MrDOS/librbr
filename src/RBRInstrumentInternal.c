@@ -711,9 +711,15 @@ RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
     do
     {
         RBR_TRY(RBRInstrument_readResponse(instrument, NULL));
-    } while (memcmp(instrument->message.message,
-                    instrument->commandBuffer,
-                    commandLength) != 0);
+        /* TODO: The parser returns SUCCESS on warnings (enable/verify) but
+         * sets instrument->message.message to NULL. How should I handle that?
+         * I think I need to either store the beginning of the response on
+         * RBRInstrument or redefine the semantics of
+         * RBRInstrumentMessage.message. */
+    } while (instrument->message.message == NULL
+             || memcmp(instrument->message.message,
+                       instrument->commandBuffer,
+                       commandLength) != 0);
 
     return RBRINSTRUMENT_SUCCESS;
 }
