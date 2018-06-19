@@ -226,7 +226,7 @@ RBRInstrumentError RBRInstrument_getAvailableSerialBaudRates(
             continue;
         }
 
-        char *nextValue = parameter.value;
+        char *nextValue;
         do
         {
             if ((nextValue = strstr(parameter.value, "|")) != NULL)
@@ -287,7 +287,7 @@ RBRInstrumentError RBRInstrument_getAvailableSerialModes(
             continue;
         }
 
-        char *nextValue = parameter.value;
+        char *nextValue;
         do
         {
             if ((nextValue = strstr(parameter.value, "|")) != NULL)

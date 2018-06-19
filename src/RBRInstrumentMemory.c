@@ -368,7 +368,7 @@ RBRInstrumentError RBRInstrument_getAvailableMemoryFormats(
             continue;
         }
 
-        char *nextValue = parameter.value;
+        char *nextValue;
         do
         {
             if ((nextValue = strstr(parameter.value, separator)) != NULL)
