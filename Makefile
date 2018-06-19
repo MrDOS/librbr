@@ -49,6 +49,7 @@ all: lib docs test
 
 lib: bin bin/librbr.a(src/RBRInstrument.o \
                       src/RBRInstrumentCommunication.o \
+                      src/RBRInstrumentFetching.o \
                       src/RBRInstrumentInternal.o \
                       src/RBRInstrumentMemory.o \
                       src/RBRInstrumentOther.o \

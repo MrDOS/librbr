@@ -69,15 +69,24 @@ RBRInstrumentError RBRInstrument_sendCommand(RBRInstrument *instrument,
  * with a null terminator; and RBRInstrument.message and
  * RBRInstrument.messageLength will be populated appropriately.
  *
+ * If \a sample is given as a non-`NULL` pointer and a sample response (either
+ * streamed or fetched) is found, that sample will be written to \a sample,
+ * no further responses will be parsed, and #RBRINSTRUMENT_SAMPLE is returned.
+ * Otherwise, sample data will be sent to the RBRInstrumentSampleCallback set
+ * via RBRInstrumentCallbacks.sample, if populated.
+ *
  * \param [in] instrument the instrument connection
+ * \param [out] sample where to put a parsed sample
  * \return #RBRINSTRUMENT_SUCCESS when a response was successfully read
+ * \return #RBRINSTRUMENT_SAMPLE when a sample is read and \a sample is given
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument indicated an error
  * \see RBRInstrument_sendCommand() to send a command
  * \see RBRInstrument_converse() for a send/receive shortcut
  */
-RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument);
+RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument,
+                                              RBRInstrumentSample *sample);
 
 /**
  * \brief Send a command to the instrument and await an appropriate response.

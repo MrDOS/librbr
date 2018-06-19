@@ -51,7 +51,16 @@ extern "C" {
  */
 #define RBRINSTRUMENT_RESPONSE_BUFFER_MAX 1024
 
-/** \brief The maximum number of channels present on an instrument. */
+/**
+ * \brief The maximum number of channels present on an instrument.
+ *
+ * The default maximum of 32 channels is reflective of the maximum number of
+ * channels supported by RBR instruments, but most instruments have far fewer.
+ * Adjusting this value will dramatically affect the size of some structures;
+ * notably RBRInstrumentSample, but also RBRInstrumentChannels (used by
+ * RBRInstrument_getChannels()) and RBRInstrumentChannelsList (used by
+ * RBRInstrument_getChannelsList()).
+ */
 #define RBRINSTRUMENT_CHANNEL_MAX 32
 
 /**
@@ -135,6 +144,8 @@ typedef enum RBRInstrumentError
     RBRINSTRUMENT_HARDWARE_ERROR,
     /** The given value is out of bounds or otherwise unsuitable. */
     RBRINSTRUMENT_INVALID_PARAMETER_VALUE,
+    /** Used internally by RBRInstrument_fetch(). */
+    RBRINSTRUMENT_SAMPLE,
     /** The number of specific errors. Should not be used as an error value. */
     RBRINSTRUMENT_ERROR_COUNT,
     /** An unknown or unrecognized error. */
@@ -338,9 +349,11 @@ struct RBRInstrumentSample;
  * Library functions will call this user code when a streaming sample has been
  * received.
  *
- * As with other callbacks, the \a sample pointer should not be used after the
- * callback returns.  Do not store copies of it; if you want to use the sample
- * after your callback has returned, copy the data instead.
+ * The \a sample pointer will be the same as given via
+ * RBRInstrumentCallbacks.sampleBuffer. The sample value will be overwritten
+ * every time sample parsing is attempted, which will be at least once per
+ * command exchanged with the instrument. If you want to use the sample after
+ * your callback has returned, make a copy of it.
  *
  * This function is typically called as a side effect of parsing an instrument
  * response to some other command, and may be called several times in
@@ -350,6 +363,7 @@ struct RBRInstrumentSample;
  *
  * \param [in] instrument the instrument from which the sample was received
  * \param [in] sample the sample received from the instrument
+ * \return #RBRINSTRUMENT_SUCCESS when the sample data is successfully consumed
  * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
  */
 typedef RBRInstrumentError (*RBRInstrumentSampleCallback)(
@@ -377,9 +391,19 @@ typedef struct RBRInstrumentCallbacks
     RBRInstrumentWriteCallback write;
 
     /**
-     * \brief Called when streaming sample data has been received. Optional.
+     * \brief Called when streaming sample data has been received.
+     *
+     * Optional, but requires that RBRInstrumentCallbacks.sampleBuffer also be
+     * populated.
      */
     RBRInstrumentSampleCallback sample;
+
+    /**
+     * \brief Where to put sample data for consumption by the sample callback.
+     *
+     * Required only when RBRInstrumentCallbacks.sample is populated.
+     */
+    struct RBRInstrumentSample *sampleBuffer;
 } RBRInstrumentCallbacks;
 
 /**
@@ -586,7 +610,9 @@ typedef struct RBRInstrument
  * affect the connection. All callbacks must be given except for
  * RBRInstrumentCallbacks.sample. If any others are given as null pointers,
  * #RBRINSTRUMENT_MISSING_CALLBACK is returned and the instrument connection
- * will not be opened.
+ * will not be opened. RBRInstrumentCallbacks.sample is given, then
+ * RBRInstrumentCallbacks.sampleBuffer must also be given; if it is not,
+ * #RBRINSTRUMENT_MISSING_CALLBACK is returned.
  *
  * Whenever callbacks are called, the data passed to them should be handled
  * immediately. The pointers passed will coincide with buffers within the

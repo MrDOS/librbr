@@ -66,6 +66,7 @@ static int PLOT_COLORS[][3] = {
 };
 #define PLOT_COLORS_LEN (sizeof(PLOT_COLORS) / sizeof(PLOT_COLORS[0]))
 
+static RBRInstrumentSample callbackSample;
 static RBRInstrumentSample *samples = NULL;
 static SDL_Point *samplePoints[RBRINSTRUMENT_CHANNEL_MAX] = {
     NULL
@@ -192,11 +193,12 @@ int main(int argc, char *argv[])
     }
 
     RBRInstrumentCallbacks callbacks = {
-        instrumentTime,
-        instrumentSleep,
-        instrumentRead,
-        instrumentWrite,
-        instrumentSample
+        .time = instrumentTime,
+        .sleep = instrumentSleep,
+        .read = instrumentRead,
+        .write = instrumentWrite,
+        .sample = instrumentSample,
+        .sampleBuffer = &callbackSample
     };
 
     if ((error = RBRInstrument_open(

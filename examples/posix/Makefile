@@ -3,9 +3,11 @@ CFLAGS := -I../../src -Werror -Wall -Wextra -pedantic -pedantic-errors \
 LDFLAGS := -L../../bin
 LDLIBS := -lrbr
 
-example: posix-download posix-stream posix-stream-sdl
+example: posix-download posix-fetch posix-stream posix-stream-sdl
 
 posix-download: posix-shared.o posix-download.o
+
+posix-fetch: posix-shared.o posix-fetch.o
 
 posix-stream: posix-shared.o posix-stream.o
 

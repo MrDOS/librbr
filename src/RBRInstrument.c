@@ -43,6 +43,8 @@ const char *RBRInstrumentError_name(RBRInstrumentError error)
         return "hardware error";
     case RBRINSTRUMENT_INVALID_PARAMETER_VALUE:
         return "invalid parameter value";
+    case RBRINSTRUMENT_SAMPLE:
+        return "sample";
     case RBRINSTRUMENT_ERROR_COUNT:
         return "error count";
     case RBRINSTRUMENT_UNKNOWN_ERROR:
@@ -98,7 +100,7 @@ static RBRInstrumentError RBRInstrument_populateGeneration(
     /* If this isn't an RBR instrument, it'll just time out. */
     do
     {
-        RBR_TRY(RBRInstrument_readResponse(instrument));
+        RBR_TRY(RBRInstrument_readResponse(instrument, NULL));
     } while (memcmp(instrument->message.message, "RBR ", 4) != 0);
 
     /*
@@ -163,7 +165,8 @@ RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
         || callbacks->time == NULL
         || callbacks->sleep == NULL
         || callbacks->read == NULL
-        || callbacks->write == NULL)
+        || callbacks->write == NULL
+        || (callbacks->sample != NULL && callbacks->sampleBuffer == NULL))
     {
         return RBRINSTRUMENT_MISSING_CALLBACK;
     }
@@ -205,6 +208,7 @@ RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
 
     /* Enable the streaming callback, if applicable. */
     (*instrument)->callbacks.sample = callbacks->sample;
+    (*instrument)->callbacks.sampleBuffer = callbacks->sampleBuffer;
 
     return RBRINSTRUMENT_SUCCESS;
 }

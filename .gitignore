@@ -2,6 +2,7 @@
 bin/
 docs/
 examples/posix/posix-download
+examples/posix/posix-fetch
 examples/posix/posix-stream
 examples/posix/posix-stream-sdl
 examples/*/*.bin

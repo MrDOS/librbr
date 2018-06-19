@@ -57,11 +57,10 @@ int main(int argc, char *argv[])
     }
 
     RBRInstrumentCallbacks callbacks = {
-        instrumentTime,
-        instrumentSleep,
-        instrumentRead,
-        instrumentWrite,
-        NULL
+        .time = instrumentTime,
+        .sleep = instrumentSleep,
+        .read = instrumentRead,
+        .write = instrumentWrite
     };
 
     if ((error = RBRInstrument_open(

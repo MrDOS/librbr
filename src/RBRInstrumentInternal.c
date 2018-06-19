@@ -485,14 +485,26 @@ static RBRInstrumentError RBRInstrument_errorCheckResponse(
     }
 }
 
-RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument)
+RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument,
+                                              RBRInstrumentSample *sample)
 {
     /* Reset the message state. */
     instrument->message.type = RBRINSTRUMENT_MESSAGE_UNKNOWN_TYPE;
     instrument->message.number = 0;
     instrument->message.message = NULL;
 
-    RBRInstrumentSample sample;
+    bool breakOnSample;
+    RBRInstrumentSample *sampleTarget;
+    if (sample == NULL)
+    {
+        breakOnSample = false;
+        sampleTarget = instrument->callbacks.sampleBuffer;
+    }
+    else
+    {
+        breakOnSample = true;
+        sampleTarget = sample;
+    }
 
     /*
      * Skip over streaming samples until we find a real command response.
@@ -511,11 +523,19 @@ RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument)
         RBR_TRY(RBRInstrument_readSingleResponse(instrument, &end));
         RBRInstrument_terminateResponse(instrument, &beginning, end);
 
-        if (instrument->callbacks.sample != NULL
-            && RBRInstrumentSample_parse(&sample, beginning)
+        if (sampleTarget != NULL
+            && RBRInstrumentSample_parse(sampleTarget, beginning)
             == RBRINSTRUMENT_SUCCESS)
         {
-            RBR_TRY(instrument->callbacks.sample(instrument, &sample));
+            if (breakOnSample)
+            {
+                return RBRINSTRUMENT_SAMPLE;
+            }
+            else if (instrument->callbacks.sample != NULL)
+            {
+                RBR_TRY(instrument->callbacks.sample(instrument,
+                                                     sampleTarget));
+            }
         }
         else
         {
@@ -690,7 +710,7 @@ RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
     /* Now keep looking for a response until we find one which matches. */
     do
     {
-        RBR_TRY(RBRInstrument_readResponse(instrument));
+        RBR_TRY(RBRInstrument_readResponse(instrument, NULL));
     } while (memcmp(instrument->message.message,
                     instrument->commandBuffer,
                     commandLength) != 0);

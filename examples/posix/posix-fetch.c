@@ -31,23 +31,6 @@
 
 #include "posix-shared.h"
 
-RBRInstrumentError instrumentSample(
-    const struct RBRInstrument *instrument,
-    const struct RBRInstrumentSample *const sample)
-{
-    /* Unused. */
-    instrument = instrument;
-
-    printf("%" PRIi64, sample->timestamp);
-    for (int32_t i = 0; i < sample->channels; i++)
-    {
-        printf(", %lf", sample->values[i]);
-    }
-    printf("\n");
-
-    return RBRINSTRUMENT_SUCCESS;
-}
-
 int main(int argc, char *argv[])
 {
     char *programName = argv[0];
@@ -75,14 +58,11 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    RBRInstrumentSample sampleBuffer;
     RBRInstrumentCallbacks callbacks = {
         .time = instrumentTime,
         .sleep = instrumentSleep,
         .read = instrumentRead,
-        .write = instrumentWrite,
-        .sample = instrumentSample,
-        .sampleBuffer = &sampleBuffer
+        .write = instrumentWrite
     };
 
     if ((error = RBRInstrument_open(
@@ -105,7 +85,7 @@ int main(int argc, char *argv[])
     switch (link)
     {
     case RBRINSTRUMENT_LINK_USB:
-        RBRInstrument_setUSBStreamingState(instrument, true);
+        RBRInstrument_setUSBStreamingState(instrument, false);
         break;
     case RBRINSTRUMENT_LINK_SERIAL:
     case RBRINSTRUMENT_LINK_WIFI:
@@ -116,22 +96,33 @@ int main(int argc, char *argv[])
                    RBRInstrumentSerialMode_name(serial.mode),
                    RBRInstrumentSerialBaudRate_name(serial.baudRate));
 
-            RBRInstrument_setSerialStreamingState(instrument, true);
+            RBRInstrument_setSerialStreamingState(instrument, false);
             break;
         }
     default:
         fprintf(stderr,
-                "I don't know how I'm connected to the instrument, so I can't"
-                " enable streaming. Giving up.\n");
+                "Warning: I don't know how I'm connected to the instrument, so"
+                " I can't disable streaming.\n");
         goto instrumentCleanup;
     }
 
+    RBRInstrumentSample sample;
     RBRInstrumentError err;
     while (true)
     {
-        if ((err = RBRInstrument_readSample(instrument)) != RBRINSTRUMENT_SUCCESS)
+        err = RBRInstrument_fetch(instrument, false, &sample);
+        if (err != RBRINSTRUMENT_SUCCESS)
         {
             fprintf(stderr, "Error: %s\n", RBRInstrumentError_name(err));
+        }
+        else
+        {
+            printf("%" PRIi64, sample.timestamp);
+            for (int32_t i = 0; i < sample.channels; i++)
+            {
+                printf(", %lf", sample.values[i]);
+            }
+            printf("\n");
         }
     }
 
