@@ -86,7 +86,7 @@ static RBRInstrumentError RBRInstrumentL2_parseDataResponse(
 {
     do
     {
-        RBR_TRY(RBRInstrument_readResponse(instrument, NULL));
+        RBR_TRY(RBRInstrument_readResponse(instrument, false, NULL));
     } while (memcmp(instrument->message.message, "data ", 5) != 0);
 
     sscanf(instrument->message.message,

@@ -100,7 +100,7 @@ static RBRInstrumentError RBRInstrument_populateGeneration(
     /* If this isn't an RBR instrument, it'll just time out. */
     do
     {
-        RBR_TRY(RBRInstrument_readResponse(instrument, NULL));
+        RBR_TRY(RBRInstrument_readResponse(instrument, false, NULL));
     } while (memcmp(instrument->message.message, "RBR ", 4) != 0);
 
     /*

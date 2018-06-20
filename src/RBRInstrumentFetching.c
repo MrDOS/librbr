@@ -18,18 +18,18 @@ RBRInstrumentError RBRInstrument_fetch(RBRInstrument *instrument,
                                        bool sleepAfter,
                                        RBRInstrumentSample *sample)
 {
-    RBRInstrumentError err;
-
     RBR_TRY(RBRInstrument_sendCommand(instrument,
                                       "fetch sleepafter = %s",
                                       sleepAfter ? "true" : "false"));
+
+    RBRInstrumentError err;
     /* RBRInstrument_readResponse() returns #RBRINSTRUMENT_SAMPLE when a sample
      * is read to the given sample pointer; a return of #RBRINSTRUMENT_SUCCESS
      * means that it found some other command response instead, so we'll loop
      * until we get a “failure” value (which we hope is SAMPLE). */
     do
     {
-        err = RBRInstrument_readResponse(instrument, sample);
+        err = RBRInstrument_readResponse(instrument, true, sample);
     } while (err == RBRINSTRUMENT_SUCCESS);
     /* SAMPLE is what we were hoping for, so we'll translate to SUCCESS. Any
      * other errors can really be errors. */

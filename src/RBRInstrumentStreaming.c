@@ -89,3 +89,24 @@ RBRInstrumentError RBRInstrument_getAuxOutput(
 RBRInstrumentError RBRInstrument_setAuxOutput(
     RBRInstrument *instrument,
     const RBRInstrumentAuxOutput *auxOutput);
+
+RBRInstrumentError RBRInstrument_readSample(RBRInstrument *instrument)
+{
+    RBRInstrumentError err;
+    /* RBRInstrument_readResponse() returns #RBRINSTRUMENT_SAMPLE when a sample
+     * is read to the given sample pointer; a return of #RBRINSTRUMENT_SUCCESS
+     * means that it found some other command response instead, so we'll loop
+     * until we get a “failure” value (which we hope is SAMPLE). */
+    do
+    {
+        err = RBRInstrument_readResponse(instrument, true, NULL);
+    } while (err == RBRINSTRUMENT_SUCCESS);
+    /* SAMPLE is what we were hoping for, so we'll translate to SUCCESS. Any
+     * other errors can really be errors. */
+    if (err == RBRINSTRUMENT_SAMPLE)
+    {
+        err = RBRINSTRUMENT_SUCCESS;
+    }
+
+    return err;
+}

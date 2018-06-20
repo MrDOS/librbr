@@ -486,6 +486,7 @@ static RBRInstrumentError RBRInstrument_errorCheckResponse(
 }
 
 RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument,
+                                              bool breakOnSample,
                                               RBRInstrumentSample *sample)
 {
     /* Reset the message state. */
@@ -493,16 +494,13 @@ RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument,
     instrument->message.number = 0;
     instrument->message.message = NULL;
 
-    bool breakOnSample;
     RBRInstrumentSample *sampleTarget;
     if (sample == NULL)
     {
-        breakOnSample = false;
         sampleTarget = instrument->callbacks.sampleBuffer;
     }
     else
     {
-        breakOnSample = true;
         sampleTarget = sample;
     }
 
@@ -527,14 +525,15 @@ RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument,
             && RBRInstrumentSample_parse(sampleTarget, beginning)
             == RBRINSTRUMENT_SUCCESS)
         {
-            if (breakOnSample)
-            {
-                return RBRINSTRUMENT_SAMPLE;
-            }
-            else if (instrument->callbacks.sample != NULL)
+            if (instrument->callbacks.sample != NULL
+                && sample == NULL)
             {
                 RBR_TRY(instrument->callbacks.sample(instrument,
                                                      sampleTarget));
+            }
+            if (breakOnSample)
+            {
+                return RBRINSTRUMENT_SAMPLE;
             }
         }
         else
@@ -544,32 +543,6 @@ RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument,
                                                     end);
         }
     }
-}
-
-RBRInstrumentError RBRInstrument_readSample(RBRInstrument *instrument)
-{
-    /* Reset the message state. We won't be populating these, but we don't want
-     * to leave them in an invalid configuration. */
-    instrument->message.type = RBRINSTRUMENT_MESSAGE_UNKNOWN_TYPE;
-    instrument->message.number = 0;
-    instrument->message.message = NULL;
-
-    RBRInstrument_removeLastResponse(instrument);
-
-    char *beginning;
-    char *end;
-    RBR_TRY(RBRInstrument_readSingleResponse(instrument, &end));
-    RBRInstrument_terminateResponse(instrument, &beginning, end);
-
-    RBRInstrumentSample sample;
-    if (instrument->callbacks.sample != NULL
-        && RBRInstrumentSample_parse(&sample, beginning)
-        == RBRINSTRUMENT_SUCCESS)
-    {
-        return instrument->callbacks.sample(instrument, &sample);
-    }
-
-    return RBRINSTRUMENT_SUCCESS;
 }
 
 bool RBRInstrument_parseResponse(char *buffer,
@@ -710,7 +683,7 @@ RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
     /* Now keep looking for a response until we find one which matches. */
     do
     {
-        RBR_TRY(RBRInstrument_readResponse(instrument, NULL));
+        RBR_TRY(RBRInstrument_readResponse(instrument, false, NULL));
         /* TODO: The parser returns SUCCESS on warnings (enable/verify) but
          * sets instrument->message.message to NULL. How should I handle that?
          * I think I need to either store the beginning of the response on

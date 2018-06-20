@@ -69,13 +69,20 @@ RBRInstrumentError RBRInstrument_sendCommand(RBRInstrument *instrument,
  * with a null terminator; and RBRInstrument.message and
  * RBRInstrument.messageLength will be populated appropriately.
  *
+ * If \a breakOnSample is true, then the function will return
+ * #RBRINSTRUMENT_SAMPLE immediately after parsing a sample. Otherwise, it will
+ * handle the sample then continue to read further responses.
+ *
  * If \a sample is given as a non-`NULL` pointer and a sample response (either
- * streamed or fetched) is found, that sample will be written to \a sample,
- * no further responses will be parsed, and #RBRINSTRUMENT_SAMPLE is returned.
+ * streamed or fetched) is found, that sample will be written to \a sample.
  * Otherwise, sample data will be sent to the RBRInstrumentSampleCallback set
- * via RBRInstrumentCallbacks.sample, if populated.
+ * via RBRInstrumentCallbacks.sample, if populated. It doesn't make much sense
+ * to set this without also passing \a breakOnSample as true; if
+ * \a breakOnSample is false then \a sample will be populated with the most
+ * recent sample incidentally encountered while parsing other responses.
  *
  * \param [in] instrument the instrument connection
+ * \param [in] breakOnSample whether to return early when a sample is parsed
  * \param [out] sample where to put a parsed sample
  * \return #RBRINSTRUMENT_SUCCESS when a response was successfully read
  * \return #RBRINSTRUMENT_SAMPLE when a sample is read and \a sample is given
@@ -86,6 +93,7 @@ RBRInstrumentError RBRInstrument_sendCommand(RBRInstrument *instrument,
  * \see RBRInstrument_converse() for a send/receive shortcut
  */
 RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument,
+                                              bool breakOnSample,
                                               RBRInstrumentSample *sample);
 
 /**

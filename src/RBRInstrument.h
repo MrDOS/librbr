@@ -144,7 +144,12 @@ typedef enum RBRInstrumentError
     RBRINSTRUMENT_HARDWARE_ERROR,
     /** The given value is out of bounds or otherwise unsuitable. */
     RBRINSTRUMENT_INVALID_PARAMETER_VALUE,
-    /** Used internally by RBRInstrument_fetch(). */
+    /**
+     * Used internally when the parser encounters a sample.
+     *
+     * \see RBRInstrument_fetch()
+     * \see RBRInstrument_readSample()
+     */
     RBRINSTRUMENT_SAMPLE,
     /** The number of specific errors. Should not be used as an error value. */
     RBRINSTRUMENT_ERROR_COUNT,
