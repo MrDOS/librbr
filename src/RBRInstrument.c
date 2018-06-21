@@ -200,14 +200,20 @@ RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
     err = RBRInstrument_populateGeneration(*instrument);
     if (err != RBRINSTRUMENT_SUCCESS)
     {
-        free(*instrument);
+        if (allocated)
+        {
+            free(*instrument);
+        }
         return err;
     }
 
     if ((*instrument)->generation != RBRINSTRUMENT_LOGGER2
         && (*instrument)->generation != RBRINSTRUMENT_LOGGER3)
     {
-        free(*instrument);
+        if (allocated)
+        {
+            free(*instrument);
+        }
         return RBRINSTRUMENT_UNSUPPORTED;
     }
 
