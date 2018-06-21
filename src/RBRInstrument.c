@@ -137,6 +137,11 @@ static RBRInstrumentError RBRInstrument_populateGeneration(
         return RBRINSTRUMENT_SUCCESS;
     }
 
+    /* TODO: If the instrument is already awake and has garbage sitting in its
+     * receive buffer, the wake sequence will generate an error (“E0102 invalid
+     * command”). We should eat that when first establishing an instrument
+     * connection. */
+
     /* Once we know we're dealing with Logger2/3, we can use the `id` command
      * to get the firmware type, and use that to identify generation. */
     RBRInstrumentId id;

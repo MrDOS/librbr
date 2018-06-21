@@ -21,6 +21,20 @@ extern "C" {
 #endif
 
 /**
+ * \brief The length of the timestamp of a streamed sample.
+ *
+ * “YYYY-mm-dd HH:MM:SS.sss” format.
+ */
+#define RBRINSTRUMENT_SAMPLE_TIME_LEN 23
+
+/**
+ * \brief The length of the timestamp of schedule settings.
+ *
+ * “YYYYmmddHHMMSS” format.
+ */
+#define RBRINSTRUMENT_SCHEDULE_TIME_LEN 14
+
+/**
  * \brief Simple error-checked return around a function call.
  *
  * Evaluates the function call passed as \a op. If it returns a value other
@@ -151,6 +165,70 @@ typedef struct RBRInstrumentResponseParameter
 bool RBRInstrument_parseResponse(char *buffer,
                                  char **command,
                                  RBRInstrumentResponseParameter *parameter);
+
+/**
+ * \brief Parse a date/time string from a sample (i.e.,
+ * “YYYY-mm-dd HH:MM:SS.sss” format) to a timestamp.
+ *
+ * If \a end is not given as `NULL`, it will be modified to point to the first
+ * character after the timestamp in \a s. If the timestamp cannot be parsed, it
+ * will be modified to point to NULL.
+ *
+ * \param [in] s the sample date/time string
+ * \param [out] timestamp the parsed timestamp
+ * \param [out] end the first character not parsed
+ * \return #RBRINSTRUMENT_SUCCESS when the timestamp is successfully parsed
+ * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when the time is invalid
+ */
+RBRInstrumentError RBRInstrumentDateTime_parseSampleTime(
+    const char *s,
+    RBRInstrumentDateTime *timestamp,
+    char **end);
+
+/**
+ * \brief Parse a date/time string from a schedule setting (i.e.,
+ * “YYYYmmddHHMMSS” format) to a timestamp.
+ *
+ * If \a end is not given as `NULL`, it will be modified to point to the first
+ * character after the timestamp in \a s. If the timestamp cannot be parsed, it
+ * will be modified to point to NULL.
+ *
+ * \param [in] s the sample date/time string
+ * \param [out] timestamp the parsed timestamp
+ * \param [out] end the first character not parsed
+ * \return #RBRINSTRUMENT_SUCCESS when the timestamp is successfully parsed
+ * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when the time is invalid
+ */
+RBRInstrumentError RBRInstrumentDateTime_parseScheduleTime(
+    const char *s,
+    RBRInstrumentDateTime *timestamp,
+    char **end);
+
+/**
+ * \brief Convert a timestamp to a sample time/date string (i.e.,
+ * “YYYY-mm-dd HH:MM:SS.sss” format).
+ *
+ * Exactly #RBRINSTRUMENT_SAMPLE_TIME_LEN plus one characters will be written
+ * into the buffer for the timestamp plus null terminator.
+ *
+ * \param [in] timestamp the timestamp
+ * \param [out] s the destination buffer
+ */
+void RBRInstrumentDateTime_toSampleTime(RBRInstrumentDateTime timestamp,
+                                        char *s);
+
+/**
+ * \brief Convert a timestamp to a schedule setting time/date string (i.e.,
+ * “YYYYmmddHHMMSS” format).
+ *
+ * Exactly #RBRINSTRUMENT_SCHEDULE_TIME_LEN plus one characters will be written
+ * into the buffer for the timestamp plus null terminator.
+ *
+ * \param [in] timestamp the timestamp
+ * \param [out] s the destination buffer
+ */
+void RBRInstrumentDateTime_toScheduleTime(RBRInstrumentDateTime timestamp,
+                                          char *s);
 
 #ifdef __cplusplus
 }

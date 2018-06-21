@@ -93,6 +93,22 @@ extern "C" {
 #define RBRINSTRUMENT_CHANNEL_LABEL_MAX 31
 
 /**
+ * \brief The minimum date and time which the instrument can handle.
+ *
+ * Specified in milliseconds since the Unix epoch (1970-01-01T00:00:00.000Z).
+ * Represents 2000-01-01T00:00:00.000Z.
+ */
+#define RBRINSTRUMENT_DATETIME_MIN  946684800000L
+
+/**
+ * \brief The minimum date and time which the instrument can handle.
+ *
+ * Specified in milliseconds since the Unix epoch (1970-01-01T00:00:00.000Z).
+ * Represents 2099-12-31T23:59:59.000Z.
+ */
+#define RBRINSTRUMENT_DATETIME_MAX 4102444799000L
+
+/**
  * A date and time in milliseconds since the Unix epoch
  * (1970-01-01T00:00:00.000Z). Instrument functions operating on time (e.g.,
  * RBRInstrument_getClock(), RBRInstrument_setClock()) will automatically

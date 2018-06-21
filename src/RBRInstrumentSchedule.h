@@ -38,35 +38,33 @@ typedef struct RBRInstrumentClock
      * \brief The instrument's date and time.
      */
     RBRInstrumentDateTime dateTime;
-    /** \brief The offset of the instrument's date and time from UTC. */
-    struct
-    {
-        /**
-         * \brief Whether the offset from UTC has been set.
-         *
-         * When passing a date and time to the instrument, a `false` value will
-         * cause the `offsetfromutc` parameter to be omitted from the command
-         * sent to the instrument; otherwise, the parameter will be sent based
-         * on the values of RBRInstrumentClock.hours and
-         * RBRInstrumentClock.member.
-         *
-         * When receiving a date and time from the instrument, a `false` value
-         * indicates that an offset from UTC was not provided when the
-         * instrument clock was most recently set. In that case,
-         * RBRInstrumentClock.hours and RBRInstrumentClock.minutes are
-         * uninitialized and their values should be ignored. Otherwise, their
-         * values will correspond to the instrument clock offset from UTC.
-         */
-        bool known;
-        /** \brief The hours offset from UTC. */
-        int8_t hours;
-        /** \brief The minutes offset from UTC. */
-        int8_t minutes;
-    } offsetFromUtc;
+    /**
+     * \brief The offset of the instrument's date and time from UTC.
+     *
+     * Specified in hours.
+     *
+     * When passing a date and time to the instrument, a `NAN` value will cause
+     * the `offsetfromutc` parameter to be omitted from the command sent to the
+     * instrument; otherwise, the parameter will be sent as the string
+     * representation of the number to two decimal places.
+     *
+     * When receiving a date and time from the instrument, a `NAN` value
+     * indicates that an offset from UTC was not provided when the instrument
+     * clock was most recently set. Otherwise, the value will correspond to the
+     * instrument clock offset from UTC.
+     */
+    float offsetFromUtc;
 } RBRInstrumentClock;
 
 /**
  * \brief Get the instrument clock.
+ *
+ * Because UTC offset is tracked as a setting on Logger2 instruments, not as a
+ * parameter of the `now` command (as it is of `clock` on Logger3), this
+ * function will internally issue two commands to Logger2 instruments to
+ * separately receive the time and UTC offset. When retrieving the clock from
+ * older Logger2 instruments which do not support the `offsetfromutc` setting,
+ * RBRInstrumentClock.offsetFromUtc will always be `NAN`.
  *
  * \param [in] instrument the instrument connection
  * \param [out] clock the clock value
@@ -80,6 +78,13 @@ RBRInstrumentError RBRInstrument_getClock(RBRInstrument *instrument,
 
 /**
  * \brief Set the instrument clock.
+ *
+ * Because UTC offset is tracked as a setting on Logger2 instruments, not as a
+ * parameter of the `now` command (as it is of `clock` on Logger3), this
+ * function will internally issue two commands to Logger2 instruments to
+ * separately set the time and UTC offset. When setting the clock on older
+ * Logger2 instruments which do not support the `offsetfromutc` setting, the
+ * value of the RBRInstrumentClock.offsetFromUtc field will be ignored.
  *
  * Hardware errors may occur if:
  *
@@ -149,39 +154,38 @@ const char *RBRInstrumentSamplingMode_name(RBRInstrumentSamplingMode mode);
  * \see https://docs.rbr-global.com/L3commandreference/commands/time-and-schedule/sampling
  * \see https://docs.rbr-global.com/L3commandreference/commands/gated-sampling
  */
-typedef enum RBRInstrumentGatingCondition
+typedef enum RBRInstrumentGate
 {
     /** No gating. */
-    RBRINSTRUMENT_NO_GATING,
+    RBRINSTRUMENT_GATE_NONE,
     /**
      * Threshold gating.
      *
      * \see RBRInstrument_setThresholding()
      */
-    RBRINSTRUMENT_THRESHOLDING,
+    RBRINSTRUMENT_GATE_THRESHOLDING,
     /**
      * Twist-activated gating.
      *
      * \see RBRInstrument_setTwistActivation()
      */
-    RBRINSTRUMENT_TWISTACTIVATION,
+    RBRINSTRUMENT_GATE_TWISTACTIVATION,
     /** The instrument considers its gating condition to be invalid. */
-    RBRINSTRUMENT_INVALID,
+    RBRINSTRUMENT_GATE_INVALID,
     /** The number of specific sampling modes. */
-    RBRINSTRUMENT_GATING_CONDITION_COUNT,
+    RBRINSTRUMENT_GATE_COUNT,
     /** An unknown or unrecognized sampling mode. */
-    RBRINSTRUMENT_UNKNOWN_GATING_CONDITION
-} RBRInstrumentGatingCondition;
+    RBRINSTRUMENT_UNKNOWN_GATE
+} RBRInstrumentGate;
 
 /**
  * \brief Get a human-readable string name for a gating condition.
  *
- * \param [in] condition the gating condition
+ * \param [in] gate the gating condition
  * \return a string name for the gating condition
  * \see RBRInstrumentError_name() for a description of the format of names
  */
-const char *RBRInstrumentGatingCondition_name(
-    RBRInstrumentGatingCondition condition);
+const char *RBRInstrumentGate_name(RBRInstrumentGate gate);
 
 /**
  * \brief Instrument `sampling` command parameters.
@@ -240,7 +244,7 @@ typedef struct RBRInstrumentSampling
     /** \brief The number of measurements taken in each burst. */
     int32_t burstLength;
     /** \brief The sampling gating condition. */
-    RBRInstrumentGatingCondition gate;
+    RBRInstrumentGate gate;
 } RBRInstrumentSampling;
 
 /**
@@ -259,6 +263,13 @@ RBRInstrumentError RBRInstrument_getSampling(
 
 /**
  * \brief Set the instrument sampling parameters.
+ *
+ * The values of RBRInstrumentSampling.availableFastPeriods,
+ * RBRInstrument.userPeriodLimit, and RBRInstrumentSampling.gate are ignored.
+ * The available fast periods and user period limit are defined at the factory
+ * and are read-only. The gating mode is controlled via commands for the
+ * individual gating mechanisms: see RBRInstrument_setTwistActivation() and
+ * RBRInstrument_setThresholding().
  *
  * Hardware errors may occur if:
  *
@@ -292,31 +303,31 @@ RBRInstrumentError RBRInstrument_setSampling(
 typedef enum RBRInstrumentDeploymentStatus
 {
     /** Logging is not enabled. */
-    RBRINSTRUMENT_DISABLED,
+    RBRINSTRUMENT_STATUS_DISABLED,
     /** Logging is enabled but the start time has not yet passed. */
-    RBRINSTRUMENT_PENDING,
+    RBRINSTRUMENT_STATUS_PENDING,
     /** Logging is in progress. */
-    RBRINSTRUMENT_LOGGING,
+    RBRINSTRUMENT_STATUS_LOGGING,
     /** Logging paused; awaiting satisfaction of a gating condition. */
-    RBRINSTRUMENT_GATED,
+    RBRINSTRUMENT_STATUS_GATED,
     /** The programmed end time has been passed. */
-    RBRINSTRUMENT_FINISHED,
+    RBRINSTRUMENT_STATUS_FINISHED,
     /**
      * A `disable` command was received.
      *
      * \see RBRInstrument_disable()
      */
-    RBRINSTRUMENT_STOPPED,
+    RBRINSTRUMENT_STATUS_STOPPED,
     /** Memory full; logging has stopped. */
-    RBRINSTRUMENT_FULLANDSTOPPED,
+    RBRINSTRUMENT_STATUS_FULLANDSTOPPED,
     /** Memory full; logger continues to stream data. */
-    RBRINSTRUMENT_FULL,
+    RBRINSTRUMENT_STATUS_FULL,
     /** Stopped; internal error. */
-    RBRINSTRUMENT_FAILED,
+    RBRINSTRUMENT_STATUS_FAILED,
     /** Memory failed to erase. */
-    RBRINSTRUMENT_NOTBLANK,
+    RBRINSTRUMENT_STATUS_NOTBLANK,
     /** Instrument internal error; state unknown. */
-    RBRINSTRUMENT_UNKNOWN,
+    RBRINSTRUMENT_STATUS_UNKNOWN,
     /** The number of specific statuses. */
     RBRINSTRUMENT_STATUS_COUNT,
     /** An unknown or unrecognized status. */

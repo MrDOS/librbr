@@ -20,7 +20,7 @@
 #include <string.h>
 /* Required for sscanf, vsprintf. */
 #include <stdio.h>
-/* Required for struct tm, mktime. */
+/* Required for gmtime, struct tm, mktime. */
 #include <time.h>
 
 #include "RBRInstrument.h"
@@ -43,9 +43,14 @@
 #define PARAMETER_VALUE_SEPARATOR " = "
 #define PARAMETER_VALUE_SEPARATOR_LEN 3
 
-#define RBRINSTRUMENT_DATETIME_MIN  946684800000L
-#define RBRINSTRUMENT_DATETIME_MAX 4102444799000L
 #define OFFSET_UNINITIALIZED (-1)
+
+static const char *RBRInstrumentDateTime_sampleFormat
+    = "%04d-%02d-%02d %02d:%02d:%02d.%03" PRId64 "%n";
+
+static const char *RBRInstrumentDateTime_scheduleFormat
+    = "%4d%2d%2d%2d%2d%2d%n";
+
 static RBRInstrumentDateTime localTimeOffset = OFFSET_UNINITIALIZED;
 
 /**
@@ -292,69 +297,13 @@ static RBRInstrumentError RBRInstrumentSample_parse(
     RBRInstrumentSample *sample,
     char *response)
 {
-    if (localTimeOffset == OFFSET_UNINITIALIZED)
-    {
-        struct tm instrumentMinTimestamp = {
-            .tm_year = 100,
-            .tm_mon = 0,
-            .tm_mday = 1,
-            .tm_hour = 0,
-            .tm_min = 0,
-            .tm_sec = 0
-        };
-        localTimeOffset =
-            RBRINSTRUMENT_DATETIME_MIN
-            - ((RBRInstrumentDateTime) mktime(&instrumentMinTimestamp) * 1000);
-    }
-
     memset(sample, 0, sizeof(RBRInstrumentSample));
 
-    int32_t timestampLength;
-    struct tm split = {
-        0
-    };
-    if (sscanf(response,
-               "%d-%d-%d %d:%d:%d.%" PRId64 "%n",
-               &split.tm_year,
-               &split.tm_mon,
-               &split.tm_mday,
-               &split.tm_hour,
-               &split.tm_min,
-               &split.tm_sec,
-               &sample->timestamp,
-               &timestampLength) < 6)
-    {
-        return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
-    }
+    char *values;
+    RBR_TRY(RBRInstrumentDateTime_parseSampleTime(response,
+                                                  &sample->timestamp,
+                                                  &values));
 
-    /* struct tm/mktime() expects years to be counted from 1900... */
-    split.tm_year -= 1900;
-    /* ...and months to be 0-based. */
-    split.tm_mon  -= 1;
-
-    /* Sanity check. */
-    if (split.tm_year < 100
-        || split.tm_year >= 200
-        || split.tm_mon > 11
-        || split.tm_mday > 31
-        || split.tm_hour > 23
-        || split.tm_min > 59
-        || split.tm_sec > 59
-        || sample->timestamp > 999)
-    {
-        return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
-    }
-
-    sample->timestamp +=
-        (((RBRInstrumentDateTime) mktime(&split)) * 1000) + localTimeOffset;
-
-    if (sample->timestamp < RBRINSTRUMENT_DATETIME_MIN
-        || sample->timestamp > RBRINSTRUMENT_DATETIME_MAX)
-    {
-        return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
-    }
-
-    char *values = response + timestampLength;
     char *token;
     /* Values are double-precision floating point. If they need to encode an
      * error, it's stored in the trailing bits of a NaN. */
@@ -695,4 +644,176 @@ RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
                        commandLength) != 0);
 
     return RBRINSTRUMENT_SUCCESS;
+}
+
+/** \brief Ensure localTimeOffset is initialized. */
+static inline void RBRInstrumentDateTime_initializeOffset()
+{
+    if (localTimeOffset == OFFSET_UNINITIALIZED)
+    {
+        struct tm instrumentMinTimestamp = {
+            .tm_year = 100,
+            .tm_mon = 0,
+            .tm_mday = 1,
+            .tm_hour = 0,
+            .tm_min = 0,
+            .tm_sec = 0
+        };
+        localTimeOffset =
+            RBRINSTRUMENT_DATETIME_MIN
+            - ((RBRInstrumentDateTime) mktime(&instrumentMinTimestamp) * 1000);
+    }
+}
+
+/**
+ * \brief Parse a broken-down time into a millisecond timestamp.
+ *
+ * Any millisecond value should already be present in \a timestamp.
+ *
+ * \param [in] split the broken-down time
+ * \param [in,out] timestamp the timestamp
+ * \return #RBRINSTRUMENT_SUCCESS when the timestamp is successfully parsed
+ * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when the time is invalid
+ */
+static RBRInstrumentError RBRInstrumentDateTime_parse(
+    struct tm *split,
+    RBRInstrumentDateTime *timestamp)
+{
+    /* Sanity check. */
+    if (split->tm_year < 100
+        || split->tm_year >= 200
+        || split->tm_mon > 11
+        || split->tm_mday > 31
+        || split->tm_hour > 23
+        || split->tm_min > 59
+        || split->tm_sec > 59 /* Instrument doesn't know about leap seconds. */
+        || *timestamp > 999)
+    {
+        return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
+    }
+
+    RBRInstrumentDateTime_initializeOffset();
+
+    *timestamp +=
+        (((RBRInstrumentDateTime) mktime(split)) * 1000) + localTimeOffset;
+
+    if (*timestamp < RBRINSTRUMENT_DATETIME_MIN
+        || *timestamp > RBRINSTRUMENT_DATETIME_MAX)
+    {
+        return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
+    }
+
+    return RBRINSTRUMENT_SUCCESS;
+}
+
+RBRInstrumentError RBRInstrumentDateTime_parseSampleTime(
+    const char *s,
+    RBRInstrumentDateTime *timestamp,
+    char **end)
+{
+    *timestamp = 0;
+    if (end != NULL)
+    {
+        *end = NULL;
+    }
+
+    int32_t timestampLength;
+    struct tm split = {0};
+    if (sscanf(s,
+               RBRInstrumentDateTime_sampleFormat,
+               &split.tm_year,
+               &split.tm_mon,
+               &split.tm_mday,
+               &split.tm_hour,
+               &split.tm_min,
+               &split.tm_sec,
+               timestamp,
+               &timestampLength) < 7)
+    {
+        return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
+    }
+
+    /* struct tm/mktime() expects years to be counted from 1900... */
+    split.tm_year -= 1900;
+    /* ...and months to be 0-based. */
+    split.tm_mon  -= 1;
+
+    RBR_TRY(RBRInstrumentDateTime_parse(&split, timestamp));
+    if (end != NULL)
+    {
+        *end = (char *) s + timestampLength;
+    }
+
+    return RBRINSTRUMENT_SUCCESS;
+}
+
+RBRInstrumentError RBRInstrumentDateTime_parseScheduleTime(
+    const char *s,
+    RBRInstrumentDateTime *timestamp,
+    char **end)
+{
+    *timestamp = 0;
+    if (end != NULL)
+    {
+        *end = NULL;
+    }
+
+    int32_t timestampLength;
+    struct tm split = {0};
+    if (sscanf(s,
+               RBRInstrumentDateTime_scheduleFormat,
+               &split.tm_year,
+               &split.tm_mon,
+               &split.tm_mday,
+               &split.tm_hour,
+               &split.tm_min,
+               &split.tm_sec,
+               &timestampLength) < 6)
+    {
+        return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
+    }
+
+    /* struct tm/mktime() expects years to be counted from 1900... */
+    split.tm_year -= 1900;
+    /* ...and months to be 0-based. */
+    split.tm_mon  -= 1;
+
+    RBR_TRY(RBRInstrumentDateTime_parse(&split, timestamp));
+    if (end != NULL)
+    {
+        *end = (char *) s + timestampLength;
+    }
+
+    return RBRINSTRUMENT_SUCCESS;
+}
+
+void RBRInstrumentDateTime_toSampleTime(RBRInstrumentDateTime timestamp,
+                                        char *s)
+{
+    time_t t = timestamp / 1000;
+    struct tm *split = gmtime(&t);
+    sprintf(s,
+            RBRInstrumentDateTime_sampleFormat,
+            split->tm_year + 1900,
+            split->tm_mon + 1,
+            split->tm_mday,
+            split->tm_hour,
+            split->tm_min,
+            split->tm_sec,
+            timestamp % 1000);
+}
+
+void RBRInstrumentDateTime_toScheduleTime(RBRInstrumentDateTime timestamp,
+                                          char *s)
+{
+    time_t t = timestamp / 1000;
+    struct tm *split = gmtime(&t);
+    sprintf(s,
+            RBRInstrumentDateTime_sampleFormat,
+            split->tm_year + 1900,
+            split->tm_mon + 1,
+            split->tm_mday,
+            split->tm_hour,
+            split->tm_min,
+            split->tm_sec);
 }

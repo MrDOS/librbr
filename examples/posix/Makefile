@@ -5,11 +5,11 @@ LDLIBS := -lrbr
 
 example: posix-download posix-fetch posix-stream posix-stream-sdl
 
-posix-download: posix-shared.o posix-download.o
+posix-download: posix-shared.o posix-download.o ../../bin/librbr.a
 
-posix-fetch: posix-shared.o posix-fetch.o
+posix-fetch: posix-shared.o posix-fetch.o ../../bin/librbr.a
 
-posix-stream: posix-shared.o posix-stream.o
+posix-stream: posix-shared.o posix-stream.o ../../bin/librbr.a
 
 posix-stream-sdl: LDFLAGS += -lSDL2
 posix-stream-sdl: posix-shared.o posix-stream-sdl.o

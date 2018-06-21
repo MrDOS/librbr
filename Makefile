@@ -53,6 +53,7 @@ lib: bin bin/librbr.a(src/RBRInstrument.o \
                       src/RBRInstrumentInternal.o \
                       src/RBRInstrumentMemory.o \
                       src/RBRInstrumentOther.o \
+                      src/RBRInstrumentSchedule.o \
                       src/RBRInstrumentSecurity.o \
                       src/RBRInstrumentStreaming.o)
 
