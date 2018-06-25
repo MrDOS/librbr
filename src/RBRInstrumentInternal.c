@@ -64,7 +64,7 @@ void *memmem(void *ptr1, size_t num1,
         return NULL;
     }
 
-    for (size_t offset = 0; offset < num1 - num2; offset++)
+    for (size_t offset = 0; offset <= num1 - num2; offset++)
     {
         if (memcmp((uint8_t *) ptr1 + offset, ptr2, num2) == 0)
         {

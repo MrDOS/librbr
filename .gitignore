@@ -8,6 +8,8 @@ examples/posix/posix-stream-sdl
 examples/*/*.bin
 examples/*/*.log
 examples/*/*.o
+tests/tests.c
+tests/*.o
 
 # Temporary files.
 *~

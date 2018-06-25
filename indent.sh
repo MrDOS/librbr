@@ -51,5 +51,6 @@ if [ $# -ge 1 ]
 then
     uncrustify -c "$SCRIPT_DIR"/"uncrustify.cfg" --no-backup "$@"
 else
-    uncrustify -c "$SCRIPT_DIR"/"uncrustify.cfg" --no-backup src/*.[ch]
+    uncrustify -c "$SCRIPT_DIR"/"uncrustify.cfg" --no-backup src/*.[ch] \
+                                                             tests/*.[ch]
 fi
