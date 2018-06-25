@@ -329,18 +329,103 @@ const char *RBRInstrumentWiFiState_name(RBRInstrumentWiFiState state)
     switch (state)
     {
     case RBRINSTRUMENT_WIFI_NA:
-        return "na";
+        return "n/a";
     case RBRINSTRUMENT_WIFI_ON:
         return "on";
     case RBRINSTRUMENT_WIFI_OFF:
         return "off";
+    case RBRINSTRUMENT_WIFI_COUNT:
+        return "state count";
+    case RBRINSTRUMENT_UNKNOWN_WIFI:
     default:
-        return "unknown Wi-Fi state";
+        return "unknown state";
     }
 }
 
 RBRInstrumentError RBRInstrument_getWiFi(RBRInstrument *instrument,
-                                         RBRInstrumentWiFi *wifi);
+                                         RBRInstrumentWiFi *wifi)
+{
+    memset(wifi, 0, sizeof(RBRInstrumentWiFi));
+
+    RBR_TRY(RBRInstrument_converse(instrument, "wifi"));
+
+    bool more = false;
+    char *command = NULL;
+    RBRInstrumentResponseParameter parameter;
+    do
+    {
+        more = RBRInstrument_parseResponse(instrument->message.message,
+                                           &command,
+                                           &parameter);
+        if (strcmp(parameter.key, "enabled") == 0)
+        {
+            wifi->enabled = (strcmp(parameter.value, "true") == 0);
+        }
+        else if (strcmp(parameter.key, "state") == 0)
+        {
+            for (int i = RBRINSTRUMENT_WIFI_NA;
+                 i < RBRINSTRUMENT_WIFI_COUNT;
+                 i++)
+            {
+                if (strcmp(RBRInstrumentWiFiState_name(i),
+                           parameter.value) == 0)
+                {
+                    wifi->state = i;
+                    break;
+                }
+            }
+        }
+        else if (strcmp(parameter.key, "timeout") == 0)
+        {
+            wifi->timeout = strtol(parameter.value, NULL, 10);
+        }
+        else if (strcmp(parameter.key, "commandtimeout") == 0)
+        {
+            wifi->commandTimeout = strtol(parameter.value, NULL, 10);
+        }
+        else if (strcmp(parameter.key, "baudrate") == 0)
+        {
+            for (int i = RBRINSTRUMENT_SERIAL_BAUD_NONE + 1;
+                 i <= RBRINSTRUMENT_SERIAL_BAUD_MAX;
+                 i <<= 1)
+            {
+                if (strcmp(RBRInstrumentSerialBaudRate_name(i),
+                           parameter.value) == 0)
+                {
+                    wifi->baudRate = i;
+                    break;
+                }
+            }
+        }
+    } while (more);
+
+    return RBRINSTRUMENT_SUCCESS;
+}
 
 RBRInstrumentError RBRInstrument_setWiFi(RBRInstrument *instrument,
-                                         const RBRInstrumentWiFi *wifi);
+                                         const RBRInstrumentWiFi *wifi)
+{
+    if (wifi->timeout < 5 || wifi->timeout > 600
+        || wifi->commandTimeout < 5 || wifi->commandTimeout > 600)
+    {
+        return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
+    }
+
+    if (instrument->generation == RBRINSTRUMENT_LOGGER2)
+    {
+        return RBRInstrument_converse(
+            instrument,
+            "wifi timeout = %d, commandtimeout = %d",
+            wifi->timeout,
+            wifi->commandTimeout);
+    }
+    else
+    {
+        return RBRInstrument_converse(
+            instrument,
+            "wifi enabled = %s, timeout = %d, commandtimeout = %d",
+            wifi->enabled ? "true" : "false",
+            wifi->timeout,
+            wifi->commandTimeout);
+    }
+}

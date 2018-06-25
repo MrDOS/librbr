@@ -280,7 +280,11 @@ typedef enum RBRInstrumentWiFiState
     /** \brief The Wi-Fi radio is powered up and ready to communicate. */
     RBRINSTRUMENT_WIFI_ON,
     /** \brief The Wi-Fi radio is powered down. */
-    RBRINSTRUMENT_WIFI_OFF
+    RBRINSTRUMENT_WIFI_OFF,
+    /** The number of specific states. */
+    RBRINSTRUMENT_WIFI_COUNT,
+    /** An unknown or unrecognized state. */
+    RBRINSTRUMENT_UNKNOWN_WIFI
 } RBRInstrumentWiFiState;
 
 /**
@@ -301,12 +305,17 @@ const char *RBRInstrumentWiFiState_name(RBRInstrumentWiFiState state);
  */
 typedef struct RBRInstrumentWiFi
 {
-    /** \brief Enables or disables Wi-Fi connectivity. */
+    /**
+     * \brief Enables or disables Wi-Fi connectivity.
+     *
+     * \nol2 Will be retrieved as `false`.
+     */
     bool enabled;
     /**
      * \brief The state of the Wi-Fi radio.
      *
      * \readonly
+     * \nol2 Will be retrieved as #RBRINSTRUMENT_WIFI_NA.
      */
     RBRInstrumentWiFiState state;
     /**
@@ -328,7 +337,9 @@ typedef struct RBRInstrumentWiFi
      * and the Wi-Fi radio.
      *
      * \readonly
+     * \nol2 Will be retrieved as #RBRINSTRUMENT_SERIAL_BAUD_NONE.
      */
+    RBRInstrumentSerialBaudRate baudRate;
 } RBRInstrumentWiFi;
 
 /**
@@ -348,6 +359,12 @@ RBRInstrumentError RBRInstrument_getWiFi(RBRInstrument *instrument,
 
 /**
  * \brief Reconfigure the instrument Wi-Fi settings.
+ *
+ * For Logger3 instruments, this sends the values of RBRInstrumentWiFi.enabled,
+ * RBRInstrumentWiFi.timeout, and RBRInstrumentWiFi.commandTimeout. For Logger2
+ * instruments, this sends only the values of RBRInstrumentWiFi.timeout and
+ * RBRInstrumentWiFi.commandTimeout as the RBRInstrumentWiFi.enabled parameter
+ * does not exist for that generation of instruments.
  *
  * \param [in] instrument the instrument connection
  * \param [out] wifi the new Wi-Fi parameters
