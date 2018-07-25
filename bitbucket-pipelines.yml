@@ -1,7 +1,34 @@
-image: gcc:6.3
-
 pipelines:
     default:
         - step:
+            name: GCC 6 compilation
+            image: gcc:6
             script:
-                - scan-build make
+                - make clean
+                - make tests
+        - step:
+            name: GCC 7 compilation
+            image: gcc:7
+            script:
+                - make clean
+                - make tests
+        - step:
+            name: GCC 8 compilation
+            image: gcc:8
+            script:
+                - make clean
+                - make tests
+        - step:
+            name: Clang compilation and static analysis
+            image: rsmmr/clang:6.0
+            script:
+                - make clean
+                - scan-build make lib
+                - make tests
+        - step:
+            name: Documentation compilation
+            image: gcc:8
+            script:
+                - apt-get update && apt-get -y install doxygen graphviz
+                - make clean
+                - make docs
