@@ -83,7 +83,7 @@ extern "C" {
  *
  * Does not include any null terminator.
  */
-#define RBRINSTRUMENT_CHANNEL_UNITS_MAX 7
+#define RBRINSTRUMENT_CHANNEL_UNIT_MAX 7
 
 /**
  * \brief The maximum number of characters in a channel label.

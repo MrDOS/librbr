@@ -47,6 +47,7 @@ RBRInstrumentError RBRInstrument_getPrompt(RBRInstrument *instrument,
         if (strcmp(parameter.key, "state") == 0)
         {
             *prompt = (strcmp(parameter.value, "on") == 0);
+            break;
         }
     } while (more);
 
@@ -79,6 +80,7 @@ RBRInstrumentError RBRInstrument_getConfirmation(RBRInstrument *instrument,
         if (strcmp(parameter.key, "state") == 0)
         {
             *confirmation = (strcmp(parameter.value, "on") == 0);
+            break;
         }
     } while (more);
 

@@ -418,7 +418,7 @@ RBRInstrumentError RBRInstrument_getCurrentMemoryFormat(
             continue;
         }
 
-        for (int i = RBRINSTRUMENT_MEMFORMAT_RAWBIN00 + 1;
+        for (int i = RBRINSTRUMENT_MEMFORMAT_NONE + 1;
              i <= RBRINSTRUMENT_MEMFORMAT_MAX;
              i <<= 1)
         {

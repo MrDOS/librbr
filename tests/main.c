@@ -68,6 +68,11 @@ RBRInstrumentError TestIOBuffers_read(
     /* If we're out of data, indicate a callback error. */
     if (readLength <= 0)
     {
+        fprintf(
+            stderr,
+            "TestIOBuffers_read: read buffer underrun! (%" PRIi32 "B "
+            "requested.)\n",
+            *size);
         return RBRINSTRUMENT_CALLBACK_ERROR;
     }
     else if (readLength > *size)
@@ -93,12 +98,43 @@ RBRInstrumentError TestIOBuffers_write(const struct RBRInstrument *instrument,
     /* If we're out of space, indicate a callback error. */
     if (remaining < size)
     {
+        fprintf(
+            stderr,
+            "TestIOBuffers_write: write buffer full! (Tried to write %" PRIi32
+            "B but only had space for %" PRIi32 "B.)\n",
+            size,
+            remaining);
         return RBRINSTRUMENT_CALLBACK_ERROR;
     }
     /* Otherwise, store the data to the write buffer. */
     memcpy(buffers->writeBuffer, data, size);
     buffers->writeBufferPos += size;
     return RBRINSTRUMENT_SUCCESS;
+}
+
+RBRInstrumentError TestIOBuffers_sample(
+    const struct RBRInstrument *instrument,
+    const struct RBRInstrumentSample *const sample)
+{
+    TestIOBuffers *buffers;
+    buffers = (TestIOBuffers *) RBRInstrument_getUserData(instrument);
+    if (sample != &buffers->streamSample)
+    {
+        return RBRINSTRUMENT_CALLBACK_ERROR;
+    }
+    return RBRINSTRUMENT_SUCCESS;
+}
+
+const char *bool_name(bool value)
+{
+    if (value)
+    {
+        return "true";
+    }
+    else
+    {
+        return "false";
+    }
 }
 
 int main()
@@ -109,7 +145,9 @@ int main()
         .time =  TestIOBuffers_time,
         .sleep = TestIOBuffers_sleep,
         .read = TestIOBuffers_read,
-        .write = TestIOBuffers_write
+        .write = TestIOBuffers_write,
+        .sample = TestIOBuffers_sample,
+        .sampleBuffer = &buffers.streamSample
     };
 
     RBRInstrument instrumentL2Buffer;
@@ -127,6 +165,7 @@ int main()
         fprintf(stderr,
                 "Failure initializing Logger2 test instrument: %s.\n",
                 RBRInstrumentError_name(err));
+        return EXIT_FAILURE;
     }
     else
     {
@@ -148,6 +187,7 @@ int main()
         fprintf(stderr,
                 "Failure initializing Logger2 test instrument: %s.\n",
                 RBRInstrumentError_name(err));
+        return EXIT_FAILURE;
     }
     else
     {
@@ -155,6 +195,7 @@ int main()
     }
 
     printf("Running tests...\n");
+    int success = EXIT_SUCCESS;
     RBRInstrument *testInstrument;
     for (int32_t i = 0; tests[i].function != NULL; i++)
     {
@@ -177,8 +218,10 @@ int main()
         else
         {
             printf(" \033[31mfail\033[0m\n");
+            success = EXIT_FAILURE;
         }
     }
 
     printf("Tests completed.\n");
+    return success;
 }

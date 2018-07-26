@@ -13,7 +13,7 @@
 typedef struct LinkTest
 {
     const char *command;
-    RBRInstrumentLink expectedResult;
+    RBRInstrumentLink expected;
 } LinkTest;
 
 TEST_LOGGER2(link_l2)
@@ -33,7 +33,7 @@ TEST_LOGGER2(link_l2)
         TestIOBuffers_init(buffers, tests[i].command, 0);
         err = RBRInstrument_getLink(instrument, &link);
         TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
-        TEST_ASSERT_ENUM_EQ(tests[i].expectedResult, link, RBRInstrumentLink);
+        TEST_ASSERT_ENUM_EQ(tests[i].expected, link, RBRInstrumentLink);
     }
 
     return true;
@@ -56,7 +56,7 @@ TEST_LOGGER3(link_l3)
         TestIOBuffers_init(buffers, tests[i].command, 0);
         err = RBRInstrument_getLink(instrument, &link);
         TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
-        TEST_ASSERT_ENUM_EQ(tests[i].expectedResult, link, RBRInstrumentLink);
+        TEST_ASSERT_ENUM_EQ(tests[i].expected, link, RBRInstrumentLink);
     }
 
     return true;
@@ -65,7 +65,7 @@ TEST_LOGGER3(link_l3)
 typedef struct SerialTest
 {
     const char *command;
-    RBRInstrumentSerial expectedResult;
+    RBRInstrumentSerial expected;
 } SerialTest;
 
 TEST_LOGGER3(serial)
@@ -99,8 +99,8 @@ TEST_LOGGER3(serial)
         TestIOBuffers_init(buffers, tests[i].command, 0);
         err = RBRInstrument_getSerial(instrument, &serial);
         TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
-        TEST_ASSERT_ENUM_EQ(tests[i].expectedResult.baudRate, serial.baudRate, RBRInstrumentSerialBaudRate);
-        TEST_ASSERT_ENUM_EQ(tests[i].expectedResult.mode, serial.mode, RBRInstrumentSerialMode);
+        TEST_ASSERT_ENUM_EQ(tests[i].expected.baudRate, serial.baudRate, RBRInstrumentSerialBaudRate);
+        TEST_ASSERT_ENUM_EQ(tests[i].expected.mode, serial.mode, RBRInstrumentSerialMode);
     }
 
     return true;
@@ -188,7 +188,7 @@ typedef struct WiFiTest
 {
     const char *command;
     RBRInstrumentError expectedError;
-    RBRInstrumentWiFi expectedResult;
+    RBRInstrumentWiFi expected;
 } WiFiTest;
 
 TEST_LOGGER2(wifi_l2)
@@ -220,11 +220,11 @@ TEST_LOGGER2(wifi_l2)
         TestIOBuffers_init(buffers, tests[i].command, 0);
         err = RBRInstrument_getWiFi(instrument, &wifi);
         TEST_ASSERT_ENUM_EQ(tests[i].expectedError, err, RBRInstrumentError);
-        TEST_ASSERT_EQ(tests[i].expectedResult.enabled, wifi.enabled, "%d");
-        TEST_ASSERT_ENUM_EQ(tests[i].expectedResult.state, wifi.state, RBRInstrumentWiFiState);
-        TEST_ASSERT_EQ(tests[i].expectedResult.timeout, wifi.timeout, "%d");
-        TEST_ASSERT_EQ(tests[i].expectedResult.commandTimeout, wifi.commandTimeout, "%d");
-        TEST_ASSERT_ENUM_EQ(tests[i].expectedResult.baudRate, wifi.baudRate, RBRInstrumentSerialBaudRate);
+        TEST_ASSERT_ENUM_EQ(tests[i].expected.enabled, wifi.enabled, bool);
+        TEST_ASSERT_ENUM_EQ(tests[i].expected.state, wifi.state, RBRInstrumentWiFiState);
+        TEST_ASSERT_EQ(tests[i].expected.timeout, wifi.timeout, "%" PRIi32);
+        TEST_ASSERT_EQ(tests[i].expected.commandTimeout, wifi.commandTimeout, "%" PRIi32);
+        TEST_ASSERT_ENUM_EQ(tests[i].expected.baudRate, wifi.baudRate, RBRInstrumentSerialBaudRate);
     }
 
     return true;
@@ -277,11 +277,11 @@ TEST_LOGGER3(wifi_l3)
         TestIOBuffers_init(buffers, tests[i].command, 0);
         err = RBRInstrument_getWiFi(instrument, &wifi);
         TEST_ASSERT_ENUM_EQ(tests[i].expectedError, err, RBRInstrumentError);
-        TEST_ASSERT_EQ(tests[i].expectedResult.enabled, wifi.enabled, "%d");
-        TEST_ASSERT_ENUM_EQ(tests[i].expectedResult.state, wifi.state, RBRInstrumentWiFiState);
-        TEST_ASSERT_EQ(tests[i].expectedResult.timeout, wifi.timeout, "%d");
-        TEST_ASSERT_EQ(tests[i].expectedResult.commandTimeout, wifi.commandTimeout, "%d");
-        TEST_ASSERT_ENUM_EQ(tests[i].expectedResult.baudRate, wifi.baudRate, RBRInstrumentSerialBaudRate);
+        TEST_ASSERT_ENUM_EQ(tests[i].expected.enabled, wifi.enabled, bool);
+        TEST_ASSERT_ENUM_EQ(tests[i].expected.state, wifi.state, RBRInstrumentWiFiState);
+        TEST_ASSERT_EQ(tests[i].expected.timeout, wifi.timeout, "%" PRIi32);
+        TEST_ASSERT_EQ(tests[i].expected.commandTimeout, wifi.commandTimeout, "%" PRIi32);
+        TEST_ASSERT_ENUM_EQ(tests[i].expected.baudRate, wifi.baudRate, RBRInstrumentSerialBaudRate);
     }
 
     return true;

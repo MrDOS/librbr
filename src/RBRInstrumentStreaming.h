@@ -34,13 +34,13 @@ typedef struct RBRInstrumentChannelsList
 {
     /** \brief The number of active channels. */
     int32_t count;
-    /** \brief The name and units for each active channel. */
+    /** \brief The name and unit of each active channel. */
     struct
     {
         /** \brief The name of the channel as a null-terminated C string. */
         char name[RBRINSTRUMENT_CHANNEL_NAME_MAX + 1];
-        /** \brief The units of the channel as a null-terminated C string. */
-        char units[RBRINSTRUMENT_CHANNEL_UNITS_MAX + 1];
+        /** \brief The unit of the channel as a null-terminated C string. */
+        char unit[RBRINSTRUMENT_CHANNEL_UNIT_MAX + 1];
     } channels[RBRINSTRUMENT_CHANNEL_MAX];
 } RBRInstrumentChannelsList;
 
@@ -51,13 +51,14 @@ typedef struct RBRInstrumentChannelsList
  * transmitted data.
  *
  * RBRInstrumentChannelsList.channels will be populated in the order reported
- * by the instrument. Unpopulated entries will have zero-length name and units
+ * by the instrument. Unpopulated entries will have zero-length name and unit
  * members.
  *
  * \nol2 Use RBRInstrument_getChannels() and RBRInstrument_getChannel().
  *
  * \param [in] instrument the instrument connection
  * \param [out] channelsList the channels list
+ * \return #RBRINSTRUMENT_UNSUPPORTED for Logger2 instruments
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
@@ -82,7 +83,7 @@ typedef struct RBRInstrumentLabelsList
     /**
      * \brief The label for each active channel as null-terminated C strings.
      */
-    char channels[RBRINSTRUMENT_CHANNEL_MAX][RBRINSTRUMENT_CHANNEL_LABEL_MAX + 1];
+    char labels[RBRINSTRUMENT_CHANNEL_MAX][RBRINSTRUMENT_CHANNEL_LABEL_MAX + 1];
 } RBRInstrumentLabelsList;
 
 /**
@@ -98,6 +99,7 @@ typedef struct RBRInstrumentLabelsList
  *
  * \param [in] instrument the instrument connection
  * \param [out] labelsList the channel labels list
+ * \return #RBRINSTRUMENT_UNSUPPORTED for Logger2 instruments
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
@@ -265,7 +267,11 @@ typedef enum RBRInstrumentAuxOutputActiveLevel
     /* Signal actively driven high. */
     RBRINSTRUMENT_ACTIVE_HIGH,
     /* Signal actively driven low. */
-    RBRINSTRUMENT_ACTIVE_LOW
+    RBRINSTRUMENT_ACTIVE_LOW,
+    /** The number of active output levels. */
+    RBRINSTRUMENT_ACTIVE_COUNT,
+    /** An unknown or unrecognized active output level. */
+    RBRINSTRUMENT_UNKNOWN_ACTIVE
 } RBRInstrumentAuxOutputActiveLevel;
 
 /**
@@ -293,7 +299,11 @@ typedef enum RBRInstrumentAuxOutputSleepLevel
     /* Signal actively driven high. */
     RBRINSTRUMENT_SLEEP_HIGH,
     /* Signal actively driven low. */
-    RBRINSTRUMENT_SLEEP_LOW
+    RBRINSTRUMENT_SLEEP_LOW,
+    /** The number of sleep output levels. */
+    RBRINSTRUMENT_SLEEP_COUNT,
+    /** An unknown or unrecognized sleep output level. */
+    RBRINSTRUMENT_UNKNOWN_SLEEP
 } RBRInstrumentAuxOutputSleepLevel;
 
 /**
@@ -323,8 +333,8 @@ typedef struct RBRInstrumentAuxOutput
      * Can currently only ever be set to `1` (AUX1).
      */
     uint8_t aux;
-    /** \brief The on/off state of the feature. */
-    bool state;
+    /** \brief Enables or disables the auxiliary output. */
+    bool enabled;
     /**
      * \brief The signal set-up time.
      *
@@ -366,9 +376,9 @@ typedef struct RBRInstrumentAuxOutput
  * be set to `1` (AUX1). For example:
  *
  * ~~~{.c}
- * RBRInstrumentAuxOutput output;
- * output.aux = 1;
- * RBRInstrument_getAuxOutput(instrument, &output);
+ * RBRInstrumentAuxOutput auxOutput;
+ * auxOutput.aux = 1;
+ * RBRInstrument_getAuxOutput(instrument, &auxOutput);
  * ~~~
  *
  * \param [in] instrument the instrument connection

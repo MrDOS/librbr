@@ -149,7 +149,7 @@ typedef struct RBRInstrumentChannel
      *
      * E.g., “C” for Celsius, “V” for Volts, “dbar” for decibars.
      */
-    char userUnits[RBRINSTRUMENT_CHANNEL_UNITS_MAX + 1];
+    char userUnits[RBRINSTRUMENT_CHANNEL_UNIT_MAX + 1];
     /** \brief Whether the channel is a derived channel. */
     bool derived;
     /**

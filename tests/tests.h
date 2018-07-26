@@ -3,6 +3,9 @@
  *
  * \brief Common testing definitions, structures, and functions.
  *
+ * TODO: Documentation. End users shouldn't need to consume anything from this
+ * file, but library developers will need to know how to write tests.
+ *
  * \copyright
  * Copyright (c) 2018 RBR Ltd.
  * Licensed under the Apache License, Version 2.0.
@@ -33,7 +36,7 @@ extern "C" {
         if ((_expected) != (_actual)) \
         { \
             printf(" assertion failure at %s:%d:" \
-                   " expected " _type " but got " _type, \
+                   " expected " _type "; actual " _type, \
                    __FILE__, \
                    __LINE__, \
                    _expected, \
@@ -46,11 +49,25 @@ extern "C" {
         if ((_expected) != (_actual)) \
         { \
             printf(" assertion failure at %s:%d:" \
-                   " expected %s but got %s", \
+                   " expected %s; actual %s", \
                    __FILE__, \
                    __LINE__, \
                    _enum##_name(_expected), \
                    _enum##_name(_actual)); \
+            return false; \
+        } \
+} while (0)
+
+#define TEST_ASSERT_STR_EQ(_expected, _actual) do { \
+        if (strcmp((_expected), (_actual)) != 0) \
+        { \
+            printf(" assertion failure at %s:%d:\n" \
+                   "\texpected \"%s\"\n" \
+                   "\t  actual \"%s\"", \
+                   __FILE__, \
+                   __LINE__, \
+                   _expected, \
+                   _actual); \
             return false; \
         } \
 } while (0)
@@ -67,6 +84,7 @@ typedef struct TestIOBuffers
     int32_t readBufferPos;
     char writeBuffer[TESTIOBUFFERS_WRITE_BUFFER_SIZE];
     int32_t writeBufferPos;
+    RBRInstrumentSample streamSample;
 } TestIOBuffers;
 
 /**
@@ -83,8 +101,14 @@ void TestIOBuffers_init(TestIOBuffers *buffers,
                         const char *readBuffer,
                         int32_t readBufferSize);
 
+/** \brief Enables the use of TEST_ASSERT_ENUM_EQ for boolean values. */
+const char *bool_name(bool value);
+
+/* Uncrustify thinks that asterisks in macros are multiplication operators and
+ * incorrectly adds spacing, so we'll turn *INDENT-OFF* just for this. */
 #define _TEST(fn) bool test_##fn(RBRInstrument *instrument, \
                                  TestIOBuffers *buffers)
+/* *INDENT-ON* */
 #define TEST_LOGGER2(fn) _TEST(fn)
 #define TEST_LOGGER3(fn) _TEST(fn)
 
