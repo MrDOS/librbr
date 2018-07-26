@@ -16,7 +16,7 @@ typedef struct LinkTest
     RBRInstrumentLink expected;
 } LinkTest;
 
-TEST_LOGGER2(link_l2)
+TEST_LOGGER2(link)
 {
     RBRInstrumentError err;
     RBRInstrumentLink link;
@@ -39,7 +39,7 @@ TEST_LOGGER2(link_l2)
     return true;
 }
 
-TEST_LOGGER3(link_l3)
+TEST_LOGGER3(link)
 {
     RBRInstrumentError err;
     RBRInstrumentLink link;
@@ -106,7 +106,7 @@ TEST_LOGGER3(serial)
     return true;
 }
 
-TEST_LOGGER2(serial_availablebaudrates_l2)
+TEST_LOGGER2(serial_availablebaudrates)
 {
     RBRInstrumentError err;
     RBRInstrumentSerialBaudRate baudRates;
@@ -120,7 +120,7 @@ TEST_LOGGER2(serial_availablebaudrates_l2)
     return true;
 }
 
-TEST_LOGGER3(serial_availablebaudrates_l3)
+TEST_LOGGER3(serial_availablebaudrates)
 {
     RBRInstrumentError err;
     RBRInstrumentSerialBaudRate baudRates;
@@ -147,7 +147,7 @@ TEST_LOGGER3(serial_availablebaudrates_l3)
     return true;
 }
 
-TEST_LOGGER2(serial_availablemodes_l2)
+TEST_LOGGER2(serial_availablemodes)
 {
     RBRInstrumentError err;
     RBRInstrumentSerialMode modes;
@@ -161,7 +161,7 @@ TEST_LOGGER2(serial_availablemodes_l2)
     return true;
 }
 
-TEST_LOGGER3(serial_availablemodes_l3)
+TEST_LOGGER3(serial_availablemodes)
 {
     RBRInstrumentError err;
     RBRInstrumentSerialMode modes;
@@ -191,7 +191,7 @@ typedef struct WiFiTest
     RBRInstrumentWiFi expected;
 } WiFiTest;
 
-TEST_LOGGER2(wifi_l2)
+TEST_LOGGER2(wifi)
 {
     RBRInstrumentError err;
     RBRInstrumentWiFi wifi;
@@ -230,7 +230,7 @@ TEST_LOGGER2(wifi_l2)
     return true;
 }
 
-TEST_LOGGER3(wifi_l3)
+TEST_LOGGER3(wifi)
 {
     RBRInstrumentError err;
     RBRInstrumentWiFi wifi;

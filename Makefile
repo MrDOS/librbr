@@ -87,7 +87,7 @@ tests/tests.c: tests/communication.c tests/streaming.c
 		| sed -e 's/$$/;/' >>$@
 	@echo "TestDeclaration tests[] = {" >>$@
 	@grep -ho 'TEST_LOGGER[23]([A-Za-z_][A-Za-z0-9_]*)' $^ \
-		| sed -e 's/^TEST_\([^(]*\)(\([^)]*\))/    {"\2", RBRINSTRUMENT_\1, test_\2},/' \
+		| sed -e 's/^TEST_LOGGER\([^(]*\)(\([^)]*\))/    {"\2", RBRINSTRUMENT_LOGGER\1, test_\2_l\1},/' \
 		>>$@
 	@echo "    {NULL, RBRINSTRUMENT_UNKNOWN_GENERATION, NULL}" >>$@
 	@echo "};" >>$@

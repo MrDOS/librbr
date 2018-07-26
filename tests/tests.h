@@ -109,8 +109,8 @@ const char *bool_name(bool value);
 #define _TEST(fn) bool test_##fn(RBRInstrument *instrument, \
                                  TestIOBuffers *buffers)
 /* *INDENT-ON* */
-#define TEST_LOGGER2(fn) _TEST(fn)
-#define TEST_LOGGER3(fn) _TEST(fn)
+#define TEST_LOGGER2(fn) _TEST(fn##_l2)
+#define TEST_LOGGER3(fn) _TEST(fn##_l3)
 
 typedef bool (TestFunction)(RBRInstrument *instrument, TestIOBuffers *buffers);
 typedef struct TestDeclaration

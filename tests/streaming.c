@@ -13,7 +13,7 @@
 
 #include "tests.h"
 
-TEST_LOGGER2(outputformat_channelslist_l2)
+TEST_LOGGER2(outputformat_channelslist)
 {
     /* Buffers unused: returning UNSUPPORTED should not require instrument
      * communication. */
@@ -27,7 +27,7 @@ TEST_LOGGER2(outputformat_channelslist_l2)
     return true;
 }
 
-TEST_LOGGER3(outputformat_channelslist_l3)
+TEST_LOGGER3(outputformat_channelslist)
 {
     RBRInstrumentChannelsList expected = {
         .count = 5,
@@ -68,7 +68,7 @@ TEST_LOGGER3(outputformat_channelslist_l3)
     return true;
 }
 
-TEST_LOGGER2(outputformat_labelslist_l2)
+TEST_LOGGER2(outputformat_labelslist)
 {
     /* Buffers unused: returning UNSUPPORTED should not require instrument
      * communication. */
@@ -82,7 +82,7 @@ TEST_LOGGER2(outputformat_labelslist_l2)
     return true;
 }
 
-TEST_LOGGER3(outputformat_labelslist_l3)
+TEST_LOGGER3(outputformat_labelslist)
 {
     RBRInstrumentLabelsList expected = {
         .count = 5,
@@ -138,7 +138,7 @@ bool test_outputformat_support(RBRInstrument *instrument)
     return true;
 }
 
-TEST_LOGGER2(outputformat_support_l2)
+TEST_LOGGER2(outputformat_support)
 {
     TestIOBuffers_init(
         buffers,
@@ -148,7 +148,7 @@ TEST_LOGGER2(outputformat_support_l2)
     return test_outputformat_support(instrument);
 }
 
-TEST_LOGGER3(outputformat_availabletypes_l3)
+TEST_LOGGER3(outputformat_availabletypes)
 {
     TestIOBuffers_init(
         buffers,
@@ -225,7 +225,7 @@ TEST_LOGGER3(streamserial)
     return true;
 }
 
-TEST_LOGGER2(streamserial_aux_l2)
+TEST_LOGGER2(streamserial_aux)
 {
     RBRInstrumentAuxOutput expected = {
         .aux = 1,
@@ -262,7 +262,7 @@ TEST_LOGGER2(streamserial_aux_l2)
     return true;
 }
 
-TEST_LOGGER2(streamserial_set_aux_l2)
+TEST_LOGGER2(streamserial_set_aux)
 {
     RBRInstrumentAuxOutput auxOutput = {
         .aux = 1,
@@ -288,7 +288,7 @@ TEST_LOGGER2(streamserial_set_aux_l2)
     return true;
 }
 
-TEST_LOGGER3(streamserial_aux_l3)
+TEST_LOGGER3(streamserial_aux)
 {
     RBRInstrumentAuxOutput expected = {
         .aux = 1,
@@ -343,7 +343,7 @@ TEST_LOGGER3(streamserial_aux_invalid)
     return true;
 }
 
-TEST_LOGGER3(streamserial_set_aux_l3)
+TEST_LOGGER3(streamserial_set_aux)
 {
     RBRInstrumentAuxOutput auxOutput = {
         .aux = 1,
