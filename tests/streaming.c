@@ -61,10 +61,6 @@ TEST_LOGGER3(outputformat_channelslist)
                            actual.channels[channel].unit);
     }
 
-    TEST_ASSERT(memcmp(&expected,
-                       &actual,
-                       sizeof(RBRInstrumentChannelsList)) == 0);
-
     return true;
 }
 
@@ -112,10 +108,6 @@ TEST_LOGGER3(outputformat_labelslist)
     {
         TEST_ASSERT_STR_EQ(expected.labels[label], actual.labels[label]);
     }
-
-    TEST_ASSERT(memcmp(&expected,
-                       &actual,
-                       sizeof(RBRInstrumentLabelsList)) == 0);
 
     return true;
 }
@@ -257,7 +249,6 @@ TEST_LOGGER2(streamserial_aux)
     TEST_ASSERT_ENUM_EQ(expected.sleep,
                         actual.sleep,
                         RBRInstrumentAuxOutputSleepLevel);
-    TEST_ASSERT(memcmp(&expected, &actual, sizeof(RBRInstrumentAuxOutput)));
 
     return true;
 }
@@ -321,7 +312,6 @@ TEST_LOGGER3(streamserial_aux)
     TEST_ASSERT_ENUM_EQ(expected.sleep,
                         actual.sleep,
                         RBRInstrumentAuxOutputSleepLevel);
-    TEST_ASSERT(memcmp(&expected, &actual, sizeof(RBRInstrumentAuxOutput)));
 
     return true;
 }
