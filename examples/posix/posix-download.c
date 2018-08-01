@@ -24,6 +24,8 @@
 #include <string.h>
 /* Required for open. */
 #include <sys/stat.h>
+/* Required for clock_gettime. */
+#include <time.h>
 /* Required for close, read, write. */
 #include <unistd.h>
 
@@ -133,6 +135,10 @@ int main(int argc, char *argv[])
 
     RBRInstrumentError err;
     printf("Downloading:\n");
+
+    struct timespec start;
+    struct timespec finish;
+    clock_gettime(CLOCK_MONOTONIC, &start);
     while (data.offset < meminfo.used)
     {
         printf("\r%0.2f%% (%" PRIi32 "B/%" PRIi32 "B)",
@@ -156,7 +162,18 @@ int main(int argc, char *argv[])
             break;
         }
     }
-    printf("\nDone (%" PRIi32 "B).\n", data.offset);
+    clock_gettime(CLOCK_MONOTONIC, &finish);
+
+    double elapsed;
+    elapsed  = finish.tv_sec - start.tv_sec;
+    elapsed *= 1000000000L;
+    elapsed += finish.tv_nsec - start.tv_nsec;
+    elapsed /= 1000000000L;
+
+    printf("\nDone. Downloaded %" PRIi32 "B in %0.3fs (%0.3fB/s).\n",
+           data.offset,
+           elapsed,
+           data.offset / elapsed);
     close(downloadFd);
 
     RBRInstrument_close(instrument);
