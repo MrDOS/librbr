@@ -8,11 +8,6 @@
  * Licensed under the Apache License, Version 2.0.
  */
 
-/* Required for fprintf, printf. */
-#include <stdio.h>
-/* Required for memcpy, memset, strlen. */
-#include <string.h>
-
 #include "RBRInstrument.h"
 #include "tests.h"
 

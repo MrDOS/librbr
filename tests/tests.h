@@ -18,9 +18,12 @@
 extern "C" {
 #endif
 
-#include "RBRInstrument.h"
 /* Required for printf. */
 #include <stdio.h>
+/* Required for strcmp, strlen. */
+#include <string.h>
+
+#include "RBRInstrument.h"
 
 #define TEST_ASSERT(_condition) do { \
         if (!(_condition)) \

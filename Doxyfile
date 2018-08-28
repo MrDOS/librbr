@@ -8,6 +8,8 @@ OUTPUT_DIRECTORY = docs
 ALIASES += "readonly=The corresponding instrument parameter is read-only. This
 "member is used only when reading parameters from the instrument; its value is
 "ignored when sending parameters to the instrument."
+ALIASES += "writeonly=This member is used only when writing parameters to the
+instrument."
 ALIASES += "nol2=This parameter is unavailable for Logger2 instruments."
 
 # Include anything in the repository root and the library source code.

@@ -25,7 +25,11 @@ typedef enum RBRInstrumentGatingState
     /** \brief Logging is paused due to the gating. */
     RBRINSTRUMENT_GATING_PAUSED,
     /** \brief Logging is running due to the gating. */
-    RBRINSTRUMENT_GATING_RUNNING
+    RBRINSTRUMENT_GATING_RUNNING,
+    /** The number of specific gating condition types. */
+    RBRINSTRUMENT_GATING_COUNT,
+    /** An unknown or unrecognized gating condition type. */
+    RBRINSTRUMENT_UNKNOWN_GATING
 } RBRInstrumentGatingState;
 
 /**
@@ -71,13 +75,13 @@ const char *RBRInstrumentThresholdingChannelSelection_name(
 typedef enum RBRInstrumentThresholdingCondition
 {
     /** Sampling occurs when the monitored parameter is above the threshold. */
-    RBRINSTRUMENT_ABOVE,
+    RBRINSTRUMENT_THRESHOLDING_ABOVE,
     /** Sampling occurs when the monitored parameter is below the threshold. */
-    RBRINSTRUMENT_BELOW,
+    RBRINSTRUMENT_THRESHOLDING_BELOW,
     /** The number of thresholding conditions. */
-    RBRINSTRUMENT_THRESHOLDING_CONDITION_COUNT,
+    RBRINSTRUMENT_THRESHOLDING_COUNT,
     /** An unknown or unrecognized thresholding condition. */
-    RBRINSTRUMENT_UNKNOWN_THRESHOLDING_CONDITION
+    RBRINSTRUMENT_UNKNOWN_THRESHOLDING
 } RBRInstrumentThresholdingCondition;
 
 /**
@@ -105,14 +109,19 @@ typedef struct RBRInstrumentThresholding
      * \brief The state of logging based on the thresholding configuration.
      *
      * \readonly
+     * \nol2 Will always be retrieved as #RBRINSTRUMENT_UNKNOWN_GATING.
      */
     RBRInstrumentGatingState state;
     /**
      * \brief Whether the thresholding channel should be configured by index or
      * by label.
      *
-     * The value of this member is used only when setting thresholding
-     * parameters. It is not changed when retrieving parameters.
+     * \writeonly It is set to #RBRINSTRUMENT_THRESHOLD_CHANNEL_BY_INDEX when
+     * retrieving parameters. For Logger2 instruments, which do not have
+     * channel labels, this must be given as
+     * #RBRINSTRUMENT_THRESHOLD_CHANNEL_BY_INDEX or
+     * RBRInstrument_setThresholding() will return
+     * #RBRINSTRUMENT_INVALID_PARAMETER_VALUE.
      *
      * \see RBRInstrument_setThresholding()
      */
@@ -120,9 +129,9 @@ typedef struct RBRInstrumentThresholding
     /**
      * \brief The index of the channel to use for the threshold check.
      *
-     * Note when setting the instrument thresholding channel, the value of this
-     * field will only be used when RBRInstrumentThresholding.channelSelection
-     * is set to #RBRINSTRUMENT_THRESHOLD_CHANNEL_BY_INDEX.
+     * When setting the instrument thresholding channel, the value of this
+     * field is only used when RBRInstrumentThresholding.channelSelection is
+     * set to #RBRINSTRUMENT_THRESHOLD_CHANNEL_BY_INDEX.
      */
     RBRInstrumentChannelIndex channelIndex;
     /**
@@ -132,9 +141,9 @@ typedef struct RBRInstrumentThresholding
      * null-terminated C string. The value will be populated likewise when
      * retrieving thresholding parameters from the instrument.
      *
-     * Note when setting the instrument thresholding channel, the value of this
-     * field will only be used when RBRInstrumentThresholding.channelSelection
-     * is set to #RBRINSTRUMENT_THRESHOLD_CHANNEL_BY_LABEL.
+     * When setting the instrument thresholding channel, the value of this
+     * field is only used when RBRInstrumentThresholding.channelSelection is
+     * set to #RBRINSTRUMENT_THRESHOLD_CHANNEL_BY_LABEL.
      *
      * \nol2 Use RBRInstrumentThresholding.channelIndex instead.
      */
@@ -207,6 +216,7 @@ typedef struct RBRInstrumentTwistActivation
      * \brief The state of logging based on the twist activation configuration.
      *
      * \readonly
+     * \nol2 Will always be retrieved as #RBRINSTRUMENT_UNKNOWN_GATING.
      */
     RBRInstrumentGatingState state;
 } RBRInstrumentTwistActivation;
