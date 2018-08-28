@@ -254,6 +254,8 @@ RBRInstrumentError RBRInstrument_getSampling(
     RBRInstrumentSampling *sampling)
 {
     memset(sampling, 0, sizeof(RBRInstrumentSampling));
+    sampling->mode = RBRINSTRUMENT_UNKNOWN_SAMPLING_MODE;
+    sampling->gate = RBRINSTRUMENT_UNKNOWN_GATE;
 
     /*
      * The `sampling` command format added support for the `all` parameter
@@ -530,6 +532,7 @@ RBRInstrumentError RBRInstrument_getDeployment(
     RBRInstrumentDeployment *deployment)
 {
     memset(deployment, 0, sizeof(RBRInstrumentDeployment));
+    deployment->status = RBRINSTRUMENT_UNKNOWN_STATUS;
 
     if (instrument->generation == RBRINSTRUMENT_LOGGER2)
     {

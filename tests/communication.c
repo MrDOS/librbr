@@ -202,17 +202,13 @@ TEST_LOGGER2(wifi)
             RBRINSTRUMENT_SUCCESS,
             {
                 false,
-                RBRINSTRUMENT_WIFI_NA,
+                RBRINSTRUMENT_UNKNOWN_WIFI,
                 60,
                 60,
                 RBRINSTRUMENT_SERIAL_BAUD_NONE
             }
         },
-        {
-            NULL,
-            RBRINSTRUMENT_SUCCESS,
-            {0}
-        }
+        {0}
     };
 
     for (int i = 0; tests[i].command != NULL; i++)
@@ -232,9 +228,6 @@ TEST_LOGGER2(wifi)
 
 TEST_LOGGER3(wifi)
 {
-    RBRInstrumentError err;
-    RBRInstrumentWiFi wifi;
-
     WiFiTest tests[] = {
         {
             "wifi enabled = false, state = n/a, timeout = 60, "
@@ -263,25 +256,30 @@ TEST_LOGGER3(wifi)
         {
             "E0109 feature not available" COMMAND_TERMINATOR,
             RBRINSTRUMENT_HARDWARE_ERROR,
-            {0}
+            {
+                false,
+                RBRINSTRUMENT_UNKNOWN_WIFI,
+                0,
+                0,
+                RBRINSTRUMENT_SERIAL_BAUD_NONE
+            }
         },
-        {
-            NULL,
-            RBRINSTRUMENT_SUCCESS,
-            {0}
-        }
+        {0}
     };
+
+    RBRInstrumentError err;
+    RBRInstrumentWiFi actual;
 
     for (int i = 0; tests[i].command != NULL; i++)
     {
         TestIOBuffers_init(buffers, tests[i].command, 0);
-        err = RBRInstrument_getWiFi(instrument, &wifi);
+        err = RBRInstrument_getWiFi(instrument, &actual);
         TEST_ASSERT_ENUM_EQ(tests[i].expectedError, err, RBRInstrumentError);
-        TEST_ASSERT_ENUM_EQ(tests[i].expected.enabled, wifi.enabled, bool);
-        TEST_ASSERT_ENUM_EQ(tests[i].expected.state, wifi.state, RBRInstrumentWiFiState);
-        TEST_ASSERT_EQ(tests[i].expected.timeout, wifi.timeout, "%" PRIi32);
-        TEST_ASSERT_EQ(tests[i].expected.commandTimeout, wifi.commandTimeout, "%" PRIi32);
-        TEST_ASSERT_ENUM_EQ(tests[i].expected.baudRate, wifi.baudRate, RBRInstrumentSerialBaudRate);
+        TEST_ASSERT_ENUM_EQ(tests[i].expected.enabled, actual.enabled, bool);
+        TEST_ASSERT_ENUM_EQ(tests[i].expected.state, actual.state, RBRInstrumentWiFiState);
+        TEST_ASSERT_EQ(tests[i].expected.timeout, actual.timeout, "%" PRIi32);
+        TEST_ASSERT_EQ(tests[i].expected.commandTimeout, actual.commandTimeout, "%" PRIi32);
+        TEST_ASSERT_ENUM_EQ(tests[i].expected.baudRate, actual.baudRate, RBRInstrumentSerialBaudRate);
     }
 
     return true;

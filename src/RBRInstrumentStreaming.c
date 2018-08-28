@@ -366,6 +366,8 @@ RBRInstrumentError RBRInstrument_getAuxOutput(
 
     uint8_t aux = auxOutput->aux;
     memset(auxOutput, 0, sizeof(RBRInstrumentAuxOutput));
+    auxOutput->active = RBRINSTRUMENT_UNKNOWN_ACTIVE;
+    auxOutput->sleep = RBRINSTRUMENT_UNKNOWN_SLEEP;
 
     RBR_TRY(RBRInstrument_converse(instrument,
                                    "streamserial aux%" PRIi8 "_all",

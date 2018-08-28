@@ -346,6 +346,7 @@ RBRInstrumentError RBRInstrument_getWiFi(RBRInstrument *instrument,
                                          RBRInstrumentWiFi *wifi)
 {
     memset(wifi, 0, sizeof(RBRInstrumentWiFi));
+    wifi->state = RBRINSTRUMENT_UNKNOWN_WIFI;
 
     RBR_TRY(RBRInstrument_converse(instrument, "wifi"));
 

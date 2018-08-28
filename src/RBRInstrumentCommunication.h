@@ -315,7 +315,7 @@ typedef struct RBRInstrumentWiFi
      * \brief The state of the Wi-Fi radio.
      *
      * \readonly
-     * \nol2 Will be retrieved as #RBRINSTRUMENT_WIFI_NA.
+     * \nol2 Will be retrieved as #RBRINSTRUMENT_UNKNOWN_WIFI.
      */
     RBRInstrumentWiFiState state;
     /**
