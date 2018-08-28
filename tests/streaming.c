@@ -8,9 +8,6 @@
  * Licensed under the Apache License, Version 2.0.
  */
 
-/* Required for strcmp, strlen. */
-#include <string.h>
-
 #include "tests.h"
 
 TEST_LOGGER2(outputformat_channelslist)
@@ -171,14 +168,14 @@ typedef struct ToggleTest
 {
     const char *command;
     bool expected;
-} LinkTest;
+} ToggleTest;
 
 TEST_LOGGER3(streamusb)
 {
     RBRInstrumentError err;
     bool actual;
 
-    LinkTest tests[] = {
+    ToggleTest tests[] = {
         {"streamusb state = on" COMMAND_TERMINATOR, true},
         {"streamusb state = off" COMMAND_TERMINATOR, false},
         {NULL, 0}
@@ -200,7 +197,7 @@ TEST_LOGGER3(streamserial)
     RBRInstrumentError err;
     bool actual;
 
-    LinkTest tests[] = {
+    ToggleTest tests[] = {
         {"streamserial state = on" COMMAND_TERMINATOR, true},
         {"streamserial state = off" COMMAND_TERMINATOR, false},
         {NULL, 0}
