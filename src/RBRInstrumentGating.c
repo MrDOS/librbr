@@ -162,7 +162,7 @@ RBRInstrumentError RBRInstrument_setThresholding(
         || threshold->condition < RBRINSTRUMENT_THRESHOLDING_ABOVE
         || threshold->condition > RBRINSTRUMENT_THRESHOLDING_BELOW
         || threshold->interval <= 0
-        || threshold->interval > 86400000
+        || threshold->interval > RBRINSTRUMENT_SAMPLING_PERIOD_MAX
         || (threshold->interval >= 1000 && threshold->interval % 1000 != 0))
     {
         return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;

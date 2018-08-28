@@ -17,6 +17,18 @@
 extern "C" {
 #endif
 
+/** \brief The maximum number of regimes configurable on an instrument. */
+#define RBRINSTRUMENT_REGIME_MAX 3
+
+/** \brief The maximum regime boundary in dbar. */
+#define RBRINSTRUMENT_REGIME_BOUNDARY_MAX 65535
+
+/** \brief The maximum regime bin size in dbar. */
+#define RBRINSTRUMENT_REGIME_BINSIZE_MAX 6553.5
+
+/** \brief The maximum sampling period within a regime. */
+#define RBRINSTRUMENT_REGIME_SAMPLING_PERIOD_MAX 65000
+
 /**
  * \brief Whether settings apply to ascent or descent.
  *
@@ -28,9 +40,13 @@ extern "C" {
 typedef enum RBRInstrumentDirection
 {
     /** The settings apply while ascending. */
-    RBRINSTRUMENT_ASCENDING,
+    RBRINSTRUMENT_DIRECTION_ASCENDING,
     /** The settings apply while descending. */
-    RBRINSTRUMENT_DESCENDING
+    RBRINSTRUMENT_DIRECTION_DESCENDING,
+    /** The number of specific directions. */
+    RBRINSTRUMENT_DIRECTION_COUNT,
+    /** An unknown or unrecognized direction. */
+    RBRINSTRUMENT_UNKNOWN_DIRECTION
 } RBRInstrumentDirection;
 
 /**
@@ -52,9 +68,13 @@ const char *RBRInstrumentDirection_name(RBRInstrumentDirection direction);
 typedef enum RBRInstrumentRegimesReference
 {
     /** Absolute pressure is used as the reference. */
-    RBRINSTRUMENT_REGIMES_ABSOLUTE_PRESSURE,
+    RBRINSTRUMENT_REFERENCE_ABSOLUTE,
     /** Sea pressure is used as the reference. */
-    RBRINSTRUMENT_REGIMES_SEA_PRESSURE
+    RBRINSTRUMENT_REFERENCE_SEA_PRESSURE,
+    /** The number of specific regime reference types. */
+    RBRINSTRUMENT_REFERENCE_COUNT,
+    /** An unknown or unrecognized regime reference type. */
+    RBRINSTRUMENT_UNKNOWN_REFERENCE
 } RBRInstrumentRegimesReference;
 
 /**

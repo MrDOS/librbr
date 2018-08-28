@@ -25,6 +25,9 @@ extern "C" {
  */
 #define RBRINSTRUMENT_AVAILABLE_FAST_PERIODS_MAX 32
 
+/** \brief The maximum sampling period in milliseconds. */
+#define RBRINSTRUMENT_SAMPLING_PERIOD_MAX 86400000
+
 /**
  * \brief Instrument `clock` command parameters.
  *

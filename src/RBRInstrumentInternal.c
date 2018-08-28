@@ -502,21 +502,45 @@ bool RBRInstrument_parseResponse(char *buffer,
     if (*command == NULL)
     {
         *command = buffer;
+        char *previousSpace = NULL;
         char *commandEnd = *command;
+
+        /* Some commands (e.g., channel, regime) take a nameless index
+         * parameter and return it with the response. E.g.,
+         *
+         *     >> regime 1
+         *     << regime 1 boundary = 50, binsize = 0.1, samplingperiod = 63
+         *
+         * So instead of searching for the first space to identify the end of
+         * the command, we'll look for the value separator and remember where
+         * we most recently saw a space before it. That space separates the
+         * actual command end from the beginning of the first parameter key.
+         */
         while (true)
         {
-            switch (*commandEnd)
+            if (*commandEnd == '\0')
             {
-            case '\0':
                 hasParameters = false;
-            /* Fallthrough. */
-            case ' ':
-                goto foundCommandEnd;
-            default:
-                commandEnd++;
+                break;
             }
+            else if (memcmp(commandEnd,
+                            PARAMETER_VALUE_SEPARATOR,
+                            PARAMETER_VALUE_SEPARATOR_LEN) == 0)
+            {
+                break;
+            }
+            else if (*commandEnd == ' ')
+            {
+                previousSpace = commandEnd;
+            }
+
+            commandEnd++;
         }
-foundCommandEnd:
+
+        if (previousSpace != NULL)
+        {
+            commandEnd = previousSpace;
+        }
 
         /*
          * All L3 commands return at least one parameter. However, lots of
@@ -526,9 +550,9 @@ foundCommandEnd:
          *     >> link
          *     << link = usb
          *
-         * So before terminating the command, we'll check if it's also the
-         * first parameter key. If it is, we won't null terminate it: that will
-         * be done for us when it gets parsed as a value.
+         * So before terminating the command, we'll check if it should also be
+         * used as the first parameter key. If so, we won't null-terminate it:
+         * that will be done for us when the value is parsed.
          */
         if (hasParameters
             && memcmp(commandEnd,
