@@ -49,6 +49,7 @@ all: lib docs tests
 
 lib: bin bin/librbr.a(src/RBRInstrument.o \
                       src/RBRInstrumentCommunication.o \
+                      src/RBRInstrumentDeployment.o \
                       src/RBRInstrumentFetching.o \
                       src/RBRInstrumentGating.o \
                       src/RBRInstrumentInternal.o \
@@ -73,6 +74,7 @@ tests: bin bin/tests
 bin/tests: tests/main.o \
            tests/tests.o \
            tests/communication.o \
+           tests/deployment.o \
            tests/gating.o \
            tests/streaming.o \
            tests/vehicle.o \
@@ -81,12 +83,14 @@ bin/tests: tests/main.o \
 		tests/main.o \
 		tests/tests.o \
 		tests/communication.o \
+		tests/deployment.o \
 		tests/gating.o \
 		tests/streaming.o \
 		tests/vehicle.o \
 		$(LDLIBS) -o $@
 
 tests/tests.c: tests/communication.c \
+               tests/deployment.c \
                tests/gating.c \
                tests/streaming.c \
                tests/vehicle.c

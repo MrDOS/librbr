@@ -45,6 +45,33 @@
 
 #define OFFSET_UNINITIALIZED (-1)
 
+/* The length of an error number plus trailing space: “Exxxx ”. */
+#define ERROR_LEN 6
+
+/*
+ * Logger2 instruments don't distinguish between warnings and errors. Some of
+ * the “errors” produced by `verify`/`enable`/`stop` are non-fatal, but the
+ * output doesn't distinguish between them – the consumer needs to be aware of
+ * the difference. This is a list of error numbers which are actually warnings.
+ */
+static const int32_t WARNING_NUMBERS[] = {
+    401,
+    406
+};
+#define WARNING_NUMBER_COUNT \
+    ((long) (sizeof(WARNING_NUMBERS) / sizeof(WARNING_NUMBERS[0])))
+
+#define WARNING_PARAMETER ", warning = W"
+#define WARNING_PARAMETER_LEN ((long) (sizeof(WARNING_PARAMETER) - 1))
+#define WARNING_NUMBER_LEN 4
+
+#define SAMPLE_NAN "nan"
+#define SAMPLE_INF "inf"
+#define SAMPLE_NINF "-inf"
+#define SAMPLE_UNCAL "###"
+#define SAMPLE_ERROR_PREFIX "Error-"
+#define SAMPLE_ERROR_PREFIX_LEN ((long) (sizeof(SAMPLE_ERROR_PREFIX) - 1))
+
 static const char *RBRInstrumentDateTime_sampleFormat
     = "%04d-%02d-%02d %02d:%02d:%02d.%03" PRId64 "%n";
 
@@ -332,31 +359,35 @@ static RBRInstrumentError RBRInstrumentSample_parse(
         /* The token will always have a leading space. */
         token++;
 
-        if (strcmp(token, "nan") == 0)
+        if (strcmp(token, SAMPLE_NAN) == 0)
         {
             value.value = NAN;
         }
-        else if (strcmp(token, "inf") == 0)
+        else if (strcmp(token, SAMPLE_INF) == 0)
         {
             value.value = INFINITY;
         }
-        else if (strcmp(token, "-inf") == 0)
+        else if (strcmp(token, SAMPLE_NINF) == 0)
         {
             value.value = -INFINITY;
         }
-        else if (strcmp(token, "###") == 0)
+        else if (strcmp(token, SAMPLE_UNCAL) == 0)
         {
             value.value = NAN;
             value.error.flag = RBRINSTRUMENT_SAMPLE_ERROR_VALUE_UNCALIBRATED;
         }
-        else if (memcmp(token, "Error-", 6) == 0)
+        else if (memcmp(token,
+                        SAMPLE_ERROR_PREFIX,
+                        SAMPLE_ERROR_PREFIX_LEN) == 0)
         {
             /* Uh-oh. We'll encode the error in a NaN. Filtering, etc. will
              * ignore the value and the sample formatter will output it just as
              * we received it. */
             value.value = NAN;
             value.error.flag = RBRINSTRUMENT_SAMPLE_ERROR_VALUE_ERROR;
-            value.error.error = strtol(token + 6, NULL, 10);
+            value.error.error = strtol(token + SAMPLE_ERROR_PREFIX_LEN,
+                                       NULL,
+                                       10);
         }
         else
         {
@@ -397,41 +428,83 @@ static RBRInstrumentError RBRInstrument_errorCheckResponse(
         instrument->message.number = strtol(beginning + 1, NULL, 10);
         /* Make sure we actually have a message to go along with the error.
          * There should be one, but it's best to play safe. */
-        if (end - beginning >= 6)
+        if (end - beginning >= ERROR_LEN)
         {
-            instrument->message.message = beginning + 6;
+            instrument->message.message = beginning + ERROR_LEN;
         }
         else
         {
             instrument->message.message = NULL;
         }
+
+        /* Logger2 instruments don't distinguish between warnings and errors,
+         * so if we get an error response, we'll check whether it needs to be
+         * translated into a warning. */
+        if (instrument->generation == RBRINSTRUMENT_LOGGER2)
+        {
+            for (int i = 0; i < WARNING_NUMBER_COUNT; i++)
+            {
+                if (instrument->message.number != WARNING_NUMBERS[i])
+                {
+                    continue;
+                }
+
+                instrument->message.type = RBRINSTRUMENT_MESSAGE_WARNING;
+
+                /*
+                 * The actual command response will be after the warning, so
+                 * we'll fast-forward past it.
+                 *
+                 * This doesn't support fast-forwarding past warning messages
+                 * containing commas. However, while there are multiple error
+                 * messages which contain commas, there are no such warnings.
+                 */
+                instrument->message.message = strchr(
+                    instrument->message.message,
+                    ',');
+
+                if (instrument->message.message != NULL)
+                {
+                    instrument->message.message += 2;
+                }
+
+                return RBRINSTRUMENT_SUCCESS;
+            }
+        }
+
+        /* Not being Logger2 or not having performed a substitution means it's
+         * a real error. */
         return RBRINSTRUMENT_HARDWARE_ERROR;
     }
+
+    instrument->message.type = RBRINSTRUMENT_MESSAGE_INFO;
+    instrument->message.number = 0;
+    instrument->message.message = beginning;
+
     /*
-     * Warnings, where they occur, are at the end of a response. E.g.,
+     * In Logger3, warnings are at the end of a response. E.g.,
      *
      *     >> verify
      *     << verify status = logging, warning = W0401
      *
      * Warnings never have a message and the number is always zero-padded to
      * four digits, so we can just check for the presence of a “warning”
-     * parameter in a fixed position.
+     * parameter in a fixed position, parse out the number, and then truncate
+     * the response so the parser doesn't have to deal with it.
      */
-    else if (end - beginning >= 17
-             && memcmp(end - 17, ", warning = W", 13) == 0)
+    if (end - beginning >= (WARNING_PARAMETER_LEN + WARNING_NUMBER_LEN)
+        && memcmp(end - WARNING_PARAMETER_LEN - WARNING_NUMBER_LEN,
+                  WARNING_PARAMETER,
+                  WARNING_PARAMETER_LEN) == 0)
     {
         instrument->message.type = RBRINSTRUMENT_MESSAGE_WARNING;
-        instrument->message.number = strtol(end - 4, NULL, 10);
-        instrument->message.message = NULL;
-        return RBRINSTRUMENT_SUCCESS;
+        instrument->message.number = strtol(end - WARNING_NUMBER_LEN,
+                                            NULL,
+                                            10);
+        *(end - WARNING_PARAMETER_LEN - WARNING_NUMBER_LEN) = '\0';
     }
-    else
-    {
-        instrument->message.type = RBRINSTRUMENT_MESSAGE_INFO;
-        instrument->message.number = 0;
-        instrument->message.message = beginning;
-        return RBRINSTRUMENT_SUCCESS;
-    }
+
+    return RBRINSTRUMENT_SUCCESS;
 }
 
 RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument,
@@ -657,11 +730,6 @@ RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
     do
     {
         RBR_TRY(RBRInstrument_readResponse(instrument, false, NULL));
-        /* TODO: The parser returns SUCCESS on warnings (enable/verify) but
-         * sets instrument->message.message to NULL. How should I handle that?
-         * I think I need to either store the beginning of the response on
-         * RBRInstrument or redefine the semantics of
-         * RBRInstrumentMessage.message. */
     } while (instrument->message.message == NULL
              || memcmp(instrument->message.message,
                        instrument->commandBuffer,

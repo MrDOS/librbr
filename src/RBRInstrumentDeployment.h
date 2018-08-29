@@ -21,11 +21,15 @@ extern "C" {
  * \brief Perform a “dry run” of the `enable` command.
  *
  * A hardware error can be generated for a variety of reasons. See the `verify`
- * command documentation for a comprehensive list. As the `verify` command
- * reports a status even in the event of an error, \a status will be set to
- * a valid value regardless of whether or not an error was reported.
+ * command documentation for a comprehensive list. In the event of a hardware
+ * error, \a status will be set to #RBRINSTRUMENT_UNKNOWN_STATUS. While Logger2
+ * hardware reports a status in addition to any error, Logger3 hardware does
+ * not, and the value will always be the same as the current instrument status.
+ *
+ * The \a eraseMemory parameter is ignored by Logger2 instruments.
  *
  * \param [in] instrument the instrument connection
+ * \param [in] eraseMemory whether to erase memory before enabling logging
  * \param [out] status the status which would be produced by enabling logging
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
@@ -37,6 +41,7 @@ extern "C" {
  */
 RBRInstrumentError RBRInstrument_verify(
     RBRInstrument *instrument,
+    bool eraseMemory,
     RBRInstrumentDeploymentStatus *status);
 
 /**

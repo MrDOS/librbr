@@ -34,7 +34,7 @@ TEST_LOGGER3(regimes)
             {
                 .direction = RBRINSTRUMENT_DIRECTION_DESCENDING,
                 .count = 3,
-                .reference = RBRINSTRUMENT_REFERENCE_SEA_PRESSURE
+                .reference = RBRINSTRUMENT_REFERENCE_SEAPRESSURE
             }
         },
         {0}
@@ -80,7 +80,7 @@ TEST_LOGGER3(regimes_set)
             {
                 .direction = RBRINSTRUMENT_DIRECTION_DESCENDING,
                 .count = 3,
-                .reference = RBRINSTRUMENT_REFERENCE_SEA_PRESSURE
+                .reference = RBRINSTRUMENT_REFERENCE_SEAPRESSURE
             }
         },
         {0}

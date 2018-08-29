@@ -10,7 +10,7 @@
 
 /* Required for sprintf. */
 #include <stdio.h>
-/* Required for strcmp, strcpy. */
+/* Required for memset, strcmp, strcpy. */
 #include <string.h>
 
 #include "RBRInstrument.h"

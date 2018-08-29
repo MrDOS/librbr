@@ -459,9 +459,9 @@ const char *RBRInstrumentMessageType_name(RBRInstrumentMessageType type);
  * \brief A warning or error returned by the instrument.
  *
  * For a non-comprehensive list of possible error messages, see the [command
- * reference page on error messages][0].
+ * reference page on error messages][messages].
  *
- * [0]: https://docs.rbr-global.com/L3commandreference/error-messages.
+ * [messages]: https://docs.rbr-global.com/L3commandreference/error-messages
  */
 typedef struct RBRInstrumentMessage
 {
@@ -471,9 +471,10 @@ typedef struct RBRInstrumentMessage
      * Successful commands, as indicated by the command having returned
      * #RBRINSTRUMENT_SUCCESS, may yield informational or warning messages
      * (types #RBRINSTRUMENT_MESSAGE_INFO and #RBRINSTRUMENT_MESSAGE_WARNING,
-     * respectively). Commands having resulted in a hardware error will yield
-     * an error message (type #RBRINSTRUMENT_HARDWARE_ERROR). In any other
-     * case, the message is unpopulated and its contents are irrelevant (type
+     * respectively). Commands having resulted in a hardware error will return
+     * #RBRINSTRUMENT_HARDWARE_ERROR and yield an error message (type
+     * #RBRINSTRUMENT_MESSAGE_ERROR). In any other case, the message is
+     * unpopulated and its contents are irrelevant (type
      * #RBRINSTRUMENT_MESSAGE_UNKNOWN_TYPE).
      *
      * - Informational messages will provide only a message (number as `0`).
@@ -490,7 +491,7 @@ typedef struct RBRInstrumentMessage
      */
     uint16_t number;
     /**
-     * \brief The error message, if available.
+     * \brief The message, if available.
      *
      * Will be `NULL` when absent (_not_ a pointer to a 0-length string).
      * Otherwise points to a null-terminated C string.

@@ -70,7 +70,7 @@ typedef enum RBRInstrumentRegimesReference
     /** Absolute pressure is used as the reference. */
     RBRINSTRUMENT_REFERENCE_ABSOLUTE,
     /** Sea pressure is used as the reference. */
-    RBRINSTRUMENT_REFERENCE_SEA_PRESSURE,
+    RBRINSTRUMENT_REFERENCE_SEAPRESSURE,
     /** The number of specific regime reference types. */
     RBRINSTRUMENT_REFERENCE_COUNT,
     /** An unknown or unrecognized regime reference type. */

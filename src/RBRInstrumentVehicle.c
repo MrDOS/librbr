@@ -8,7 +8,7 @@
  * Licensed under the Apache License, Version 2.0.
  */
 
-/* Required for strcmp. */
+/* Required for memset, strcmp. */
 #include <string.h>
 
 #include "RBRInstrument.h"
@@ -37,7 +37,7 @@ const char *RBRInstrumentRegimesReference_name(
     {
     case RBRINSTRUMENT_REFERENCE_ABSOLUTE:
         return "absolute";
-    case RBRINSTRUMENT_REFERENCE_SEA_PRESSURE:
+    case RBRINSTRUMENT_REFERENCE_SEAPRESSURE:
         return "seapressure";
     case RBRINSTRUMENT_REFERENCE_COUNT:
         return "regimes reference count";
