@@ -459,9 +459,12 @@ static RBRInstrumentError RBRInstrument_errorCheckResponse(
                  * containing commas. However, while there are multiple error
                  * messages which contain commas, there are no such warnings.
                  */
-                instrument->message.message = strchr(
-                    instrument->message.message,
-                    ',');
+                if (instrument->message.message != NULL)
+                {
+                    instrument->message.message = strchr(
+                        instrument->message.message,
+                        ',');
+                }
 
                 if (instrument->message.message != NULL)
                 {
