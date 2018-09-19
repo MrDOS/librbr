@@ -107,15 +107,15 @@ RBRInstrumentError RBRInstrument_getHardwareRevision(
 typedef enum RBRInstrumentPowerSource
 {
     /** USB power. */
-    RBRINSTRUMENT_POWER_USB,
+    RBRINSTRUMENT_POWER_SOURCE_USB,
     /** Internal (battery) power. */
-    RBRINSTRUMENT_POWER_INTERNAL,
+    RBRINSTRUMENT_POWER_SOURCE_INTERNAL,
     /** External power. */
-    RBRINSTRUMENT_POWER_EXTERNAL,
+    RBRINSTRUMENT_POWER_SOURCE_EXTERNAL,
     /** The number of specific power sources. */
-    RBRINSTRUMENT_POWER_COUNT,
+    RBRINSTRUMENT_POWER_SOURCE_COUNT,
     /** An unknown or unrecognized power source. */
-    RBRINSTRUMENT_UNKNOWN_POWER
+    RBRINSTRUMENT_UNKNOWN_POWER_SOURCE
 } RBRInstrumentPowerSource;
 
 /**
@@ -137,10 +137,21 @@ typedef struct RBRInstrumentPower
 {
     /** \brief The power source from which the instrument is running. */
     RBRInstrumentPowerSource source;
-    /** \brief The measured voltage of the internal (battery) power source. */
+    /**
+     * \brief The measured voltage of a standard logger's internal battery.
+     *
+     * NAN for a short logger.
+     */
     float internal;
-    /** \brief The measured voltage of the external power source. */
+    /** \brief The measured voltage of any external power source. */
     float external;
+    /**
+     * \brief The measured voltage of a short logger's internal voltage
+     * regulator.
+     *
+     * NAN for a standard logger.
+     */
+    float regulator;
 } RBRInstrumentPower;
 
 /**
@@ -158,43 +169,54 @@ RBRInstrumentError RBRInstrument_getPower(RBRInstrument *instrument,
                                           RBRInstrumentPower *power);
 
 /**
- * Internal power battery types.
+ * Internal battery types.
  *
  * \see RBRInstrumentPowerInternal
  */
-typedef enum RBRInstrumentPowerInternalBatteryType
+typedef enum RBRInstrumentInternalBatteryType
 {
     /** No internal battery */
-    RBRINSTRUMENT_POWER_INTERNAL_NONE,
+    RBRINSTRUMENT_INTERNAL_BATTERY_NONE,
     /** Li-SOCl₂ */
-    RBRINSTRUMENT_POWER_INTERNAL_LISOCL2,
+    RBRINSTRUMENT_INTERNAL_BATTERY_LISOCL2,
     /** Li-FeS₂ */
-    RBRINSTRUMENT_POWER_INTERNAL_LIFES2,
+    RBRINSTRUMENT_INTERNAL_BATTERY_LIFES2,
     /** Zn-MnO₂ */
-    RBRINSTRUMENT_POWER_INTERNAL_ZNMNO2,
+    RBRINSTRUMENT_INTERNAL_BATTERY_ZNMNO2,
     /** Li-NiMnCo */
-    RBRINSTRUMENT_POWER_INTERNAL_LINIMNCO,
+    RBRINSTRUMENT_INTERNAL_BATTERY_LINIMNCO,
     /** NiMH */
-    RBRINSTRUMENT_POWER_INTERNAL_NIMH,
-    /** The number of specific internal power battery types. */
-    RBRINSTRUMENT_POWER_INTERNAL_COUNT,
-    /** An unknown or unrecognized internal power battery type. */
-    RBRINSTRUMENT_UNKNOWN_POWER_INTERNAL
-} RBRInstrumentPowerInternalBatteryType;
+    RBRINSTRUMENT_INTERNAL_BATTERY_NIMH,
+    /** The number of specific internal battery types. */
+    RBRINSTRUMENT_INTERNAL_BATTERY_COUNT,
+    /** An unknown or unrecognized internal battery type. */
+    RBRINSTRUMENT_UNKNOWN_INTERNAL_BATTERY
+} RBRInstrumentInternalBatteryType;
 
 /**
  * \brief Get a human-readable string name for an internal battery type.
  *
- * Contrary to convention for values returned by other enum `_name` functions,
+ * \param [in] type the battery type
+ * \return a string name for the battery type
+ * \see RBRInstrumentError_name() for a description of the format of names
+ * \see RBRInstrumentInternalBatteryType_displayName() for display names
+ */
+const char *RBRInstrumentInternalBatteryType_name(
+    RBRInstrumentInternalBatteryType type);
+
+/**
+ * \brief Get a human-readable display name for an internal battery type.
+ *
+ * Unlike the values returned by RBRInstrumentInternalBatteryType_name(),
  * the names of battery types will be formatted appropriately for the cell
  * chemistry; e.g., “Li-SOCl₂”, not “lisocl2”. Values will be UTF-8-encoded.
  *
  * \param [in] type the battery type
  * \return a string name for the battery type
- * \see RBRInstrumentError_name() for a description of the format of names
+ * \see RBRInstrumentInternalBatteryType_name() for instrument-equivalent names
  */
-const char *RBRInstrumentPowerInternalBatteryType_name(
-    RBRInstrumentPowerInternalBatteryType type);
+const char *RBRInstrumentInternalBatteryType_displayName(
+    RBRInstrumentInternalBatteryType type);
 
 /**
  * \brief Instrument `powerinternal` command parameters.
@@ -205,22 +227,24 @@ const char *RBRInstrumentPowerInternalBatteryType_name(
 typedef struct RBRInstrumentPowerInternal
 {
     /** \brief The type of battery. */
-    RBRInstrumentPowerInternalBatteryType batteryType;
+    RBRInstrumentInternalBatteryType batteryType;
     /**
      * \brief The capacity of the battery.
      *
      * \readonly
      */
-    int32_t capacity;
+    float capacity;
     /**
      * \brief The accumulated energy used from the internal battery since the
      * value was last reset.
      */
-    int32_t used;
+    float used;
 } RBRInstrumentPowerInternal;
 
 /**
  * \brief Get instrument internal power information.
+ *
+ * \nol2 Always returns #RBRINSTRUMENT_UNSUPPORTED.
  *
  * \param [in] instrument the instrument connection
  * \param [out] power the power information
@@ -238,6 +262,8 @@ RBRInstrumentError RBRInstrument_getPowerInternal(
 /**
  * \brief Set the internal power battery type.
  *
+ * \nol2 Always returns #RBRINSTRUMENT_UNSUPPORTED.
+ *
  * \param [in] instrument the instrument connection
  * \param [in] type the battery type
  * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
@@ -247,12 +273,14 @@ RBRInstrumentError RBRInstrument_getPowerInternal(
  * \see RBRInstrument_getPowerInternal()
  * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/powerinternal
  */
-RBRInstrumentError RBRInstrument_setPowerInternalBatteryType(
+RBRInstrumentError RBRInstrument_setInternalBatteryType(
     RBRInstrument *instrument,
-    RBRInstrumentPowerInternalBatteryType type);
+    RBRInstrumentInternalBatteryType type);
 
 /**
  * \brief Reset the counter of energy used from the internal battery.
+ *
+ * \nol2 Always returns #RBRINSTRUMENT_UNSUPPORTED.
  *
  * \param [in] instrument the instrument connection
  * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
@@ -266,40 +294,51 @@ RBRInstrumentError RBRInstrument_resetPowerInternalUsed(
     RBRInstrument *instrument);
 
 /**
- * External power battery types.
+ * External battery types.
  *
  * \see RBRInstrumentPowerExternal
  */
-typedef enum RBRInstrumentPowerExternalBatteryType
+typedef enum RBRInstrumentExternalBatteryType
 {
     /** Other/unknown external battery type */
-    RBRINSTRUMENT_POWER_EXTERNAL_OTHER,
+    RBRINSTRUMENT_EXTERNAL_BATTERY_OTHER,
     /** RBRfermata Li-SOCl₂ */
-    RBRINSTRUMENT_POWER_EXTERNAL_FERMATA_LISOCL2,
+    RBRINSTRUMENT_EXTERNAL_BATTERY_FERMATA_LISOCL2,
     /** RBRfermata Zn-MnO₂ */
-    RBRINSTRUMENT_POWER_EXTERNAL_FERMATA_ZNMNO2,
+    RBRINSTRUMENT_EXTERNAL_BATTERY_FERMATA_ZNMNO2,
     /** RBRfermette Li-MnO₂ */
-    RBRINSTRUMENT_POWER_EXTERNAL_FERMETTE_LIMNO2,
+    RBRINSTRUMENT_EXTERNAL_BATTERY_FERMETTE_LIMNO2,
     /** RBRfermette³ Li-SOCl₂ */
-    RBRINSTRUMENT_POWER_EXTERNAL_FERMETTE3_LISOCL2,
+    RBRINSTRUMENT_EXTERNAL_BATTERY_FERMETTE3_LISOCL2,
     /** RBRfermette³ Li-FeS₂ */
-    RBRINSTRUMENT_POWER_EXTERNAL_FERMETTE3_LIFES2,
+    RBRINSTRUMENT_EXTERNAL_BATTERY_FERMETTE3_LIFES2,
     /** RBRfermette³ Zn-MnO₂ */
-    RBRINSTRUMENT_POWER_EXTERNAL_FERMETTE3_ZNMNO2,
+    RBRINSTRUMENT_EXTERNAL_BATTERY_FERMETTE3_ZNMNO2,
     /** RBRfermette³ Li-NiMnCo */
-    RBRINSTRUMENT_POWER_EXTERNAL_FERMETTE3_LINIMNCO,
+    RBRINSTRUMENT_EXTERNAL_BATTERY_FERMETTE3_LINIMNCO,
     /** RBRfermette³ NiMH */
-    RBRINSTRUMENT_POWER_EXTERNAL_FERMETTE3_NIMH,
-    /** The number of specific external power battery types. */
-    RBRINSTRUMENT_POWER_EXTERNAL_COUNT,
-    /** An unknown or unrecognized external power battery type. */
-    RBRINSTRUMENT_UNKNOWN_POWER_EXTERNAL
-} RBRInstrumentPowerExternalBatteryType;
+    RBRINSTRUMENT_EXTERNAL_BATTERY_FERMETTE3_NIMH,
+    /** The number of specific external battery types. */
+    RBRINSTRUMENT_EXTERNAL_BATTERY_COUNT,
+    /** An unknown or unrecognized external battery type. */
+    RBRINSTRUMENT_UNKNOWN_EXTERNAL_BATTERY
+} RBRInstrumentExternalBatteryType;
 
 /**
  * \brief Get a human-readable string name for an external battery type.
  *
- * Contrary to convention for values returned by other enum `_name` functions,
+ * \param [in] type the battery type
+ * \return a string name for the battery type
+ * \see RBRInstrumentError_name() for a description of the format of names
+ * \see RBRInstrumentExternalBatteryType_displayName() for display names
+ */
+const char *RBRInstrumentExternalBatteryType_name(
+    RBRInstrumentExternalBatteryType type);
+
+/**
+ * \brief Get a human-readable display name for an external battery type.
+ *
+ * Unlike the values returned by RBRInstrumentExternalBatteryType_name(),
  * RBRfermata/RBRfermette product names will be correctly capitalized, and the
  * names of battery types will be formatted appropriately for the cell
  * chemistry; e.g., “RBRfermette³ Li-SOCl₂”, not “rbrfermette3 lisocl2”. Values
@@ -307,10 +346,10 @@ typedef enum RBRInstrumentPowerExternalBatteryType
  *
  * \param [in] type the battery type
  * \return a string name for the battery type
- * \see RBRInstrumentError_name() for a description of the format of names
+ * \see RBRInstrumentExternalBatteryType_name() for instrument-equivalent names
  */
-const char *RBRInstrumentPowerExternalBatteryType_name(
-    RBRInstrumentPowerExternalBatteryType type);
+const char *RBRInstrumentExternalBatteryType_displayName(
+    RBRInstrumentExternalBatteryType type);
 
 /**
  * \brief Instrument `powerexternal` command parameters.
@@ -321,22 +360,24 @@ const char *RBRInstrumentPowerExternalBatteryType_name(
 typedef struct RBRInstrumentPowerExternal
 {
     /** \brief The type of battery. */
-    RBRInstrumentPowerExternalBatteryType batteryType;
+    RBRInstrumentExternalBatteryType batteryType;
     /**
      * \brief The capacity of the battery.
      *
      * \readonly
      */
-    int32_t capacity;
+    float capacity;
     /**
      * \brief The accumulated energy used from the external battery since the
      * value was last reset.
      */
-    int32_t used;
+    float used;
 } RBRInstrumentPowerExternal;
 
 /**
  * \brief Get instrument external power information.
+ *
+ * \nol2 Always returns #RBRINSTRUMENT_UNSUPPORTED.
  *
  * \param [in] instrument the instrument connection
  * \param [out] power the power information
@@ -354,6 +395,8 @@ RBRInstrumentError RBRInstrument_getPowerExternal(
 /**
  * \brief Set the external power battery type.
  *
+ * \nol2 Always returns #RBRINSTRUMENT_UNSUPPORTED.
+ *
  * \param [in] instrument the instrument connection
  * \param [in] type the battery type
  * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written
@@ -364,10 +407,12 @@ RBRInstrumentError RBRInstrument_getPowerExternal(
  */
 RBRInstrumentError RBRInstrument_setPowerExternalBatteryType(
     RBRInstrument *instrument,
-    RBRInstrumentPowerExternalBatteryType type);
+    RBRInstrumentExternalBatteryType type);
 
 /**
  * \brief Reset the counter of energy used from the external battery.
+ *
+ * \nol2 Always returns #RBRINSTRUMENT_UNSUPPORTED.
  *
  * \param [in] instrument the instrument connection
  * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written

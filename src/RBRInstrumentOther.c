@@ -8,6 +8,8 @@
  * Licensed under the Apache License, Version 2.0.
  */
 
+/* Required for NAN. */
+#include <math.h>
 /* Required for memcpy, memset, strcmp, strcpy. */
 #include <string.h>
 /* Required for strtol. */
@@ -83,4 +85,336 @@ RBRInstrumentError RBRInstrument_getHardwareRevision(
     } while (more);
 
     return RBRINSTRUMENT_SUCCESS;
+}
+
+const char *RBRInstrumentPowerSource_name(RBRInstrumentPowerSource source)
+{
+    switch (source)
+    {
+    case RBRINSTRUMENT_POWER_SOURCE_USB:
+        return "usb";
+    case RBRINSTRUMENT_POWER_SOURCE_INTERNAL:
+        return "int";
+    case RBRINSTRUMENT_POWER_SOURCE_EXTERNAL:
+        return "ext";
+    case RBRINSTRUMENT_POWER_SOURCE_COUNT:
+        return "power source count";
+    case RBRINSTRUMENT_UNKNOWN_POWER_SOURCE:
+    default:
+        return "unknown power source";
+    }
+}
+
+RBRInstrumentError RBRInstrument_getPower(RBRInstrument *instrument,
+                                          RBRInstrumentPower *power)
+{
+    memset(power, 0, sizeof(RBRInstrumentPower));
+    power->source = RBRINSTRUMENT_UNKNOWN_POWER_SOURCE;
+    power->internal = NAN;
+    power->regulator = NAN;
+
+    if (instrument->generation == RBRINSTRUMENT_LOGGER2)
+    {
+        RBR_TRY(RBRInstrument_converse(instrument, "powerstatus"));
+    }
+    else
+    {
+        RBR_TRY(RBRInstrument_converse(instrument, "power"));
+    }
+
+    bool more = false;
+    char *command = NULL;
+    RBRInstrumentResponseParameter parameter;
+    do
+    {
+        more = RBRInstrument_parseResponse(instrument->message.message,
+                                           &command,
+                                           &parameter);
+
+        if (strcmp(parameter.key, "source") == 0)
+        {
+            for (int i = 0; i < RBRINSTRUMENT_POWER_SOURCE_COUNT; i++)
+            {
+                if (strcmp(RBRInstrumentPowerSource_name(i),
+                           parameter.value) == 0)
+                {
+                    power->source = i;
+                    break;
+                }
+            }
+        }
+        else if (strcmp(parameter.key, "int") == 0)
+        {
+            if (strcmp(parameter.value, "n/a") != 0)
+            {
+                power->internal = strtod(parameter.value, NULL);
+            }
+        }
+        else if (strcmp(parameter.key, "ext") == 0)
+        {
+            if (strcmp(parameter.value, "n/a") != 0)
+            {
+                power->external = strtod(parameter.value, NULL);
+            }
+        }
+        else if (strcmp(parameter.key, "reg") == 0)
+        {
+            if (strcmp(parameter.value, "n/a") != 0)
+            {
+                power->regulator = strtod(parameter.value, NULL);
+            }
+        }
+    } while (more);
+
+    return RBRINSTRUMENT_SUCCESS;
+}
+
+const char *RBRInstrumentInternalBatteryType_name(
+    RBRInstrumentInternalBatteryType type)
+{
+    switch (type)
+    {
+    case RBRINSTRUMENT_INTERNAL_BATTERY_NONE:
+        return "none";
+    case RBRINSTRUMENT_INTERNAL_BATTERY_LISOCL2:
+        return "lisocl2";
+    case RBRINSTRUMENT_INTERNAL_BATTERY_LIFES2:
+        return "lifes2";
+    case RBRINSTRUMENT_INTERNAL_BATTERY_ZNMNO2:
+        return "znmno2";
+    case RBRINSTRUMENT_INTERNAL_BATTERY_LINIMNCO:
+        return "linimnco";
+    case RBRINSTRUMENT_INTERNAL_BATTERY_NIMH:
+        return "nimh";
+    case RBRINSTRUMENT_INTERNAL_BATTERY_COUNT:
+        return "internal battery type count";
+    case RBRINSTRUMENT_UNKNOWN_INTERNAL_BATTERY:
+    default:
+        return "unknown internal battery type";
+    }
+}
+
+const char *RBRInstrumentInternalBatteryType_dispalyName(
+    RBRInstrumentInternalBatteryType type)
+{
+    switch (type)
+    {
+    case RBRINSTRUMENT_INTERNAL_BATTERY_NONE:
+        return "none";
+    case RBRINSTRUMENT_INTERNAL_BATTERY_LISOCL2:
+        return "Li-SOCl₂";
+    case RBRINSTRUMENT_INTERNAL_BATTERY_LIFES2:
+        return "Li-FeS₂";
+    case RBRINSTRUMENT_INTERNAL_BATTERY_ZNMNO2:
+        return "Zn-MnO₂";
+    case RBRINSTRUMENT_INTERNAL_BATTERY_LINIMNCO:
+        return "Li-NiMnCo";
+    case RBRINSTRUMENT_INTERNAL_BATTERY_NIMH:
+        return "NiMH";
+    case RBRINSTRUMENT_INTERNAL_BATTERY_COUNT:
+        return "internal battery type count";
+    case RBRINSTRUMENT_UNKNOWN_INTERNAL_BATTERY:
+    default:
+        return "unknown internal battery type";
+    }
+}
+
+RBRInstrumentError RBRInstrument_getPowerInternal(
+    RBRInstrument *instrument,
+    RBRInstrumentPowerInternal *power)
+{
+    if (instrument->generation == RBRINSTRUMENT_LOGGER2)
+    {
+        return RBRINSTRUMENT_UNSUPPORTED;
+    }
+
+    memset(power, 0, sizeof(RBRInstrumentPowerInternal));
+    power->batteryType = RBRINSTRUMENT_UNKNOWN_INTERNAL_BATTERY;
+
+    RBR_TRY(RBRInstrument_converse(instrument, "powerinternal"));
+
+    bool more = false;
+    char *command = NULL;
+    RBRInstrumentResponseParameter parameter;
+    do
+    {
+        more = RBRInstrument_parseResponse(instrument->message.message,
+                                           &command,
+                                           &parameter);
+
+        if (strcmp(parameter.key, "batterytype") == 0)
+        {
+            for (int i = 0; i < RBRINSTRUMENT_INTERNAL_BATTERY_COUNT; i++)
+            {
+                if (strcmp(RBRInstrumentInternalBatteryType_name(i),
+                           parameter.value) == 0)
+                {
+                    power->batteryType = i;
+                    break;
+                }
+            }
+        }
+        else if (strcmp(parameter.key, "capacity") == 0)
+        {
+            power->capacity = strtod(parameter.value, NULL);
+        }
+        else if (strcmp(parameter.key, "used") == 0)
+        {
+            power->used = strtod(parameter.value, NULL);
+        }
+    } while (more);
+
+    return RBRINSTRUMENT_SUCCESS;
+}
+
+RBRInstrumentError RBRInstrument_setPowerInternalBatteryType(
+    RBRInstrument *instrument,
+    RBRInstrumentInternalBatteryType type)
+{
+    if (type < 0 || type >= RBRINSTRUMENT_INTERNAL_BATTERY_COUNT)
+    {
+        return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
+    }
+
+    return RBRInstrument_converse(
+        instrument,
+        "powerinternal batterytype = %s",
+        RBRInstrumentInternalBatteryType_name(type));
+}
+
+RBRInstrumentError RBRInstrument_resetPowerInternalUsed(
+    RBRInstrument *instrument)
+{
+    return RBRInstrument_converse(instrument, "powerinternal used = 0");
+}
+
+const char *RBRInstrumentExternalBatteryType_name(
+    RBRInstrumentExternalBatteryType type)
+{
+    switch (type)
+    {
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_OTHER:
+        return "other";
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_FERMATA_LISOCL2:
+        return "fermata_lisocl2";
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_FERMATA_ZNMNO2:
+        return "fermata_znmno2";
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_FERMETTE_LIMNO2:
+        return "fermette_limno2";
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_FERMETTE3_LISOCL2:
+        return "fermette3_lisocl2";
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_FERMETTE3_LIFES2:
+        return "fermette3_lifes2";
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_FERMETTE3_ZNMNO2:
+        return "fermette3_znmno2";
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_FERMETTE3_LINIMNCO:
+        return "fermette3_linimnco";
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_FERMETTE3_NIMH:
+        return "fermette3_nimh";
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_COUNT:
+        return "external battery type count";
+    case RBRINSTRUMENT_UNKNOWN_EXTERNAL_BATTERY:
+    default:
+        return "unknown external battery type";
+    }
+}
+
+const char *RBRInstrumentExternalBatteryType_displayName(
+    RBRInstrumentExternalBatteryType type)
+{
+    switch (type)
+    {
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_OTHER:
+        return "other";
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_FERMATA_LISOCL2:
+        return "RBRfermata Li-SOCl₂";
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_FERMATA_ZNMNO2:
+        return "RBRfermata Zn-MnO₂";
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_FERMETTE_LIMNO2:
+        return "RBRfermette Li-MnO₂";
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_FERMETTE3_LISOCL2:
+        return "RBRfermette³ Li-SOCl₂";
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_FERMETTE3_LIFES2:
+        return "RBRfermette³ Li-FeS₂";
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_FERMETTE3_ZNMNO2:
+        return "RBRfermette³ Zn-MnO₂";
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_FERMETTE3_LINIMNCO:
+        return "RBRfermette³ Li-NiMnCo";
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_FERMETTE3_NIMH:
+        return "RBRfermette³ NiMH";
+    case RBRINSTRUMENT_EXTERNAL_BATTERY_COUNT:
+        return "external battery type count";
+    case RBRINSTRUMENT_UNKNOWN_EXTERNAL_BATTERY:
+    default:
+        return "unknown external battery type";
+    }
+}
+
+RBRInstrumentError RBRInstrument_getPowerExternal(
+    RBRInstrument *instrument,
+    RBRInstrumentPowerExternal *power)
+{
+    if (instrument->generation == RBRINSTRUMENT_LOGGER2)
+    {
+        return RBRINSTRUMENT_UNSUPPORTED;
+    }
+
+    memset(power, 0, sizeof(RBRInstrumentPowerExternal));
+    power->batteryType = RBRINSTRUMENT_UNKNOWN_EXTERNAL_BATTERY;
+
+    RBR_TRY(RBRInstrument_converse(instrument, "powerexternal"));
+
+    bool more = false;
+    char *command = NULL;
+    RBRInstrumentResponseParameter parameter;
+    do
+    {
+        more = RBRInstrument_parseResponse(instrument->message.message,
+                                           &command,
+                                           &parameter);
+
+        if (strcmp(parameter.key, "batterytype") == 0)
+        {
+            for (int i = 0; i < RBRINSTRUMENT_EXTERNAL_BATTERY_COUNT; i++)
+            {
+                if (strcmp(RBRInstrumentExternalBatteryType_name(i),
+                           parameter.value) == 0)
+                {
+                    power->batteryType = i;
+                    break;
+                }
+            }
+        }
+        else if (strcmp(parameter.key, "capacity") == 0)
+        {
+            power->capacity = strtod(parameter.value, NULL);
+        }
+        else if (strcmp(parameter.key, "used") == 0)
+        {
+            power->used = strtod(parameter.value, NULL);
+        }
+    } while (more);
+
+    return RBRINSTRUMENT_SUCCESS;
+}
+
+RBRInstrumentError RBRInstrument_setPowerExternalBatteryType(
+    RBRInstrument *instrument,
+    RBRInstrumentExternalBatteryType type)
+{
+    if (type < 0 || type >= RBRINSTRUMENT_EXTERNAL_BATTERY_COUNT)
+    {
+        return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
+    }
+
+    return RBRInstrument_converse(
+        instrument,
+        "powerexternal batterytype = %s",
+        RBRInstrumentExternalBatteryType_name(type));
+}
+
+RBRInstrumentError RBRInstrument_resetPowerExternalUsed(
+    RBRInstrument *instrument)
+{
+    return RBRInstrument_converse(instrument, "powerexternal used = 0");
 }
