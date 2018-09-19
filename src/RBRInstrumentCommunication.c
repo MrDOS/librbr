@@ -34,9 +34,8 @@ const char *RBRInstrumentLink_name(RBRInstrumentLink link)
     }
 }
 
-RBRInstrumentError RBRInstrument_getLink(
-    RBRInstrument *instrument,
-    RBRInstrumentLink *link)
+RBRInstrumentError RBRInstrument_getLink(RBRInstrument *instrument,
+                                         RBRInstrumentLink *link)
 {
     *link = RBRINSTRUMENT_UNKNOWN_LINK;
 

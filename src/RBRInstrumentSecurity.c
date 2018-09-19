@@ -32,26 +32,10 @@ RBRInstrumentError RBRInstrument_permit(RBRInstrument *instrument,
 RBRInstrumentError RBRInstrument_getPrompt(RBRInstrument *instrument,
                                            bool *prompt)
 {
-    *prompt = false;
-
-    RBR_TRY(RBRInstrument_converse(instrument, "prompt"));
-
-    bool more = false;
-    char *command = NULL;
-    RBRInstrumentResponseParameter parameter;
-    do
-    {
-        more = RBRInstrument_parseResponse(instrument->message.message,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "state") == 0)
-        {
-            *prompt = (strcmp(parameter.value, "on") == 0);
-            break;
-        }
-    } while (more);
-
-    return RBRINSTRUMENT_SUCCESS;
+    return RBRInstrument_getBool(instrument,
+                                 "prompt",
+                                 "state",
+                                 prompt);
 }
 
 RBRInstrumentError RBRInstrument_setPrompt(RBRInstrument *instrument,
@@ -65,26 +49,10 @@ RBRInstrumentError RBRInstrument_setPrompt(RBRInstrument *instrument,
 RBRInstrumentError RBRInstrument_getConfirmation(RBRInstrument *instrument,
                                                  bool *confirmation)
 {
-    *confirmation = false;
-
-    RBR_TRY(RBRInstrument_converse(instrument, "confirmation"));
-
-    bool more = false;
-    char *command = NULL;
-    RBRInstrumentResponseParameter parameter;
-    do
-    {
-        more = RBRInstrument_parseResponse(instrument->message.message,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "state") == 0)
-        {
-            *confirmation = (strcmp(parameter.value, "on") == 0);
-            break;
-        }
-    } while (more);
-
-    return RBRINSTRUMENT_SUCCESS;
+    return RBRInstrument_getBool(instrument,
+                                 "confirmation",
+                                 "state",
+                                 confirmation);
 }
 
 RBRInstrumentError RBRInstrument_setConfirmation(RBRInstrument *instrument,

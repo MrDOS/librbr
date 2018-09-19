@@ -254,25 +254,10 @@ RBRInstrumentError RBRInstrument_getUSBStreamingState(
     bool *enabled)
 {
     *enabled = false;
-
-    RBR_TRY(RBRInstrument_converse(instrument, "streamusb state"));
-
-    bool more = false;
-    char *command = NULL;
-    RBRInstrumentResponseParameter parameter;
-    do
-    {
-        more = RBRInstrument_parseResponse(instrument->message.message,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "state") == 0)
-        {
-            *enabled = (strcmp(parameter.value, "on") == 0);
-            break;
-        }
-    } while (more);
-
-    return RBRINSTRUMENT_SUCCESS;
+    return RBRInstrument_getBool(instrument,
+                                 "streamusb",
+                                 "state",
+                                 enabled);
 }
 
 RBRInstrumentError RBRInstrument_setUSBStreamingState(
@@ -289,25 +274,10 @@ RBRInstrumentError RBRInstrument_getSerialStreamingState(
     bool *enabled)
 {
     *enabled = false;
-
-    RBR_TRY(RBRInstrument_converse(instrument, "streamserial state"));
-
-    bool more = false;
-    char *command = NULL;
-    RBRInstrumentResponseParameter parameter;
-    do
-    {
-        more = RBRInstrument_parseResponse(instrument->message.message,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "state") == 0)
-        {
-            *enabled = (strcmp(parameter.value, "on") == 0);
-            break;
-        }
-    } while (more);
-
-    return RBRINSTRUMENT_SUCCESS;
+    return RBRInstrument_getBool(instrument,
+                                 "streamserial",
+                                 "state",
+                                 enabled);
 }
 
 RBRInstrumentError RBRInstrument_setSerialStreamingState(
