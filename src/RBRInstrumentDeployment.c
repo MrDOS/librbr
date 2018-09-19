@@ -49,7 +49,6 @@ static RBRInstrumentError RBRInstrument_parseDeploymentResponse(
     return RBRINSTRUMENT_SUCCESS;
 }
 
-
 RBRInstrumentError RBRInstrument_verify(
     RBRInstrument *instrument,
     bool eraseMemory,

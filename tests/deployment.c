@@ -254,7 +254,6 @@ TEST_LOGGER3(enable)
     return test_enable(instrument, buffers, tests);
 }
 
-
 static bool test_disable(RBRInstrument *instrument,
                          TestIOBuffers *buffers,
                          StatusTest *tests)
@@ -454,7 +453,7 @@ TEST_LOGGER3(simulation_set)
             "",
             RBRINSTRUMENT_INVALID_PARAMETER_VALUE
         },
-        {{0},0,0,0}
+        {{0}, 0, 0, 0}
     };
 
     RBRInstrumentError err;

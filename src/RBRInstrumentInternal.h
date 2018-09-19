@@ -135,9 +135,99 @@ RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
                                           const char *command,
                                           ...);
 
+/**
+ * \brief Read a single boolean parameter from the instrument.
+ *
+ * This function is a convenience specialization over RBRInstrument_converse()
+ * and RBRInstrument_readResponse(): it sends a command in the standard format
+ * for retrieving a single parameter (`command parameter`), then parses the
+ * response looking for the value of that single parameter.
+ *
+ * \param [in] instrument the instrument connection
+ * \param [in] command the name of the command
+ * \param [in] parameter the name of the parameter
+ * \param [out] value the parameter value
+ * \return #RBRINSTRUMENT_SUCCESS when the command was successfully sent and a
+ *                                response was read
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
+ * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument indicated an error
+ * \see RBRInstrument_converse() to send a command
+ * \see RBRInstrument_readResponse() to read the command response
+ * \see RBRInstrument_getFloat() for the float equivalent
+ * \see RBRInstrument_getInt() for the integer equivalent
+ */
+RBRInstrumentError RBRInstrument_getBool(RBRInstrument *instrument,
+                                         const char *command,
+                                         const char *parameter,
+                                         bool *value);
+
+/**
+ * \brief Read a single float parameter from the instrument.
+ *
+ * This function is a convenience specialization over RBRInstrument_converse()
+ * and RBRInstrument_readResponse(): it sends a command in the standard format
+ * for retrieving a single parameter (`command parameter`), then parses the
+ * response looking for the value of that single parameter.
+ *
+ * \param [in] instrument the instrument connection
+ * \param [in] command the name of the command
+ * \param [in] parameter the name of the parameter
+ * \param [out] value the parameter value
+ * \return #RBRINSTRUMENT_SUCCESS when the command was successfully sent and a
+ *                                response was read
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
+ * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument indicated an error
+ * \see RBRInstrument_converse() to send a command
+ * \see RBRInstrument_readResponse() to read the command response
+ * \see RBRInstrument_getBool() for the boolean equivalent
+ * \see RBRInstrument_getInt() for the integer equivalent
+ */
+RBRInstrumentError RBRInstrument_getFloat(RBRInstrument *instrument,
+                                          const char *command,
+                                          const char *parameter,
+                                          float *value);
+
+/**
+ * \brief Read a single integer parameter from the instrument.
+ *
+ * This function is a convenience specialization over RBRInstrument_converse()
+ * and RBRInstrument_readResponse(): it sends a command in the standard format
+ * for retrieving a single parameter (`command parameter`), then parses the
+ * response looking for the value of that single parameter.
+ *
+ * \param [in] instrument the instrument connection
+ * \param [in] command the name of the command
+ * \param [in] parameter the name of the parameter
+ * \param [out] value the parameter value
+ * \return #RBRINSTRUMENT_SUCCESS when the command was successfully sent and a
+ *                                response was read
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
+ * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument indicated an error
+ * \see RBRInstrument_converse() to send a command
+ * \see RBRInstrument_readResponse() to read the command response
+ * \see RBRInstrument_getBool() for the boolean equivalent
+ * \see RBRInstrument_getFloat() for the float equivalent
+ */
+RBRInstrumentError RBRInstrument_getInt(RBRInstrument *instrument,
+                                        const char *command,
+                                        const char *parameter,
+                                        int32_t *value);
+
 /** \brief A parameter (key/value pair) from an instrument response. */
 typedef struct RBRInstrumentResponseParameter
 {
+    /**
+     * \brief The index of the response array member to which the parameter
+     * belongs.
+     */
+    int32_t index;
+    /**
+     * \brief The response array index string value TODO describe better words
+     */
+    char *indexValue;
     /** \brief The parameter key. */
     char *key;
     /** \brief The parameter value. */
@@ -153,6 +243,10 @@ typedef struct RBRInstrumentResponseParameter
  * will begin parsing from the beginning of the buffer. Otherwise, it will use
  * the contents of \a parameter to figure out where it stopped last time and
  * resume from there.
+ *
+ * If the command response is an array (e.g., `channel allindices`,
+ * `calibration alllabels`), then \a parameter.index is incremented whenever
+ * the delimiter is found.
  *
  * This function mutates the buffer. As such, it can't be called more than once
  * on the same input.
@@ -208,8 +302,8 @@ RBRInstrumentError RBRInstrumentDateTime_parseScheduleTime(
  * \brief Convert a timestamp to a sample time/date string (i.e.,
  * “YYYY-mm-dd HH:MM:SS.sss” format).
  *
- * Exactly #RBRINSTRUMENT_SAMPLE_TIME_LEN plus one characters will be written
- * into the buffer for the timestamp plus null terminator.
+ * Exactly #RBRINSTRUMENT_SAMPLE_TIME_LEN + 1 characters will be written into
+ * the buffer for the timestamp plus null terminator.
  *
  * \param [in] timestamp the timestamp
  * \param [out] s the destination buffer
@@ -221,8 +315,8 @@ void RBRInstrumentDateTime_toSampleTime(RBRInstrumentDateTime timestamp,
  * \brief Convert a timestamp to a schedule setting time/date string (i.e.,
  * “YYYYmmddHHMMSS” format).
  *
- * Exactly #RBRINSTRUMENT_SCHEDULE_TIME_LEN plus one characters will be written
- * into the buffer for the timestamp plus null terminator.
+ * Exactly #RBRINSTRUMENT_SCHEDULE_TIME_LEN + 1 characters will be written into
+ * the buffer for the timestamp plus null terminator.
  *
  * \param [in] timestamp the timestamp
  * \param [out] s the destination buffer

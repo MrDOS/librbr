@@ -137,12 +137,20 @@ RBRInstrumentError RBRInstrument_getRegime(
 
     bool more = false;
     char *command = NULL;
+    int32_t previousIndex = 0;
     RBRInstrumentResponseParameter parameter;
     do
     {
         more = RBRInstrument_parseResponse(instrument->message.message,
                                            &command,
                                            &parameter);
+
+        if (parameter.index != previousIndex)
+        {
+            previousIndex = parameter.index;
+            regime->index = strtol(parameter.indexValue, NULL, 10);
+        }
+
         if (strcmp(parameter.key, "boundary") == 0)
         {
             regime->boundary = strtod(parameter.value, NULL);
@@ -156,8 +164,6 @@ RBRInstrumentError RBRInstrument_getRegime(
             regime->samplingPeriod = strtol(parameter.value, NULL, 10);
         }
     } while (more);
-
-    regime->index = index;
 
     return RBRINSTRUMENT_SUCCESS;
 }

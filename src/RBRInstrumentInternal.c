@@ -38,6 +38,11 @@
 #define COMMAND_PROMPT "Ready: "
 #define COMMAND_PROMPT_LEN 7
 
+#define ARRAY_SEPARATOR_L2 " | "
+#define ARRAY_SEPARATOR_LEN_L2 3
+#define ARRAY_SEPARATOR_L3 " || "
+#define ARRAY_SEPARATOR_LEN_L3 4
+
 #define PARAMETER_SEPARATOR ", "
 #define PARAMETER_SEPARATOR_LEN 2
 #define PARAMETER_VALUE_SEPARATOR " = "
@@ -73,10 +78,16 @@ static const int32_t WARNING_NUMBERS[] = {
 #define SAMPLE_ERROR_PREFIX_LEN ((long) (sizeof(SAMPLE_ERROR_PREFIX) - 1))
 
 static const char *RBRInstrumentDateTime_sampleFormat
-    = "%04d-%02d-%02d %02d:%02d:%02d.%03" PRId64 "%n";
+    = "%04d-%02d-%02d %02d:%02d:%02d.%03" PRIi64;
+
+static const char *RBRInstrumentDateTime_sampleScanFormat
+    = "%04d-%02d-%02d %02d:%02d:%02d.%03" PRIi64 "%n";
 
 static const char *RBRInstrumentDateTime_scheduleFormat
-    = "%4d%2d%2d%2d%2d%2d%n";
+    = "%04d%02d%02d%02d%02d%02d";
+
+static const char *RBRInstrumentDateTime_scheduleScanFormat
+    = "%04d%02d%02d%02d%02d%02d%n";
 
 static RBRInstrumentDateTime localTimeOffset = OFFSET_UNINITIALIZED;
 
@@ -91,7 +102,7 @@ void *memmem(void *ptr1, size_t num1,
         return NULL;
     }
 
-    for (size_t offset = 0; offset <= num1 - num2; offset++)
+    for (size_t offset = 0; offset <= num1 - num2; ++offset)
     {
         if (memcmp((uint8_t *) ptr1 + offset, ptr2, num2) == 0)
         {
@@ -122,7 +133,7 @@ static RBRInstrumentError RBRInstrument_wake(const RBRInstrument *instrument)
     }
 
     /* Send the wake sequence twice to make sure it gets noticed. */
-    for (int pass = 0; pass < 2; pass++)
+    for (int pass = 0; pass < 2; ++pass)
     {
         RBR_TRY(instrument->callbacks.write(instrument,
                                             WAKE_COMMAND,
@@ -357,7 +368,7 @@ static RBRInstrumentError RBRInstrumentSample_parse(
         /* strtok wants NULL on all but the first pass. */
         values = NULL;
         /* The token will always have a leading space. */
-        token++;
+        ++token;
 
         if (strcmp(token, SAMPLE_NAN) == 0)
         {
@@ -442,7 +453,7 @@ static RBRInstrumentError RBRInstrument_errorCheckResponse(
          * translated into a warning. */
         if (instrument->generation == RBRINSTRUMENT_LOGGER2)
         {
-            for (int i = 0; i < WARNING_NUMBER_COUNT; i++)
+            for (int i = 0; i < WARNING_NUMBER_COUNT; ++i)
             {
                 if (instrument->message.number != WARNING_NUMBERS[i])
                 {
@@ -577,46 +588,25 @@ bool RBRInstrument_parseResponse(char *buffer,
     bool hasParameters = true;
     if (*command == NULL)
     {
+        memset(parameter, 0, sizeof(RBRInstrumentResponseParameter));
+
         *command = buffer;
-        char *previousSpace = NULL;
         char *commandEnd = *command;
 
-        /* Some commands (e.g., channel, regime) take a nameless index
-         * parameter and return it with the response. E.g.,
-         *
-         *     >> regime 1
-         *     << regime 1 boundary = 50, binsize = 0.1, samplingperiod = 63
-         *
-         * So instead of searching for the first space to identify the end of
-         * the command, we'll look for the value separator and remember where
-         * we most recently saw a space before it. That space separates the
-         * actual command end from the beginning of the first parameter key.
-         */
         while (true)
         {
-            if (*commandEnd == '\0')
+            switch (*commandEnd)
             {
+            case '\0':
                 hasParameters = false;
-                break;
+            /* Fallthrough. */
+            case ' ':
+                goto foundCommandEnd;
+            default:
+                ++commandEnd;
             }
-            else if (memcmp(commandEnd,
-                            PARAMETER_VALUE_SEPARATOR,
-                            PARAMETER_VALUE_SEPARATOR_LEN) == 0)
-            {
-                break;
-            }
-            else if (*commandEnd == ' ')
-            {
-                previousSpace = commandEnd;
-            }
-
-            commandEnd++;
         }
-
-        if (previousSpace != NULL)
-        {
-            commandEnd = previousSpace;
-        }
+foundCommandEnd:
 
         /*
          * All L3 commands return at least one parameter. However, lots of
@@ -630,17 +620,19 @@ bool RBRInstrument_parseResponse(char *buffer,
          * used as the first parameter key. If so, we won't null-terminate it:
          * that will be done for us when the value is parsed.
          */
-        if (hasParameters
-            && memcmp(commandEnd,
-                      PARAMETER_VALUE_SEPARATOR,
-                      PARAMETER_VALUE_SEPARATOR_LEN) == 0)
+        if (hasParameters)
         {
-            parameter->nextKey = *command;
-        }
-        else
-        {
-            *commandEnd = '\0';
-            parameter->nextKey = commandEnd + 1;
+            if (memcmp(commandEnd,
+                       PARAMETER_VALUE_SEPARATOR,
+                       PARAMETER_VALUE_SEPARATOR_LEN) == 0)
+            {
+                parameter->nextKey = *command;
+            }
+            else
+            {
+                *commandEnd = '\0';
+                parameter->nextKey = commandEnd + 1;
+            }
         }
     }
 
@@ -649,19 +641,54 @@ bool RBRInstrument_parseResponse(char *buffer,
         return false;
     }
 
+    /*
+     * Some commands (e.g., channel, regime) take an index parameter and return
+     * it with the response. E.g.,
+     *
+     *     >> regime 1
+     *     << regime 1 boundary = 50, binsize = 0.1, samplingperiod = 63
+     *
+     * We'll look for the value separator and remember where we most recently
+     * saw a space before it. That space separates the end of the index value
+     * from the beginning of the parameter key. Because this can happen both
+     * after the initial command word and after the array member separator,
+     * we'll check for this each time we parse a parameter.
+     */
     parameter->key = parameter->nextKey;
+    char *previousSpace = NULL;
+    parameter->value = parameter->key;
+    while (true)
+    {
+        if (*parameter->value == '\0')
+        {
+            parameter->nextKey = NULL;
+            return false;
+        }
+        else if (memcmp(parameter->value,
+                        PARAMETER_VALUE_SEPARATOR,
+                        PARAMETER_VALUE_SEPARATOR_LEN) == 0)
+        {
+            /* Null-terminate the key. */
+            *parameter->value = '\0';
+            parameter->value += PARAMETER_VALUE_SEPARATOR_LEN;
+            break;
+        }
+        else if (*parameter->value == ' ')
+        {
+            previousSpace = parameter->value;
+        }
 
-    parameter->value = strstr(parameter->key, PARAMETER_VALUE_SEPARATOR);
-    if (parameter->value != NULL)
-    {
-        /* Null-terminate the key. */
-        *parameter->value = '\0';
-        parameter->value += PARAMETER_VALUE_SEPARATOR_LEN;
+        ++parameter->value;
     }
-    else
+
+    /* If we found whitespace between the beginning of the key and the value
+     * separator, that means there's an index value. */
+    if (previousSpace != NULL)
     {
-        parameter->nextKey = NULL;
-        return false;
+        *previousSpace = '\0';
+        ++parameter->index;
+        parameter->indexValue = parameter->key;
+        parameter->key = previousSpace + 1;
     }
 
     /*
@@ -683,6 +710,8 @@ bool RBRInstrument_parseResponse(char *buffer,
      *  “support” parameter), we need to seek forward to the next value
      * separator (“a”), then seek _backwards_ to find the parameter separator
      * (“b”). Any earlier parameter separator (“c”) might be part of the value.
+     * We also need to check for the separator used by array responses (“ | ”
+     * for Logger2, “ || ” for Logger3).
      */
     parameter->nextKey = strstr(parameter->value, PARAMETER_VALUE_SEPARATOR);
     if (parameter->nextKey == NULL)
@@ -690,18 +719,52 @@ bool RBRInstrument_parseResponse(char *buffer,
         return false;
     }
 
-    while (memcmp(parameter->nextKey,
-                  PARAMETER_SEPARATOR,
-                  PARAMETER_SEPARATOR_LEN) != 0)
+    int32_t separatorLength = -1;
+    while (parameter->nextKey > parameter->value && separatorLength < 0)
     {
-        parameter->nextKey--;
+        if (memcmp(parameter->nextKey,
+                   PARAMETER_SEPARATOR,
+                   PARAMETER_SEPARATOR_LEN) == 0)
+        {
+            separatorLength = PARAMETER_SEPARATOR_LEN;
+        }
+        /* TODO: Only check the L2/L3-specific separator for that generation of
+         * instrument. Will need to take the generation as an argument. */
+        else if (memcmp(parameter->nextKey,
+                        ARRAY_SEPARATOR_L2,
+                        ARRAY_SEPARATOR_LEN_L2) == 0)
+        {
+            separatorLength = ARRAY_SEPARATOR_LEN_L2;
+        }
+        else if (memcmp(parameter->nextKey,
+                        ARRAY_SEPARATOR_L3,
+                        ARRAY_SEPARATOR_LEN_L3) == 0)
+        {
+            /* L3 separates array members in responses with the separator _and_
+             * the command name. */
+            separatorLength = ARRAY_SEPARATOR_LEN_L3 + strlen(*command) + 1;
+        }
+        else
+        {
+            --parameter->nextKey;
+        }
     }
 
-    /* Null-terminate the value. */
-    *parameter->nextKey = '\0';
-    parameter->nextKey += PARAMETER_SEPARATOR_LEN;
-
-    return true;
+    if (separatorLength >= 0)
+    {
+        /* Null-terminate the value. */
+        *parameter->nextKey = '\0';
+        parameter->nextKey += separatorLength;
+        return true;
+    }
+    else
+    {
+        /* Something went horribly wrong: we found what we thought was the
+         * start of the next key, but then didn't find any separators between
+         * it and the start of the value. Give up. */
+        parameter->nextKey = NULL;
+        return false;
+    }
 }
 
 RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
@@ -711,10 +774,10 @@ RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
     RBRInstrumentError err;
     va_list format;
     va_start(format, command);
+    /* Can't use RBR_TRY because we need to call va_end() before returning. */
     err = RBRInstrument_vSendCommand(instrument, command, format);
     va_end(format);
 
-    /* Can't use RBR_TRY because we need to call va_end() before returning. */
     if (err != RBRINSTRUMENT_SUCCESS)
     {
         return err;
@@ -726,7 +789,7 @@ RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
     while (!isspace(instrument->commandBuffer[commandLength])
            && instrument->commandBuffer[commandLength] != '\0')
     {
-        commandLength++;
+        ++commandLength;
     }
 
     /* Now keep looking for a response until we find one which matches. */
@@ -737,6 +800,93 @@ RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
              || memcmp(instrument->message.message,
                        instrument->commandBuffer,
                        commandLength) != 0);
+
+    return RBRINSTRUMENT_SUCCESS;
+}
+
+RBRInstrumentError RBRInstrument_getBool(RBRInstrument *instrument,
+                                         const char *command,
+                                         const char *parameter,
+                                         bool *value)
+{
+    *value = false;
+
+    RBR_TRY(RBRInstrument_converse(instrument, "%s %s", command, parameter));
+
+    bool more = false;
+    char *responseCommand = NULL;
+    RBRInstrumentResponseParameter responseParameter;
+    do
+    {
+        more = RBRInstrument_parseResponse(instrument->message.message,
+                                           &responseCommand,
+                                           &responseParameter);
+
+        if (strcmp(responseParameter.key, parameter) != 0)
+        {
+            continue;
+        }
+
+        *value = (strcmp(responseParameter.value, "on") == 0);
+    } while (more);
+
+    return RBRINSTRUMENT_SUCCESS;
+}
+
+RBRInstrumentError RBRInstrument_getFloat(RBRInstrument *instrument,
+                                          const char *command,
+                                          const char *parameter,
+                                          float *value)
+{
+    *value = NAN;
+
+    RBR_TRY(RBRInstrument_converse(instrument, "%s %s", command, parameter));
+
+    bool more = false;
+    char *responseCommand = NULL;
+    RBRInstrumentResponseParameter responseParameter;
+    do
+    {
+        more = RBRInstrument_parseResponse(instrument->message.message,
+                                           &responseCommand,
+                                           &responseParameter);
+
+        if (strcmp(responseParameter.key, parameter) != 0)
+        {
+            continue;
+        }
+
+        *value = strtod(responseParameter.value, NULL);
+    } while (more);
+
+    return RBRINSTRUMENT_SUCCESS;
+}
+
+RBRInstrumentError RBRInstrument_getInt(RBRInstrument *instrument,
+                                        const char *command,
+                                        const char *parameter,
+                                        int32_t *value)
+{
+    *value = 0;
+
+    RBR_TRY(RBRInstrument_converse(instrument, "%s %s", command, parameter));
+
+    bool more = false;
+    char *responseCommand = NULL;
+    RBRInstrumentResponseParameter responseParameter;
+    do
+    {
+        more = RBRInstrument_parseResponse(instrument->message.message,
+                                           &responseCommand,
+                                           &responseParameter);
+
+        if (strcmp(responseParameter.key, parameter) != 0)
+        {
+            continue;
+        }
+
+        *value = strtol(responseParameter.value, NULL, 10);
+    } while (more);
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -774,6 +924,11 @@ static RBRInstrumentError RBRInstrumentDateTime_parse(
     struct tm *split,
     RBRInstrumentDateTime *timestamp)
 {
+    /* struct tm/mktime() expects years to be counted from 1900... */
+    split->tm_year -= 1900;
+    /* ...and months to be 0-based. */
+    split->tm_mon  -= 1;
+
     /* Sanity check. */
     if (split->tm_year < 100
         || split->tm_year >= 200
@@ -815,7 +970,7 @@ RBRInstrumentError RBRInstrumentDateTime_parseSampleTime(
     int32_t timestampLength;
     struct tm split = {0};
     if (sscanf(s,
-               RBRInstrumentDateTime_sampleFormat,
+               RBRInstrumentDateTime_sampleScanFormat,
                &split.tm_year,
                &split.tm_mon,
                &split.tm_mday,
@@ -827,11 +982,6 @@ RBRInstrumentError RBRInstrumentDateTime_parseSampleTime(
     {
         return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
     }
-
-    /* struct tm/mktime() expects years to be counted from 1900... */
-    split.tm_year -= 1900;
-    /* ...and months to be 0-based. */
-    split.tm_mon  -= 1;
 
     RBR_TRY(RBRInstrumentDateTime_parse(&split, timestamp));
     if (end != NULL)
@@ -856,7 +1006,7 @@ RBRInstrumentError RBRInstrumentDateTime_parseScheduleTime(
     int32_t timestampLength;
     struct tm split = {0};
     if (sscanf(s,
-               RBRInstrumentDateTime_scheduleFormat,
+               RBRInstrumentDateTime_scheduleScanFormat,
                &split.tm_year,
                &split.tm_mon,
                &split.tm_mday,
@@ -868,11 +1018,6 @@ RBRInstrumentError RBRInstrumentDateTime_parseScheduleTime(
         return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
     }
 
-    /* struct tm/mktime() expects years to be counted from 1900... */
-    split.tm_year -= 1900;
-    /* ...and months to be 0-based. */
-    split.tm_mon  -= 1;
-
     RBR_TRY(RBRInstrumentDateTime_parse(&split, timestamp));
     if (end != NULL)
     {
@@ -882,13 +1027,14 @@ RBRInstrumentError RBRInstrumentDateTime_parseScheduleTime(
     return RBRINSTRUMENT_SUCCESS;
 }
 
-void RBRInstrumentDateTime_toSampleTime(RBRInstrumentDateTime timestamp,
-                                        char *s)
+static void RBRInstrumentDateTime_toFormat(RBRInstrumentDateTime timestamp,
+                                           char *s,
+                                           const char *format)
 {
     time_t t = timestamp / 1000;
     struct tm *split = gmtime(&t);
     sprintf(s,
-            RBRInstrumentDateTime_sampleFormat,
+            format,
             split->tm_year + 1900,
             split->tm_mon + 1,
             split->tm_mday,
@@ -898,17 +1044,18 @@ void RBRInstrumentDateTime_toSampleTime(RBRInstrumentDateTime timestamp,
             timestamp % 1000);
 }
 
+void RBRInstrumentDateTime_toSampleTime(RBRInstrumentDateTime timestamp,
+                                        char *s)
+{
+    RBRInstrumentDateTime_toFormat(timestamp,
+                                   s,
+                                   RBRInstrumentDateTime_sampleFormat);
+}
+
 void RBRInstrumentDateTime_toScheduleTime(RBRInstrumentDateTime timestamp,
                                           char *s)
 {
-    time_t t = timestamp / 1000;
-    struct tm *split = gmtime(&t);
-    sprintf(s,
-            RBRInstrumentDateTime_sampleFormat,
-            split->tm_year + 1900,
-            split->tm_mon + 1,
-            split->tm_mday,
-            split->tm_hour,
-            split->tm_min,
-            split->tm_sec);
+    RBRInstrumentDateTime_toFormat(timestamp,
+                                   s,
+                                   RBRInstrumentDateTime_scheduleFormat);
 }

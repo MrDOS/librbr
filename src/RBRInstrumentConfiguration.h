@@ -54,6 +54,12 @@ extern "C" {
  */
 #define RBRINSTRUMENT_CALIBRATION_EQUATION_MAX 31
 
+/** \brief The minimum input timeout. */
+#define RBRINSTRUMENT_INPUT_TIMEOUT_MIN 10000
+
+/** \brief The maximum input timeout. */
+#define RBRINSTRUMENT_INPUT_TIMEOUT_MAX 240000
+
 /**
  * \brief The maximum number of characters in the name of a sensor parameter.
  *
@@ -87,6 +93,12 @@ typedef uint8_t RBRInstrumentModuleAddress;
  */
 typedef struct RBRInstrumentCalibration
 {
+    /**
+     * \brief The date/time of the calibration.
+     *
+     * Unused entries should be set to 0.
+     */
+    RBRInstrumentDateTime dateTime;
     /**
      *\brief Calibration C coefficients.
      *
@@ -126,6 +138,8 @@ typedef struct RBRInstrumentChannel
     char type[RBRINSTRUMENT_CHANNEL_TYPE_MAX + 1];
     /** \brief The internal address to which the channel responds. */
     RBRInstrumentModuleAddress module;
+    /** \brief Whether the channel is activated for sampling. */
+    bool status;
     /**
      * \brief The minimum power-on settling time required by this channel.
      *
@@ -157,10 +171,10 @@ typedef struct RBRInstrumentChannel
      * a null-terminated C string.
      *
      * Set upon request for OEM customers. If not set, reported as “none”.
+     *
+     * \nol2 Always populated with “none”.
      */
     char label[RBRINSTRUMENT_CHANNEL_LABEL_MAX + 1];
-    /** \brief Whether the channel is activated for sampling. */
-    bool status;
     /** \brief The calibration for the channel. */
     RBRInstrumentCalibration calibration;
 } RBRInstrumentChannel;
@@ -264,6 +278,9 @@ RBRInstrumentError RBRInstrument_setChannelStatus(
  * those coefficients will retain their current values. You can call
  * RBRInstrument_getChannels() after updating coefficients to confirm the
  * values written.
+ *
+ * Values of in the _n_ coefficient group (RBRInstrumentCalibration.n) are
+ * ignored.
  *
  * \param [in] instrument the instrument connection
  * \param [in] channel the index of the channel to update
@@ -397,7 +414,8 @@ RBRInstrumentError RBRInstrument_setCastDetection(RBRInstrument *instrument,
  * \brief Get the timeout for output suppression while receiving commands.
  *
  * Specified in milliseconds. Must be between 10,000 and 240,000,
- * inclusive; partial seconds are rounded up to the next whole second.
+ * inclusive; partial seconds are rounded up to the next whole second by the
+ * instrument.
  *
  * \param [in] instrument the instrument connection
  * \param [out] inputTimeout the timeout for output suppression
@@ -413,6 +431,9 @@ RBRInstrumentError RBRInstrument_getInputTimeout(
 
 /**
  * \brief Set the timeout for output suppression while receiving commands.
+ *
+ * Must be between 10,000 and 240,000, inclusive; partial seconds are rounded
+ * up to the next whole second.
  *
  * A hardware error will occur if the instrument is logging.
  *
@@ -468,6 +489,14 @@ typedef enum RBRInstrumentValueSetting
      * Specified in dbar.
      */
     RBRINSTRUMENT_SETTING_PRESSURE,
+    /**
+     * The default conductivity.
+     *
+     * Specified in ms/cm².
+     *
+     * \nol3 It is only available on early Logger2 instruments.
+     */
+    RBRINSTRUMENT_SETTING_CONDUCTIVITY,
     /**
      * The default atmospheric pressure.
      *
@@ -558,7 +587,7 @@ RBRInstrumentError RBRInstrument_setValueSetting(
 typedef struct RBRInstrumentSensorParameter
 {
     /** \brief The name of the parameter as a null-terminated C string. */
-    char name[RBRINSTRUMENT_SENSOR_PARAMETER_NAME_MAX + 1];
+    char key[RBRINSTRUMENT_SENSOR_PARAMETER_NAME_MAX + 1];
     /** \brief The parameter value as a null-terminated C string. */
     char value[RBRINSTRUMENT_SENSOR_PARAMETER_VALUE_MAX + 1];
 } RBRInstrumentSensorParameter;

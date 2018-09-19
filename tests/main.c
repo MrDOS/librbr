@@ -75,7 +75,7 @@ RBRInstrumentError TestIOBuffers_read(
         readLength = *size;
     }
     /* Otherwise, provide as much as we can from the read buffer. */
-    memcpy(data, buffers->readBuffer, readLength);
+    memcpy(data, buffers->readBuffer + buffers->readBufferPos, readLength);
     *size = readLength;
     buffers->readBufferPos += readLength;
     return RBRINSTRUMENT_SUCCESS;
@@ -103,7 +103,9 @@ RBRInstrumentError TestIOBuffers_write(const struct RBRInstrument *instrument,
     }
     /* Otherwise, store the data to the write buffer. */
     memcpy(buffers->writeBuffer, data, size);
-    buffers->writeBufferPos += size;
+    /* Null-terminate the buffer so we can do string comparisons with it. */
+    buffers->writeBuffer[size] = '\0';
+    buffers->writeBufferPos = size;
     return RBRINSTRUMENT_SUCCESS;
 }
 
