@@ -123,12 +123,6 @@ typedef struct RBRInstrumentData
  * size as it may differ from the requested size, especially when the
  * instrument is busy or if you're reading the last chunk of the dataset.
  *
- * A hardware error will be reported if the CRC check of the read data fails.
- * In this case, the message returned by RBRInstrument_getLastMessage() will be
- * of type #RBRINSTRUMENT_MESSAGE_ERROR, but it will _not_ have an error number
- * or message (RBRInstrumentMessage.number will be `0` and
- * RBRInstrumentMessage.message will be `NULL`).
- *
  * For example:
  *
  * ~~~{.c}
@@ -142,6 +136,14 @@ typedef struct RBRInstrumentData
  * RBRInstrument_readData(instrument, &data);
  * fwrite(buf, data.size, 1, datasetFile);
  * ~~~
+ *
+ * A hardware error will be reported if the CRC check of the read data fails.
+ * In this case, the message returned by RBRInstrument_getLastMessage() will be
+ * of type #RBRINSTRUMENT_MESSAGE_ERROR, but it will _not_ have an error number
+ * or message (RBRInstrumentMessage.number will be `0` and
+ * RBRInstrumentMessage.message will be `NULL`). However, \a data will still
+ * faithfully reflect the response parameters and data. Be sure to check the
+ * return value lest you accidentally consume invalid/corrupt data!
  *
  * \param [in] instrument the instrument connection
  * \param [in,out] data the instrument data

@@ -287,6 +287,7 @@ RBRInstrumentError RBRInstrument_readData(RBRInstrument *instrument,
     if (calculatedCrc != crc.value)
     {
         instrument->message.type = RBRINSTRUMENT_MESSAGE_ERROR;
+        instrument->message.message = NULL;
         return RBRINSTRUMENT_HARDWARE_ERROR;
     }
 
@@ -481,6 +482,6 @@ RBRInstrumentError RBRInstrument_setNewMemoryFormat(
 {
     const char *formatName = RBRInstrumentMemoryFormat_name(memoryFormat);
     return RBRInstrument_converse(instrument,
-                                  "memformat type = %s",
+                                  "memformat newtype = %s",
                                   formatName);
 }
