@@ -98,7 +98,7 @@ extern "C" {
  * Specified in milliseconds since the Unix epoch (1970-01-01T00:00:00.000Z).
  * Represents 2000-01-01T00:00:00.000Z.
  */
-#define RBRINSTRUMENT_DATETIME_MIN  946684800000L
+#define RBRINSTRUMENT_DATETIME_MIN  946684800000LL
 
 /**
  * \brief The minimum date and time which the instrument can handle.
@@ -106,7 +106,7 @@ extern "C" {
  * Specified in milliseconds since the Unix epoch (1970-01-01T00:00:00.000Z).
  * Represents 2099-12-31T23:59:59.000Z.
  */
-#define RBRINSTRUMENT_DATETIME_MAX 4102444799000L
+#define RBRINSTRUMENT_DATETIME_MAX 4102444799000LL
 
 /**
  * A date and time in milliseconds since the Unix epoch

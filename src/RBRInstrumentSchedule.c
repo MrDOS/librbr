@@ -207,23 +207,23 @@ const char *RBRInstrumentSamplingMode_name(RBRInstrumentSamplingMode mode)
 {
     switch (mode)
     {
-    case RBRINSTRUMENT_CONTINUOUS:
+    case RBRINSTRUMENT_SAMPLING_CONTINUOUS:
         return "continuous";
-    case RBRINSTRUMENT_BURST:
+    case RBRINSTRUMENT_SAMPLING_BURST:
         return "burst";
-    case RBRINSTRUMENT_WAVE:
+    case RBRINSTRUMENT_SAMPLING_WAVE:
         return "wave";
-    case RBRINSTRUMENT_AVERAGE:
+    case RBRINSTRUMENT_SAMPLING_AVERAGE:
         return "average";
-    case RBRINSTRUMENT_TIDE:
+    case RBRINSTRUMENT_SAMPLING_TIDE:
         return "tide";
-    case RBRINSTRUMENT_REGIMES:
+    case RBRINSTRUMENT_SAMPLING_REGIMES:
         return "regimes";
-    case RBRINSTRUMENT_DDSAMPLING:
+    case RBRINSTRUMENT_SAMPLING_DDSAMPLING:
         return "ddsampling";
-    case RBRINSTRUMENT_SAMPLING_MODE_COUNT:
+    case RBRINSTRUMENT_SAMPLING_COUNT:
         return "sampling mode count";
-    case RBRINSTRUMENT_UNKNOWN_SAMPLING_MODE:
+    case RBRINSTRUMENT_UNKNOWN_SAMPLING:
     default:
         return "unknown sampling mode";
     }
@@ -254,8 +254,11 @@ RBRInstrumentError RBRInstrument_getSampling(
     RBRInstrumentSampling *sampling)
 {
     memset(sampling, 0, sizeof(RBRInstrumentSampling));
-    sampling->mode = RBRINSTRUMENT_UNKNOWN_SAMPLING_MODE;
+    sampling->mode = RBRINSTRUMENT_UNKNOWN_SAMPLING;
     sampling->gate = RBRINSTRUMENT_UNKNOWN_GATE;
+    /* Very old Logger2 instruments didn't show the userperiodlimit parameter,
+     * so we'll set the default value of the field conservatively. */
+    sampling->userPeriodLimit = 1000;
 
     /*
      * The `sampling` command format added support for the `all` parameter
@@ -295,7 +298,7 @@ RBRInstrumentError RBRInstrument_getSampling(
                                            &parameter);
         if (strcmp(parameter.key, "mode") == 0)
         {
-            for (int i = 0; i < RBRINSTRUMENT_SAMPLING_MODE_COUNT; i++)
+            for (int i = 0; i < RBRINSTRUMENT_SAMPLING_COUNT; ++i)
             {
                 if (strcmp(RBRInstrumentSamplingMode_name(i),
                            parameter.value) == 0)
@@ -319,7 +322,7 @@ RBRInstrumentError RBRInstrument_getSampling(
         }
         else if (strcmp(parameter.key, "gate") == 0)
         {
-            for (int i = 0; i < RBRINSTRUMENT_GATE_COUNT; i++)
+            for (int i = 0; i < RBRINSTRUMENT_GATE_COUNT; ++i)
             {
                 if (strcmp(RBRInstrumentGate_name(i), parameter.value) == 0)
                 {
@@ -341,7 +344,7 @@ RBRInstrumentError RBRInstrument_getSampling(
                 if ((nextValue = strstr(parameter.value, "|")) != NULL)
                 {
                     *nextValue = '\0';
-                    nextValue++;
+                    ++nextValue;
                 }
 
                 sampling->availableFastPeriods[periodCount++]
@@ -361,6 +364,42 @@ RBRInstrumentError RBRInstrument_setSampling(
     RBRInstrument *instrument,
     const RBRInstrumentSampling *sampling)
 {
+    if (sampling->mode < 0
+        || sampling->mode >= RBRINSTRUMENT_SAMPLING_COUNT
+        || sampling->period <= 0
+        || sampling->period > RBRINSTRUMENT_SAMPLING_PERIOD_MAX
+        || (sampling->period >= 1000
+            && sampling->period % 1000 != 0)
+        || (sampling->userPeriodLimit > 0
+            && sampling->period < sampling->userPeriodLimit))
+    {
+        return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
+    }
+
+    /* If we're not doing fast sampling or we don't have any available fast
+     * periods then we don't want to check for inclusion. */
+    if (sampling->period < 1000 && sampling->availableFastPeriods[0] != 0)
+    {
+        bool hasFastPeriod = false;
+
+        for (int i = 0;
+             i < RBRINSTRUMENT_AVAILABLE_FAST_PERIODS_MAX
+             && sampling->availableFastPeriods[i] != 0;
+             ++i)
+        {
+            if (sampling->availableFastPeriods[i] == sampling->period)
+            {
+                hasFastPeriod = true;
+                break;
+            }
+        }
+
+        if (!hasFastPeriod)
+        {
+            return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
+        }
+    }
+
     return RBRInstrument_sendCommand(
         instrument,
         "sampling"
@@ -468,7 +507,7 @@ static RBRInstrumentError RBRInstrument_getDeploymentL2(
             continue;
         }
 
-        for (int i = 0; i < RBRINSTRUMENT_STATUS_COUNT; i++)
+        for (int i = 0; i < RBRINSTRUMENT_STATUS_COUNT; ++i)
         {
             if (strcmp(RBRInstrumentDeploymentStatus_name(i),
                        parameter.value) == 0)
@@ -512,7 +551,7 @@ static RBRInstrumentError RBRInstrument_getDeploymentL3(
         }
         else if (strcmp(parameter.key, "status") == 0)
         {
-            for (int i = 0; i < RBRINSTRUMENT_STATUS_COUNT; i++)
+            for (int i = 0; i < RBRINSTRUMENT_STATUS_COUNT; ++i)
             {
                 if (strcmp(RBRInstrumentDeploymentStatus_name(i),
                            parameter.value) == 0)
@@ -548,7 +587,8 @@ RBRInstrumentError RBRInstrument_setDeployment(
     RBRInstrument *instrument,
     const RBRInstrumentDeployment *deployment)
 {
-    if (deployment->startTime < RBRINSTRUMENT_DATETIME_MIN
+    if (deployment->endTime <= deployment->startTime
+        || deployment->startTime < RBRINSTRUMENT_DATETIME_MIN
         || deployment->startTime > RBRINSTRUMENT_DATETIME_MAX
         || deployment->endTime < RBRINSTRUMENT_DATETIME_MIN
         || deployment->endTime > RBRINSTRUMENT_DATETIME_MAX)

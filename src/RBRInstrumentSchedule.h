@@ -116,28 +116,28 @@ RBRInstrumentError RBRInstrument_setClock(RBRInstrument *instrument,
 typedef enum RBRInstrumentSamplingMode
 {
     /** Continuous sampling mode. */
-    RBRINSTRUMENT_CONTINUOUS,
+    RBRINSTRUMENT_SAMPLING_CONTINUOUS,
     /** Burst sampling mode. */
-    RBRINSTRUMENT_BURST,
+    RBRINSTRUMENT_SAMPLING_BURST,
     /** Wave sampling mode. */
-    RBRINSTRUMENT_WAVE,
+    RBRINSTRUMENT_SAMPLING_WAVE,
     /** Average sampling mode. */
-    RBRINSTRUMENT_AVERAGE,
+    RBRINSTRUMENT_SAMPLING_AVERAGE,
     /** Tide sampling mode. */
-    RBRINSTRUMENT_TIDE,
+    RBRINSTRUMENT_SAMPLING_TIDE,
     /** Regime sampling mode. */
-    RBRINSTRUMENT_REGIMES,
+    RBRINSTRUMENT_SAMPLING_REGIMES,
     /**
      * Direction-dependent sampling mode.
      *
      * \see RBRInstrumentVehicle.h
      * \see RBRInstrument_setDirectionDependentSampling()
      */
-    RBRINSTRUMENT_DDSAMPLING,
+    RBRINSTRUMENT_SAMPLING_DDSAMPLING,
     /** The number of specific sampling modes. */
-    RBRINSTRUMENT_SAMPLING_MODE_COUNT,
+    RBRINSTRUMENT_SAMPLING_COUNT,
     /** An unknown or unrecognized sampling mode. */
-    RBRINSTRUMENT_UNKNOWN_SAMPLING_MODE
+    RBRINSTRUMENT_UNKNOWN_SAMPLING
 } RBRInstrumentSamplingMode;
 
 /**
@@ -238,20 +238,24 @@ typedef struct RBRInstrumentSampling
      * \readonly
      */
     RBRInstrumentPeriod userPeriodLimit;
+    /** \brief The number of measurements taken in each burst. */
+    int32_t burstLength;
     /**
      * \brief The time between the first measurement of two consecutive bursts.
      *
      * Specified in milliseconds.
      */
     RBRInstrumentPeriod burstInterval;
-    /** \brief The number of measurements taken in each burst. */
-    int32_t burstLength;
     /** \brief The sampling gating condition. */
     RBRInstrumentGate gate;
 } RBRInstrumentSampling;
 
 /**
  * \brief Get the instrument sampling parameters.
+ *
+ * TODO: Populate RBRInstrumentSampling.availableFastPeriods with default
+ * values for Logger2, the same as we do with
+ * RBRInstrument_getAvailableSerialBaudRates().
  *
  * \param [in] instrument the instrument connection
  * \param [out] sampling the sampling parameters
@@ -267,12 +271,20 @@ RBRInstrumentError RBRInstrument_getSampling(
 /**
  * \brief Set the instrument sampling parameters.
  *
- * The values of RBRInstrumentSampling.availableFastPeriods,
- * RBRInstrument.userPeriodLimit, and RBRInstrumentSampling.gate are ignored.
- * The available fast periods and user period limit are defined at the factory
- * and are read-only. The gating mode is controlled via commands for the
- * individual gating mechanisms: see RBRInstrument_setTwistActivation() and
- * RBRInstrument_setThresholding().
+ * The values of RBRInstrumentSampling.userPeriodLimit and
+ * RBRInstrumentSampling.availableFastPeriods are not sent to the instrument,
+ * but they are used to validate the chosen RBRInstrumentSampling.period.
+ * If RBRInstrumentSampling.userPeriodLimit is non-zero, then the specified
+ * sampling period must be equal or greater. And if the period is less than
+ * 1,000 and the RBRInstrumentSampling.availableFastPeriods are populated, then
+ * the period must be one of those available fast periods.
+ *
+ * Periods greater than or equal to 1,000 (one second) must be a multiple of
+ * 1,000 and must be less than or equal to 86,400,000 (24 hours).
+ *
+ * The value RBRInstrumentSampling.gate is also ignored. The gating mode is
+ * controlled via commands for the individual gating mechanisms: see
+ * RBRInstrument_setTwistActivation() and RBRInstrument_setThresholding().
  *
  * Hardware errors may occur if:
  *
@@ -356,9 +368,17 @@ const char *RBRInstrumentDeploymentStatus_name(
  */
 typedef struct RBRInstrumentDeployment
 {
-    /** \brief The deployment start date and time. */
+    /**
+     * \brief The deployment start date and time.
+     *
+     * Must be before the end time.
+     */
     RBRInstrumentDateTime startTime;
-    /** \brief The deployment end date and time. */
+    /**
+     * \brief The deployment end date and time.
+     *
+     * Must be after the start time.
+     */
     RBRInstrumentDateTime endTime;
     /**
      * \brief The deployment status.
@@ -385,8 +405,8 @@ RBRInstrumentError RBRInstrument_getDeployment(
 /**
  * \brief Set the instrument deployment parameters.
  *
- * As noted in the RBRInstrumentDeployment description, the `status` member of
- * the deployment parameters struct is ignored.
+ * As noted in the description of RBRInstrumentDeployment.status, that field is
+ * ignored when setting the deployment.
  *
  * Hardware errors may occur if:
  *
