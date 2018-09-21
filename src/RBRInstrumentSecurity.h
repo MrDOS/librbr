@@ -85,6 +85,10 @@ RBRInstrumentError RBRInstrument_getConfirmation(RBRInstrument *instrument,
 /**
  * \brief Set the state of the logger's confirmation responses.
  *
+ * This function permits confirmation to be set on or off. However, the rest of
+ * the library expects confirmations to be on, and most setters will poll the
+ * instrument until timeout with it off.
+ *
  * \param [in] instrument the instrument connection
  * \param [in] confirmation whether confirmation should be enabled
  * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully written

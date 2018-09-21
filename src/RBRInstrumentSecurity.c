@@ -58,9 +58,15 @@ RBRInstrumentError RBRInstrument_getConfirmation(RBRInstrument *instrument,
 RBRInstrumentError RBRInstrument_setConfirmation(RBRInstrument *instrument,
                                                  bool confirmation)
 {
-    return RBRInstrument_converse(instrument,
-                                  "confirmation state = %s",
-                                  confirmation ? "on" : "off");
+    if (confirmation)
+    {
+        return RBRInstrument_converse(instrument, "confirmation state = on");
+    }
+    else
+    {
+        return RBRInstrument_sendCommand(instrument,
+                                         "confirmation state = off");
+    }
 }
 
 RBRInstrumentError RBRInstrument_reboot(RBRInstrument *instrument,
