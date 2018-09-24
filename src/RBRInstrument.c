@@ -144,14 +144,15 @@ static RBRInstrumentError RBRInstrument_populateGeneration(
 
     /* Once we know we're dealing with Logger2/3, we can use the `id` command
      * to get the firmware type, and use that to identify generation. */
-    RBRInstrumentId id;
-    RBR_TRY(RBRInstrument_getId(instrument, &id));
+    RBR_TRY(RBRInstrument_getId(instrument, &instrument->id));
 
     /* The concept of firmware type was introduced part-way through Logger2, so
      * early instruments with very old firmware won't report a firmware type.
      * Newer firmware versions and newer instruments within the generation will
      * report a firmware type of 100–103. */
-    if (id.fwtype == 0 || (id.fwtype >= 100 && id.fwtype <= 103))
+    if (instrument->id.fwtype == 0
+        || (instrument->id.fwtype >= 100
+            && instrument->id.fwtype <= 103))
     {
         instrument->generation = RBRINSTRUMENT_LOGGER2;
     }

@@ -51,6 +51,11 @@ RBRInstrumentError RBRInstrument_getId(RBRInstrument *instrument,
         }
     } while (more);
 
+    if (id != &instrument->id)
+    {
+        memcpy(&instrument->id, id, sizeof(RBRInstrumentId));
+    }
+
     return RBRINSTRUMENT_SUCCESS;
 }
 

@@ -18,43 +18,11 @@ extern "C" {
 #endif
 
 /**
- * \brief The maximum number of characters in the instrument model name.
- *
- * Does not include any null terminator.
- */
-#define RBRINSTRUMENT_ID_MODEL_MAX 14
-
-/**
- * \brief The maximum number of characters in the instrument firmware version.
- *
- * Does not include any null terminator.
- */
-#define RBRINSTRUMENT_ID_VERSION_MAX 7
-
-/**
  * \brief The maximum number of characters in the type and revision of the CPU.
  *
  * Does not include any null terminator.
  */
 #define RBRINSTRUMENT_HWREV_CPU_MAX 5
-
-/**
- * \brief Instrument `id` command parameters.
- *
- * \see RBRInstrument_getId()
- * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/id
- */
-typedef struct RBRInstrumentId
-{
-    /** The instrument model. */
-    char model[RBRINSTRUMENT_ID_MODEL_MAX + 1];
-    /** The instrument firmware version. */
-    char version[RBRINSTRUMENT_ID_VERSION_MAX + 1];
-    /** The serial number of the instrument. */
-    uint32_t serial;
-    /** The firmware type of the instrument. */
-    uint16_t fwtype;
-} RBRInstrumentId;
 
 /**
  * \brief Get identification information from the instrument.

@@ -109,6 +109,20 @@ extern "C" {
 #define RBRINSTRUMENT_DATETIME_MAX 4102444799000LL
 
 /**
+ * \brief The maximum number of characters in the instrument model name.
+ *
+ * Does not include any null terminator.
+ */
+#define RBRINSTRUMENT_ID_MODEL_MAX 14
+
+/**
+ * \brief The maximum number of characters in the instrument firmware version.
+ *
+ * Does not include any null terminator.
+ */
+#define RBRINSTRUMENT_ID_VERSION_MAX 7
+
+/**
  * A date and time in milliseconds since the Unix epoch
  * (1970-01-01T00:00:00.000Z). Instrument functions operating on time (e.g.,
  * RBRInstrument_getClock(), RBRInstrument_setClock()) will automatically
@@ -203,7 +217,26 @@ typedef enum RBRInstrumentError
  */
 const char *RBRInstrumentError_name(RBRInstrumentError error);
 
-struct RBRInstrument;
+/**
+ * \brief Instrument `id` command parameters.
+ *
+ * Externalized from RBRInstrumentOther.h to facilitate inclusion by
+ * RBRInstrument.
+ *
+ * \see RBRInstrument_getId()
+ * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/id
+ */
+typedef struct RBRInstrumentId
+{
+    /** The instrument model. */
+    char model[RBRINSTRUMENT_ID_MODEL_MAX + 1];
+    /** The instrument firmware version. */
+    char version[RBRINSTRUMENT_ID_VERSION_MAX + 1];
+    /** The serial number of the instrument. */
+    uint32_t serial;
+    /** The firmware type of the instrument. */
+    uint16_t fwtype;
+} RBRInstrumentId;
 
 /** \brief Generations of RBR instruments. */
 typedef enum RBRInstrumentGeneration
@@ -232,6 +265,8 @@ typedef enum RBRInstrumentGeneration
  * \see RBRInstrumentError_name() for a description of the format of names
  */
 const char *RBRInstrumentGeneration_name(RBRInstrumentGeneration generation);
+
+struct RBRInstrument;
 
 /**
  * \brief Callback to get the current platform time in milliseconds.
@@ -512,6 +547,12 @@ typedef struct RBRInstrumentMessage
  */
 typedef struct RBRInstrument
 {
+    /**
+     * \brief The instrument identifier.
+     *
+     * Cached every time RBRInstrument_getId() is called.
+     */
+    struct RBRInstrumentId id;
     /**
      * \brief The generation of the instrument.
      *
