@@ -127,7 +127,7 @@ RBRInstrumentError RBRInstrument_getRegimes(
  * \brief Set the instrument regimes settings.
  *
  * These settings are only used when the RBRInstrumentSampling.mode is
- * #RBRINSTRUMENT_REGIMES.
+ * #RBRINSTRUMENT_SAMPLING_REGIMES.
  *
  * Hardware errors may occur if:
  *
