@@ -109,6 +109,7 @@ typedef struct RBRInstrumentThresholding
      * \brief The state of logging based on the thresholding configuration.
      *
      * \readonly
+     *
      * \nol2 Will always be retrieved as #RBRINSTRUMENT_UNKNOWN_GATING.
      */
     RBRInstrumentGatingState state;
@@ -216,6 +217,7 @@ typedef struct RBRInstrumentTwistActivation
      * \brief The state of logging based on the twist activation configuration.
      *
      * \readonly
+     *
      * \nol2 Will always be retrieved as #RBRINSTRUMENT_UNKNOWN_GATING.
      */
     RBRInstrumentGatingState state;
