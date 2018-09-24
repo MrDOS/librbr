@@ -334,6 +334,52 @@ RBRInstrumentError RBRInstrument_getSampling(
         else if (strcmp(parameter.key, "userperiodlimit") == 0)
         {
             sampling->userPeriodLimit = strtol(parameter.value, NULL, 10);
+
+            /* Logger3 will tell us available sampling rates, so we don't have
+             * to guess them. */
+            if (instrument->generation != RBRINSTRUMENT_LOGGER2)
+            {
+                continue;
+            }
+
+            bool has3Hz5HzAvailable = false;
+            /* 200/333 are only available on firmware type 100/up to
+             * firmware version 1.360 on firmware type 103. */
+            if (instrument->id.fwtype == 100
+                || (instrument->id.fwtype == 103
+                    && RBRInstrumentVersion_compare(instrument->id.version,
+                                                    "1.360") <= 0))
+            {
+                has3Hz5HzAvailable = true;
+            }
+
+            int i = 0;
+            switch (sampling->userPeriodLimit)
+            {
+            case 31:
+                sampling->availableFastPeriods[i++] = 31;
+                sampling->availableFastPeriods[i++] = 42;
+            /* Fallthrough. */
+            case 63:
+                sampling->availableFastPeriods[i++] = 63;
+            /* Fallthrough. */
+            case 83:
+                sampling->availableFastPeriods[i++] = 83;
+                sampling->availableFastPeriods[i++] = 125;
+            /* Fallthrough. */
+            case 167:
+                sampling->availableFastPeriods[i++] = 167;
+                if (has3Hz5HzAvailable)
+                {
+                    sampling->availableFastPeriods[i++] = 200;
+                }
+                sampling->availableFastPeriods[i++] = 250;
+                if (has3Hz5HzAvailable)
+                {
+                    sampling->availableFastPeriods[i++] = 333;
+                }
+                sampling->availableFastPeriods[i++] = 500;
+            }
         }
         else if (strcmp(parameter.key, "availablefastperiods") == 0)
         {

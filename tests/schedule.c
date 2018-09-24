@@ -216,14 +216,14 @@ TEST_LOGGER2(sampling)
     SamplingTest tests[] = {
         {
             "sampling" COMMAND_TERMINATOR,
-            "sampling schedule = 1, mode = continuous, period = 83, "
+            "sampling schedule = 1, mode = continuous, period = 167, "
             "burstlength = 10, burstinterval = 10000, gate = none, "
-            "userperiodlimit = 83" COMMAND_TERMINATOR,
+            "userperiodlimit = 167" COMMAND_TERMINATOR,
             {
                 .mode = RBRINSTRUMENT_SAMPLING_CONTINUOUS,
-                .period = 83,
-                .availableFastPeriods = {0},
-                .userPeriodLimit = 83,
+                .period = 167,
+                .availableFastPeriods = {167, 250, 500, 0},
+                .userPeriodLimit = 167,
                 .burstLength = 10,
                 .burstInterval = 10000,
                 .gate = RBRINSTRUMENT_GATE_NONE
@@ -237,7 +237,7 @@ TEST_LOGGER2(sampling)
             {
                 .mode = RBRINSTRUMENT_SAMPLING_DDSAMPLING,
                 .period = 83,
-                .availableFastPeriods = {0},
+                .availableFastPeriods = {83, 125, 167, 250, 500, 0},
                 .userPeriodLimit = 83,
                 .burstLength = 10,
                 .burstInterval = 10000,
