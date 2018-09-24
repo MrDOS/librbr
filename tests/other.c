@@ -12,6 +12,35 @@
 #include <math.h>
 #include "tests.h"
 
+TEST_LOGGER3(version_comparison)
+{
+    /* Unused. */
+    instrument = instrument;
+    buffers = buffers;
+
+    /* Valid versions. */
+    TEST_ASSERT(RBRInstrumentVersion_compare("1.000", "1.000") == 0);
+    TEST_ASSERT(RBRInstrumentVersion_compare("1.000", "1X000") > 0);
+    TEST_ASSERT(RBRInstrumentVersion_compare("1X000", "1.000") < 0);
+    TEST_ASSERT(RBRInstrumentVersion_compare("2.000", "1.000") > 0);
+    TEST_ASSERT(RBRInstrumentVersion_compare("1.000", "2.000") < 0);
+    TEST_ASSERT(RBRInstrumentVersion_compare("1.200", "1.000") > 0);
+    TEST_ASSERT(RBRInstrumentVersion_compare("1.000", "1.200") < 0);
+    TEST_ASSERT(RBRInstrumentVersion_compare("1.200", "1X000") > 0);
+    TEST_ASSERT(RBRInstrumentVersion_compare("1.200", "1X200") > 0);
+    TEST_ASSERT(RBRInstrumentVersion_compare("10.000", "1.000") > 0);
+    TEST_ASSERT(RBRInstrumentVersion_compare("1.000", "10.000") < 0);
+
+    /* Invalid versions. */
+    TEST_ASSERT(RBRInstrumentVersion_compare(".", ".") == 0);
+    TEST_ASSERT(RBRInstrumentVersion_compare(".000", "000.") == 0);
+    TEST_ASSERT(RBRInstrumentVersion_compare("0.", "0.000") < 0);
+    TEST_ASSERT(RBRInstrumentVersion_compare("000.", "0.000") < 0);
+    TEST_ASSERT(RBRInstrumentVersion_compare(".000", "0.000") < 0);
+
+    return true;
+}
+
 TEST_LOGGER2(id)
 {
     RBRInstrumentId expected = {

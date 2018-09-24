@@ -18,6 +18,107 @@
 #include "RBRInstrument.h"
 #include "RBRInstrumentInternal.h"
 
+/* The minimum length of a version string. */
+#define VERSION_MIN 3
+
+/* The maximum length of a version string. */
+#define VERSION_MAX 7
+
+int RBRInstrumentVersion_compare(const char *inA, const char *inB)
+{
+    int lengthA = strlen(inA);
+    int lengthB = strlen(inB);
+
+    /* If one of the strings is too short or long to be a version, we can bail
+     * out early. */
+    bool validLengthA = lengthA >= VERSION_MIN && lengthA <= VERSION_MAX;
+    bool validLengthB = lengthB >= VERSION_MIN && lengthB <= VERSION_MAX;
+
+    if (!validLengthA && !validLengthB)
+    {
+        return 0;
+    }
+    else if (!validLengthA)
+    {
+        return -1;
+    }
+    else if (!validLengthB)
+    {
+        return 1;
+    }
+
+    /* Make copies of the version strings so we can modify them (to split at
+     * the separator) with impunity. */
+    char a[VERSION_MAX];
+    char b[VERSION_MAX];
+    strcpy(a, inA);
+    strcpy(b, inB);
+
+    /* '.' for production firmware releases; 'X' for developer versions. */
+    char *separatorPosA = strchr(a, '.');
+    if (separatorPosA == NULL)
+    {
+        separatorPosA = strchr(a, 'X');
+    }
+
+    char *separatorPosB = strchr(b, '.');
+    if (separatorPosB == NULL)
+    {
+        separatorPosB = strchr(b, 'X');
+    }
+
+    /* The separators must be present, and there must be at least one character
+     * before and after the separator. */
+    bool validA = separatorPosA != NULL
+                  && separatorPosA - a > 0
+                  && separatorPosA - a < lengthA - 1;
+    bool validB = separatorPosB != NULL
+                  && separatorPosB - b > 0
+                  && separatorPosB - b < lengthB - 1;
+
+    if (!validA && !validB)
+    {
+        return 0;
+    }
+    else if (!validA)
+    {
+        return -1;
+    }
+    else if (!validB)
+    {
+        return 1;
+    }
+
+    /* Slap in a null terminator at the separator position so we can use strtol
+     * on both sides. */
+    char separatorA = *separatorPosA;
+    *separatorPosA = '\0';
+    char separatorB = *separatorPosB;
+    *separatorPosB = '\0';
+
+    int majorA = strtol(a, NULL, 10);
+    int majorB = strtol(b, NULL, 10);
+    int majorDelta = majorA - majorB;
+    if (majorDelta != 0)
+    {
+        return majorDelta;
+    }
+
+    int minorA = strtol(separatorPosA + 1, NULL, 10);
+    int minorB = strtol(separatorPosB + 1, NULL, 10);
+    int minorDelta = minorA - minorB;
+    if (minorDelta != 0)
+    {
+        return minorDelta;
+    }
+
+    /* Developer versions are always inferior to a production release with the
+     * same major/minor version numbers. Assuming an ASCII character encoding,
+     * 'X' comes after '.', so we can numerically determine the separator
+     * ordering by subtracting then negating the result. */
+    return -(separatorA - separatorB);
+}
+
 RBRInstrumentError RBRInstrument_getId(RBRInstrument *instrument,
                                        RBRInstrumentId *id)
 {

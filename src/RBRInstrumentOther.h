@@ -25,6 +25,21 @@ extern "C" {
 #define RBRINSTRUMENT_HWREV_CPU_MAX 5
 
 /**
+ * \brief Compare two firmware version strings.
+ *
+ * If either string is not a version string (format XXSYYY) then the result
+ * will indicate that it is the lesser version. If neither is valid, then the
+ * result will indicate equality.
+ *
+ * \param a the first firmware version as a null-terminated C string
+ * \param b the second firmware version as a null-terminated C string
+ * \return <0 if \a a is a lower version than \a b
+ * \return 0 \a a and \a b are the same version
+ * \return >0 if \a b is a lower version than \a b
+ */
+int RBRInstrumentVersion_compare(const char *a, const char *b);
+
+/**
  * \brief Get identification information from the instrument.
  *
  * \param [in] instrument the instrument connection
