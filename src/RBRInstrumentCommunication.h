@@ -71,7 +71,6 @@ RBRInstrumentError RBRInstrument_getLink(
  * \see RBRInstrumentSerial
  * \see RBRInstrument_getSerial()
  * \see RBRInstrument_setSerial()
- * \see RBRInstrument_getAvailableSerialBaudRates()
  * \see https://docs.rbr-global.com/L3commandreference/commands/communications/serial
  */
 typedef enum RBRInstrumentSerialBaudRate
@@ -128,7 +127,6 @@ const char *RBRInstrumentSerialBaudRate_name(RBRInstrumentSerialBaudRate baud);
  * \see RBRInstrumentSerial
  * \see RBRInstrument_getSerial()
  * \see RBRInstrument_setSerial()
- * \see RBRInstrument_getAvailableSerialModes()
  * \see https://docs.rbr-global.com/L3commandreference/commands/communications/serial
  */
 typedef enum RBRInstrumentSerialMode
@@ -171,13 +169,41 @@ typedef struct RBRInstrumentSerial
     RBRInstrumentSerialBaudRate baudRate;
     /** \brief The serial mode of the instrument. */
     RBRInstrumentSerialMode mode;
+    /**
+     * \brief Serial baud rates which the instrument can use.
+     *
+     * Treated as a bit field representation of available baud rates as defined
+     * by RBRInstrumentSerialBaudRate. For details, consult
+     * [Working with Bit Fields](bitfields.md).
+     *
+     * \readonly
+     *
+     * The `serial availablebaudrates` command does not exist on Logger2
+     * instruments. RBRInstrument_getSerial() will populate this field with the
+     * baud rates supported by all Logger2 instruments.
+     */
+    RBRInstrumentSerialBaudRate availableBaudRates;
+    /**
+     * \brief Serial modes which the instrument can use.
+     *
+     * Treated as a bit field representation of available modes as defined by
+     * RBRInstrumentSerialMode. For details, consult
+     * [Working with Bit Fields](bitfields.md).
+     *
+     * \readonly
+     *
+     * The `serial availablemodes` command does not exist on Logger2
+     * instruments. RBRInstrument_getSerial() will populate this field with the
+     * baud rates supported by all Logger2 instruments.
+     */
+    RBRInstrumentSerialMode availableModes;
 } RBRInstrumentSerial;
 
 /**
- * \brief Retrieve the current instrument serial baud rate and mode.
+ * \brief Retrieve the current and available serial baud rates and modes.
  *
  * \param [in] instrument the instrument connection
- * \param [out] serial the current serial parameters
+ * \param [out] serial the current and available serial parameters
  * \return #RBRINSTRUMENT_SUCCESS when the setting is successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
@@ -191,8 +217,13 @@ RBRInstrumentError RBRInstrument_getSerial(RBRInstrument *instrument,
  * \brief Reconfigure the instrument serial baud rate and mode.
  *
  * A hardware error will occur if the baud rate or mode is unsupported by the
- * instrument. See RBRInstrument_getAvailableSerialBaudRates() and
- * RBRInstrument_getAvailableSerialModes() to determine supported rates/modes.
+ * instrument. See RBRInstrumentSerial.availableBaudRates and
+ * RBRInstrumentSerial.availableSerialModes to determine supported
+ * rates/modes.
+ *
+ * The new serial mode and/or baud rate will take effect immediately after the
+ * response to this command has been produced. Make sure you alter the
+ * configuration of your connection to the instrument correspondingly.
  *
  * \param [in] instrument the instrument connection
  * \param [in] serial the new serial parameters
@@ -202,60 +233,10 @@ RBRInstrumentError RBRInstrument_getSerial(RBRInstrument *instrument,
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when a value is not supported
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when the baud/mode is invalid
  * \see RBRInstrument_getSerial()
- * \see RBRInstrument_getAvailableSerialBaudRates()
- * \see RBRInstrument_getAvailableSerialModes()
  * \see https://docs.rbr-global.com/L3commandreference/commands/communications/serial
  */
 RBRInstrumentError RBRInstrument_setSerial(RBRInstrument *instrument,
                                            const RBRInstrumentSerial *serial);
-
-/**
- * \brief Report a list of available serial baud rates.
- *
- * \a baudRates will be treated as a bit field representation of available baud
- * rates as defined by RBRInstrumentSerialBaudRate. For details, consult
- * [Working with Bit Fields](bitfields.md).
- *
- * The `serial availablebaudrates` command does not exist on Logger2
- * instruments. This function will return #RBRINSTRUMENT_UNSUPPORTED when
- * called for a Logger2 instrument, but \a baudRates will still be populated
- * with the baud rates supported by all Logger2 instruments.
- *
- * \param [in] instrument the instrument connection
- * \param [out] baudRates available serial baud rates
- * \return #RBRINSTRUMENT_UNSUPPORTED for Logger2 instruments
- * \return #RBRINSTRUMENT_SUCCESS when the baud rates are successfully read
- * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see https://docs.rbr-global.com/L3commandreference/commands/communications/serial
- */
-RBRInstrumentError RBRInstrument_getAvailableSerialBaudRates(
-    RBRInstrument *instrument,
-    RBRInstrumentSerialBaudRate *baudRates);
-
-/**
- * \brief Report a list of available serial modes.
- *
- * \a modes will be treated as a bit field representation of available modes as
- * defined by RBRInstrumentSerialMode. For details, consult [Working with Bit
- * Fields](bitfields.md).
- *
- * The `serial availablemodes` command does not exist on Logger2 instruments.
- * This function will return #RBRINSTRUMENT_UNSUPPORTED when called for a
- * Logger2 instrument, but \a modes will still be populated with the serial
- * modes supported by all Logger2 instruments.
- *
- * \param [in] instrument the instrument connection
- * \param [out] modes available serial modes
- * \return #RBRINSTRUMENT_UNSUPPORTED for Logger2 instruments
- * \return #RBRINSTRUMENT_SUCCESS when the modes are successfully read
- * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
- * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \see https://docs.rbr-global.com/L3commandreference/commands/communications/serial
- */
-RBRInstrumentError RBRInstrument_getAvailableSerialModes(
-    RBRInstrument *instrument,
-    RBRInstrumentSerialMode *modes);
 
 /**
  * \brief Immediately shut down communications and implement any possible
@@ -376,9 +357,7 @@ RBRInstrumentError RBRInstrument_getWiFi(RBRInstrument *instrument,
  * \return #RBRINSTRUMENT_HARDWARE_ERROR when the feature is unavailable
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when parameter values are out
  *                                                of range
- * \see RBRInstrument_getSerial()
- * \see RBRInstrument_getAvailableSerialBaudRates()
- * \see RBRInstrument_getAvailableSerialModes()
+ * \see RBRInstrument_getWifi()
  * \see https://docs.rbr-global.com/L3commandreference/commands/communications/wifi
  */
 RBRInstrumentError RBRInstrument_setWiFi(RBRInstrument *instrument,

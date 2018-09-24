@@ -132,7 +132,28 @@ RBRInstrumentError RBRInstrument_getSerial(RBRInstrument *instrument,
 {
     memset(serial, 0, sizeof(RBRInstrumentSerial));
 
-    RBR_TRY(RBRInstrument_converse(instrument, "serial"));
+    if (instrument->generation == RBRINSTRUMENT_LOGGER2)
+    {
+        serial->availableBaudRates = RBRINSTRUMENT_SERIAL_BAUD_1200
+                                     | RBRINSTRUMENT_SERIAL_BAUD_2400
+                                     | RBRINSTRUMENT_SERIAL_BAUD_4800
+                                     | RBRINSTRUMENT_SERIAL_BAUD_9600
+                                     | RBRINSTRUMENT_SERIAL_BAUD_19200
+                                     | RBRINSTRUMENT_SERIAL_BAUD_115200;
+        serial->availableModes = RBRINSTRUMENT_SERIAL_MODE_RS232
+                                 | RBRINSTRUMENT_SERIAL_MODE_RS485F
+                                 | RBRINSTRUMENT_SERIAL_MODE_UART
+                                 | RBRINSTRUMENT_SERIAL_MODE_UART_IDLE_LOW;
+
+        RBR_TRY(RBRInstrument_converse(instrument, "serial"));
+    }
+    else
+    {
+        serial->availableBaudRates = RBRINSTRUMENT_SERIAL_BAUD_NONE;
+        serial->availableModes = RBRINSTRUMENT_SERIAL_MODE_NONE;
+
+        RBR_TRY(RBRInstrument_converse(instrument, "serial all"));
+    }
 
     bool more = false;
     char *command = NULL;
@@ -170,6 +191,56 @@ RBRInstrumentError RBRInstrument_getSerial(RBRInstrument *instrument,
                 }
             }
         }
+        else if (strcmp(parameter.key, "availablebaudrates") == 0)
+        {
+            char *nextValue;
+            do
+            {
+                if ((nextValue = strstr(parameter.value, "|")) != NULL)
+                {
+                    *nextValue = '\0';
+                    nextValue++;
+                }
+
+                for (int i = RBRINSTRUMENT_SERIAL_BAUD_NONE + 1;
+                     i <= RBRINSTRUMENT_SERIAL_BAUD_MAX;
+                     i <<= 1)
+                {
+                    if (strcmp(RBRInstrumentSerialBaudRate_name(i),
+                               parameter.value) == 0)
+                    {
+                        serial->availableBaudRates |= i;
+                    }
+                }
+
+                parameter.value = nextValue;
+            } while (nextValue != NULL);
+        }
+        else if (strcmp(parameter.key, "availablemodes") == 0)
+        {
+            char *nextValue;
+            do
+            {
+                if ((nextValue = strstr(parameter.value, "|")) != NULL)
+                {
+                    *nextValue = '\0';
+                    nextValue++;
+                }
+
+                for (int i = RBRINSTRUMENT_SERIAL_MODE_NONE + 1;
+                     i <= RBRINSTRUMENT_SERIAL_MODE_MAX;
+                     i <<= 1)
+                {
+                    if (strcmp(RBRInstrumentSerialMode_name(i),
+                               parameter.value) == 0)
+                    {
+                        serial->availableModes |= i;
+                    }
+                }
+
+                parameter.value = nextValue;
+            } while (nextValue != NULL);
+        }
     } while (more);
 
     return RBRINSTRUMENT_SUCCESS;
@@ -178,7 +249,9 @@ RBRInstrumentError RBRInstrument_getSerial(RBRInstrument *instrument,
 RBRInstrumentError RBRInstrument_setSerial(RBRInstrument *instrument,
                                            const RBRInstrumentSerial *serial)
 {
-    if (serial->baudRate > RBRINSTRUMENT_SERIAL_BAUD_MAX
+    if (serial->baudRate < 0
+        || serial->baudRate > RBRINSTRUMENT_SERIAL_BAUD_MAX
+        || serial->mode < 0
         || serial->mode > RBRINSTRUMENT_SERIAL_MODE_MAX)
     {
         return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
@@ -189,130 +262,6 @@ RBRInstrumentError RBRInstrument_setSerial(RBRInstrument *instrument,
         "serial baudrate = %s, mode = %s",
         RBRInstrumentSerialBaudRate_name(serial->baudRate),
         RBRInstrumentSerialMode_name(serial->mode));
-}
-
-RBRInstrumentError RBRInstrument_getAvailableSerialBaudRates(
-    RBRInstrument *instrument,
-    RBRInstrumentSerialBaudRate *baudRates)
-{
-    if (instrument->generation == RBRINSTRUMENT_LOGGER2)
-    {
-        *baudRates = RBRINSTRUMENT_SERIAL_BAUD_1200
-                     | RBRINSTRUMENT_SERIAL_BAUD_2400
-                     | RBRINSTRUMENT_SERIAL_BAUD_4800
-                     | RBRINSTRUMENT_SERIAL_BAUD_9600
-                     | RBRINSTRUMENT_SERIAL_BAUD_19200
-                     | RBRINSTRUMENT_SERIAL_BAUD_115200;
-        return RBRINSTRUMENT_UNSUPPORTED;
-    }
-    else
-    {
-        *baudRates = RBRINSTRUMENT_SERIAL_BAUD_NONE;
-    }
-
-    RBR_TRY(RBRInstrument_converse(instrument, "serial availablebaudrates"));
-
-    bool more = false;
-    char *command = NULL;
-    RBRInstrumentResponseParameter parameter;
-    do
-    {
-        more = RBRInstrument_parseResponse(instrument->message.message,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "availablebaudrates") != 0)
-        {
-            continue;
-        }
-
-        char *nextValue;
-        do
-        {
-            if ((nextValue = strstr(parameter.value, "|")) != NULL)
-            {
-                *nextValue = '\0';
-                nextValue++;
-            }
-
-            for (int i = RBRINSTRUMENT_SERIAL_BAUD_NONE + 1;
-                 i <= RBRINSTRUMENT_SERIAL_BAUD_MAX;
-                 i <<= 1)
-            {
-                if (strcmp(RBRInstrumentSerialBaudRate_name(i),
-                           parameter.value) == 0)
-                {
-                    *baudRates |= i;
-                }
-            }
-
-            parameter.value = nextValue;
-        } while (nextValue != NULL);
-
-        break;
-    } while (more);
-
-    return RBRINSTRUMENT_SUCCESS;
-}
-
-RBRInstrumentError RBRInstrument_getAvailableSerialModes(
-    RBRInstrument *instrument,
-    RBRInstrumentSerialMode *modes)
-{
-    if (instrument->generation == RBRINSTRUMENT_LOGGER2)
-    {
-        *modes = RBRINSTRUMENT_SERIAL_MODE_RS232
-                 | RBRINSTRUMENT_SERIAL_MODE_RS485F
-                 | RBRINSTRUMENT_SERIAL_MODE_UART
-                 | RBRINSTRUMENT_SERIAL_MODE_UART_IDLE_LOW;
-        return RBRINSTRUMENT_UNSUPPORTED;
-    }
-    else
-    {
-        *modes = RBRINSTRUMENT_SERIAL_MODE_NONE;
-    }
-
-    RBR_TRY(RBRInstrument_converse(instrument, "serial availablemodes"));
-
-    bool more = false;
-    char *command = NULL;
-    RBRInstrumentResponseParameter parameter;
-    do
-    {
-        more = RBRInstrument_parseResponse(instrument->message.message,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "availablemodes") != 0)
-        {
-            continue;
-        }
-
-        char *nextValue;
-        do
-        {
-            if ((nextValue = strstr(parameter.value, "|")) != NULL)
-            {
-                *nextValue = '\0';
-                nextValue++;
-            }
-
-            for (int i = RBRINSTRUMENT_SERIAL_MODE_NONE + 1;
-                 i <= RBRINSTRUMENT_SERIAL_MODE_MAX;
-                 i <<= 1)
-            {
-                if (strcmp(RBRInstrumentSerialMode_name(i),
-                           parameter.value) == 0)
-                {
-                    *modes |= i;
-                }
-            }
-
-            parameter.value = nextValue;
-        } while (nextValue != NULL);
-
-        break;
-    } while (more);
-
-    return RBRINSTRUMENT_SUCCESS;
 }
 
 RBRInstrumentError RBRInstrument_sleep(RBRInstrument *instrument)

@@ -112,8 +112,8 @@ static RBRInstrumentError RBRInstrument_populateGeneration(
      *
      *     RBR RBRduo3 1.090 999999
      *
-     * First, we'll check whether the response starts with “RBR” at all. Then
-     * we know it's at least Logger1.
+     * So we'll check whether the response starts with “RBR” at all. Then we'll
+     * know it's at least Logger1.
      */
     if (strlen(instrument->message.message)
         < RBRINSTRUMENT_ID_LOGGER1_PREFIX_LEN

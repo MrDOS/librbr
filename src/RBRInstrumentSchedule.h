@@ -254,8 +254,7 @@ typedef struct RBRInstrumentSampling
  * \brief Get the instrument sampling parameters.
  *
  * TODO: Populate RBRInstrumentSampling.availableFastPeriods with default
- * values for Logger2, the same as we do with
- * RBRInstrument_getAvailableSerialBaudRates().
+ * values for Logger2, the same as we do with RBRInstrument_getSerial().
  *
  * \param [in] instrument the instrument connection
  * \param [out] sampling the sampling parameters

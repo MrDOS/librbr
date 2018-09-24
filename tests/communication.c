@@ -64,21 +64,41 @@ typedef struct SerialTest
     RBRInstrumentSerial expected;
 } SerialTest;
 
-TEST_LOGGER3(serial)
+TEST_LOGGER2(serial)
 {
     SerialTest tests[] = {
         {
             "serial baudrate = 19200, mode = rs232" COMMAND_TERMINATOR,
             {
                 RBRINSTRUMENT_SERIAL_BAUD_19200,
+                RBRINSTRUMENT_SERIAL_MODE_RS232,
+                RBRINSTRUMENT_SERIAL_BAUD_1200
+                | RBRINSTRUMENT_SERIAL_BAUD_2400
+                | RBRINSTRUMENT_SERIAL_BAUD_4800
+                | RBRINSTRUMENT_SERIAL_BAUD_9600
+                | RBRINSTRUMENT_SERIAL_BAUD_19200
+                | RBRINSTRUMENT_SERIAL_BAUD_115200,
                 RBRINSTRUMENT_SERIAL_MODE_RS232
+                | RBRINSTRUMENT_SERIAL_MODE_RS485F
+                | RBRINSTRUMENT_SERIAL_MODE_UART
+                | RBRINSTRUMENT_SERIAL_MODE_UART_IDLE_LOW
             }
         },
         {
             "serial baudrate = 115200, mode = rs485f" COMMAND_TERMINATOR,
             {
                 RBRINSTRUMENT_SERIAL_BAUD_115200,
-                RBRINSTRUMENT_SERIAL_MODE_RS485F
+                RBRINSTRUMENT_SERIAL_MODE_RS485F,
+                RBRINSTRUMENT_SERIAL_BAUD_1200
+                | RBRINSTRUMENT_SERIAL_BAUD_2400
+                | RBRINSTRUMENT_SERIAL_BAUD_4800
+                | RBRINSTRUMENT_SERIAL_BAUD_9600
+                | RBRINSTRUMENT_SERIAL_BAUD_19200
+                | RBRINSTRUMENT_SERIAL_BAUD_115200,
+                RBRINSTRUMENT_SERIAL_MODE_RS232
+                | RBRINSTRUMENT_SERIAL_MODE_RS485F
+                | RBRINSTRUMENT_SERIAL_MODE_UART
+                | RBRINSTRUMENT_SERIAL_MODE_UART_IDLE_LOW
             }
         },
         {0}
@@ -98,85 +118,86 @@ TEST_LOGGER3(serial)
         TEST_ASSERT_ENUM_EQ(tests[i].expected.mode,
                             actual.mode,
                             RBRInstrumentSerialMode);
+        TEST_ASSERT_EQ(tests[i].expected.availableBaudRates,
+                       actual.availableBaudRates,
+                       "0x%04X");
+        TEST_ASSERT_EQ(tests[i].expected.availableModes,
+                       actual.availableModes,
+                       "0x%04X");
     }
 
     return true;
 }
 
-TEST_LOGGER2(serial_availablebaudrates)
+TEST_LOGGER3(serial)
 {
+    SerialTest tests[] = {
+        {
+            "serial baudrate = 19200, mode = rs232, availablebaudrates = "
+            "115200|19200|9600|4800|2400|1200|230400|460800, availablemodes = "
+            "rs232|rs485f|uart|uart_idlelow" COMMAND_TERMINATOR,
+            {
+                RBRINSTRUMENT_SERIAL_BAUD_19200,
+                RBRINSTRUMENT_SERIAL_MODE_RS232,
+                RBRINSTRUMENT_SERIAL_BAUD_1200
+                | RBRINSTRUMENT_SERIAL_BAUD_2400
+                | RBRINSTRUMENT_SERIAL_BAUD_4800
+                | RBRINSTRUMENT_SERIAL_BAUD_9600
+                | RBRINSTRUMENT_SERIAL_BAUD_19200
+                | RBRINSTRUMENT_SERIAL_BAUD_115200
+                | RBRINSTRUMENT_SERIAL_BAUD_230400
+                | RBRINSTRUMENT_SERIAL_BAUD_460800,
+                RBRINSTRUMENT_SERIAL_MODE_RS232
+                | RBRINSTRUMENT_SERIAL_MODE_RS485F
+                | RBRINSTRUMENT_SERIAL_MODE_UART
+                | RBRINSTRUMENT_SERIAL_MODE_UART_IDLE_LOW
+            }
+        },
+        {
+            "serial baudrate = 115200, mode = rs485f, availablebaudrates = "
+            "115200|19200|9600|4800|2400|1200|230400|460800, availablemodes = "
+            "rs232|rs485f|uart|uart_idlelow" COMMAND_TERMINATOR,
+            {
+                RBRINSTRUMENT_SERIAL_BAUD_115200,
+                RBRINSTRUMENT_SERIAL_MODE_RS485F,
+                RBRINSTRUMENT_SERIAL_BAUD_1200
+                | RBRINSTRUMENT_SERIAL_BAUD_2400
+                | RBRINSTRUMENT_SERIAL_BAUD_4800
+                | RBRINSTRUMENT_SERIAL_BAUD_9600
+                | RBRINSTRUMENT_SERIAL_BAUD_19200
+                | RBRINSTRUMENT_SERIAL_BAUD_115200
+                | RBRINSTRUMENT_SERIAL_BAUD_230400
+                | RBRINSTRUMENT_SERIAL_BAUD_460800,
+                RBRINSTRUMENT_SERIAL_MODE_RS232
+                | RBRINSTRUMENT_SERIAL_MODE_RS485F
+                | RBRINSTRUMENT_SERIAL_MODE_UART
+                | RBRINSTRUMENT_SERIAL_MODE_UART_IDLE_LOW
+            }
+        },
+        {0}
+    };
+
     RBRInstrumentError err;
-    RBRInstrumentSerialBaudRate baudRates;
+    RBRInstrumentSerial actual;
 
-    /* The implementation shouldn't even try to ask an L2 instrument for its
-     * supported baud rates. */
-    TestIOBuffers_init(buffers, "", 0);
-    err = RBRInstrument_getAvailableSerialBaudRates(instrument, &baudRates);
-    TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_UNSUPPORTED, err, RBRInstrumentError);
-
-    return true;
-}
-
-TEST_LOGGER3(serial_availablebaudrates)
-{
-    RBRInstrumentError err;
-    RBRInstrumentSerialBaudRate baudRates;
-
-    TestIOBuffers_init(
-        buffers,
-        "serial availablebaudrates ="
-        " 115200|19200|9600|4800|2400|1200|230400|460800" COMMAND_TERMINATOR,
-        0);
-    err = RBRInstrument_getAvailableSerialBaudRates(instrument, &baudRates);
-    TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
-    TEST_ASSERT_EQ(
-        RBRINSTRUMENT_SERIAL_BAUD_1200
-        | RBRINSTRUMENT_SERIAL_BAUD_2400
-        | RBRINSTRUMENT_SERIAL_BAUD_4800
-        | RBRINSTRUMENT_SERIAL_BAUD_9600
-        | RBRINSTRUMENT_SERIAL_BAUD_19200
-        | RBRINSTRUMENT_SERIAL_BAUD_115200
-        | RBRINSTRUMENT_SERIAL_BAUD_230400
-        | RBRINSTRUMENT_SERIAL_BAUD_460800,
-        baudRates,
-        "0x%04X");
-
-    return true;
-}
-
-TEST_LOGGER2(serial_availablemodes)
-{
-    RBRInstrumentError err;
-    RBRInstrumentSerialMode modes;
-
-    /* The implementation shouldn't even try to ask an L2 instrument for its
-     * supported modes. */
-    TestIOBuffers_init(buffers, "", 0);
-    err = RBRInstrument_getAvailableSerialModes(instrument, &modes);
-    TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_UNSUPPORTED, err, RBRInstrumentError);
-
-    return true;
-}
-
-TEST_LOGGER3(serial_availablemodes)
-{
-    RBRInstrumentError err;
-    RBRInstrumentSerialMode modes;
-
-    TestIOBuffers_init(
-        buffers,
-        "serial availablemodes ="
-        " rs232|rs485f|uart|uart_idlelow" COMMAND_TERMINATOR,
-        0);
-    err = RBRInstrument_getAvailableSerialModes(instrument, &modes);
-    TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
-    TEST_ASSERT_EQ(
-        RBRINSTRUMENT_SERIAL_MODE_RS232
-        | RBRINSTRUMENT_SERIAL_MODE_RS485F
-        | RBRINSTRUMENT_SERIAL_MODE_UART
-        | RBRINSTRUMENT_SERIAL_MODE_UART_IDLE_LOW,
-        modes,
-        "0x%04X");
+    for (int i = 0; tests[i].command != NULL; i++)
+    {
+        TestIOBuffers_init(buffers, tests[i].command, 0);
+        err = RBRInstrument_getSerial(instrument, &actual);
+        TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
+        TEST_ASSERT_ENUM_EQ(tests[i].expected.baudRate,
+                            actual.baudRate,
+                            RBRInstrumentSerialBaudRate);
+        TEST_ASSERT_ENUM_EQ(tests[i].expected.mode,
+                            actual.mode,
+                            RBRInstrumentSerialMode);
+        TEST_ASSERT_EQ(tests[i].expected.availableBaudRates,
+                       actual.availableBaudRates,
+                       "0x%04X");
+        TEST_ASSERT_EQ(tests[i].expected.availableModes,
+                       actual.availableModes,
+                       "0x%04X");
+    }
 
     return true;
 }
