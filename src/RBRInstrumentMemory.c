@@ -84,11 +84,6 @@ static RBRInstrumentError RBRInstrumentL2_parseDataResponse(
     RBRInstrument *instrument,
     RBRInstrumentData *data)
 {
-    do
-    {
-        RBR_TRY(RBRInstrument_readResponse(instrument, false, NULL));
-    } while (memcmp(instrument->message.message, "data ", 5) != 0);
-
     sscanf(instrument->message.message,
            "data %d %d %d",
            (int *) &data->dataset,
@@ -239,28 +234,20 @@ RBRInstrumentError RBRInstrument_readData(RBRInstrument *instrument,
                             ", offset = %" PRId32;
     }
 
+    RBR_TRY(RBRInstrument_converse(instrument,
+                                   generationCommand,
+                                   workingData.dataset,
+                                   workingData.size,
+                                   workingData.offset));
+
     /* Because the response format for L2 is so nonstandard, we'll have to
-     * parse it with sscanf (and we can't use RBRInstrument_converse() because
-     * it will try to sanity-check the response, which will not meet
-     * expectations). We can just do things the normal way for L3. */
+     * parse it with sscanf. We can just do things the normal way for L3. */
     if (instrument->generation == RBRINSTRUMENT_LOGGER2)
     {
-        RBR_TRY(RBRInstrument_sendCommand(instrument,
-                                          generationCommand,
-                                          workingData.dataset,
-                                          workingData.size,
-                                          workingData.offset));
-
         RBR_TRY(RBRInstrumentL2_parseDataResponse(instrument, &workingData));
     }
     else
     {
-        RBR_TRY(RBRInstrument_converse(instrument,
-                                       generationCommand,
-                                       workingData.dataset,
-                                       workingData.size,
-                                       workingData.offset));
-
         RBR_TRY(RBRInstrumentL3_parseDataResponse(instrument, &workingData));
     }
 

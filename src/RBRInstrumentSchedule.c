@@ -446,7 +446,7 @@ RBRInstrumentError RBRInstrument_setSampling(
         }
     }
 
-    return RBRInstrument_sendCommand(
+    return RBRInstrument_converse(
         instrument,
         "sampling"
         " mode = %s,"

@@ -553,6 +553,7 @@ typedef struct RBRInstrument
      * Cached every time RBRInstrument_getId() is called.
      */
     struct RBRInstrumentId id;
+
     /**
      * \brief The generation of the instrument.
      *

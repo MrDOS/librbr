@@ -55,8 +55,12 @@ extern "C" {
  * updated accordingly. If the command does not include a terminating `\r\n`,
  * it will be added for you.
  *
- * This command performs no response parsing. For that, use
- * RBRInstrument_readResponse().
+ * This function should only be used to send commands which don't produce any
+ * response, or in conjunction with response parsing via
+ * RBRInstrument_readResponse(). If the command is known to produce a response
+ * – even if you don't care about it – you should read it to get it out of the
+ * response buffer. To combine command sending and response reading with basic
+ * sanity-checking, use RBRInstrument_converse().
  *
  * \param [in] instrument the instrument connection
  * \param [in] command the command to send as a printf-style format string
@@ -219,14 +223,9 @@ RBRInstrumentError RBRInstrument_getInt(RBRInstrument *instrument,
 /** \brief A parameter (key/value pair) from an instrument response. */
 typedef struct RBRInstrumentResponseParameter
 {
-    /**
-     * \brief The index of the response array member to which the parameter
-     * belongs.
-     */
+    /** \brief The number of index parameters prior to this parameter. */
     int32_t index;
-    /**
-     * \brief The response array index string value TODO describe better words
-     */
+    /** \brief The string value of the last index parameter. */
     char *indexValue;
     /** \brief The parameter key. */
     char *key;

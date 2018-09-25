@@ -96,12 +96,13 @@ static RBRInstrumentError RBRInstrument_populateGeneration(
 
     /* First, see if we're any sort of RBR instrument, and eliminate Logger1
      * instruments. */
-    RBR_TRY(RBRInstrument_sendCommand(instrument, "A"));
-    /* If this isn't an RBR instrument, it'll just time out. */
-    do
+    RBRInstrumentError err = RBRInstrument_converse(instrument, "A");
+    /* If this isn't an RBR instrument, it'll just time out or the response
+     * won't match. */
+    if (err != RBRINSTRUMENT_SUCCESS)
     {
-        RBR_TRY(RBRInstrument_readResponse(instrument, false, NULL));
-    } while (memcmp(instrument->message.message, "RBR ", 4) != 0);
+        return RBRINSTRUMENT_UNSUPPORTED;
+    }
 
     /*
      * The response format for the “classic” identification command (“A”) is:
@@ -136,11 +137,6 @@ static RBRInstrumentError RBRInstrument_populateGeneration(
         instrument->generation = RBRINSTRUMENT_LOGGER1;
         return RBRINSTRUMENT_SUCCESS;
     }
-
-    /* TODO: If the instrument is already awake and has garbage sitting in its
-     * receive buffer, the wake sequence will generate an error (“E0102 invalid
-     * command”). We should eat that when first establishing an instrument
-     * connection. */
 
     /* Once we know we're dealing with Logger2/3, we can use the `id` command
      * to get the firmware type, and use that to identify generation. */
