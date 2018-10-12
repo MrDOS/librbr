@@ -184,9 +184,9 @@ static uint16_t calculateCrc(const void *data, int32_t size)
     {
         uint8_t b = ((uint8_t *) data)[i];
 
-        for (int_fast8_t i = 0; i < 8; i++)
+        for (int_fast8_t j = 0; j < 8; j++)
         {
-            uint8_t bit = ((b   >> (7 - i) & 1) == 1);
+            uint8_t bit = ((b   >> (7 - j) & 1) == 1);
             uint8_t c15 = ((crc >> 15      & 1) == 1);
 
             crc <<= 1;
