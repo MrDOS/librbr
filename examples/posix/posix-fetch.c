@@ -120,7 +120,19 @@ int main(int argc, char *argv[])
             printf("%" PRIi64, sample.timestamp);
             for (int32_t i = 0; i < sample.channels; i++)
             {
-                printf(", %lf", sample.values[i]);
+                switch (RBRInstrumentReading_getFlag(sample.readings[i]))
+                {
+                case RBRINSTRUMENT_READING_FLAG_UNCALIBRATED:
+                    printf(", ###");
+                    break;
+                case RBRINSTRUMENT_READING_FLAG_ERROR:
+                    printf(", Error-%2d", RBRInstrumentReading_getError(sample.readings[i]));
+                    break;
+                case RBRINSTRUMENT_READING_FLAG_NONE:
+                default:
+                    printf(", %lf", sample.readings[i]);
+                    break;
+                }
             }
             printf("\n");
         }

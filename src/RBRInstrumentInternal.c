@@ -317,13 +317,6 @@ static void RBRInstrument_terminateResponse(
     }
 }
 
-typedef enum RBRInstrumentSampleError
-{
-    RBRINSTRUMENT_SAMPLE_ERROR_VALUE_NO_ERROR = 0xFF,
-    RBRINSTRUMENT_SAMPLE_ERROR_VALUE_UNCALIBRATED = 0x01,
-    RBRINSTRUMENT_SAMPLE_ERROR_VALUE_ERROR = 0x02
-} RBRInstrumentSampleError;
-
 /**
  * \brief Attempt to parse a sample from a response.
  *
@@ -345,25 +338,8 @@ static RBRInstrumentError RBRInstrumentSample_parse(
                                                   &values));
 
     char *token;
-    /* Values are double-precision floating point. If they need to encode an
-     * error, it's stored in the trailing bits of a NaN. */
-    union
-    {
-        double value;
-        /* TODO: This compiler attribute is potentially non-portable, and the
-         * struct arrangement is endian-sensitive. Should be replaced with a
-         * uint64_t and manipulated through bitmasks and shifts. */
-        struct __attribute__ ((packed))
-        {
-            uint8_t  error;
-            uint16_t ignored1;
-            uint8_t  flag;
-            uint32_t ignored2;
-        }
-        error;
-    }
-    value;
 
+    double reading;
     while ((token = strtok(values, ",")) != NULL
            && sample->channels < RBRINSTRUMENT_CHANNEL_MAX)
     {
@@ -374,20 +350,21 @@ static RBRInstrumentError RBRInstrumentSample_parse(
 
         if (strcmp(token, SAMPLE_NAN) == 0)
         {
-            value.value = NAN;
+            reading = NAN;
         }
         else if (strcmp(token, SAMPLE_INF) == 0)
         {
-            value.value = INFINITY;
+            reading = INFINITY;
         }
         else if (strcmp(token, SAMPLE_NINF) == 0)
         {
-            value.value = -INFINITY;
+            reading = -INFINITY;
         }
         else if (strcmp(token, SAMPLE_UNCAL) == 0)
         {
-            value.value = NAN;
-            value.error.flag = RBRINSTRUMENT_SAMPLE_ERROR_VALUE_UNCALIBRATED;
+            reading = RBRInstrumentReading_setError(
+                RBRINSTRUMENT_READING_FLAG_UNCALIBRATED,
+                0);
         }
         else if (memcmp(token,
                         SAMPLE_ERROR_PREFIX,
@@ -396,18 +373,18 @@ static RBRInstrumentError RBRInstrumentSample_parse(
             /* Uh-oh. We'll encode the error in a NaN. Filtering, etc. will
              * ignore the value and the sample formatter will output it just as
              * we received it. */
-            value.value = NAN;
-            value.error.flag = RBRINSTRUMENT_SAMPLE_ERROR_VALUE_ERROR;
-            value.error.error = strtol(token + SAMPLE_ERROR_PREFIX_LEN,
-                                       NULL,
-                                       10);
+            reading = RBRInstrumentReading_setError(
+                RBRINSTRUMENT_READING_FLAG_ERROR,
+                strtol(token + SAMPLE_ERROR_PREFIX_LEN,
+                       NULL,
+                       10));
         }
         else
         {
-            value.value = strtod(token, NULL);
+            reading = strtod(token, NULL);
         }
 
-        sample->values[sample->channels++] = value.value;
+        sample->readings[sample->channels++] = reading;
     }
 
     return RBRINSTRUMENT_SUCCESS;

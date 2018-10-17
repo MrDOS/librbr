@@ -367,7 +367,7 @@ TEST_LOGGER3(stream_sample_parse)
     err = RBRInstrument_readSample(instrument);
     TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
     TEST_ASSERT_EQ(1, buffers->streamSample.channels, "%" PRIi32);
-    TEST_ASSERT_EQ(10.1325, buffers->streamSample.values[0], "%lf");
+    TEST_ASSERT_EQ(10.1325, buffers->streamSample.readings[0], "%lf");
 
     return true;
 }

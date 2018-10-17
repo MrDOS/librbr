@@ -16,4 +16,4 @@ posix-stream-sdl: posix-shared.o posix-stream-sdl.o
 
 .PHONY: clean
 clean:
-	rm -Rf *.o posix-download posix-stream
+	rm -Rf *.o posix-download posix-fetch posix-stream posix-stream-sdl

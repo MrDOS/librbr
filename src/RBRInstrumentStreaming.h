@@ -419,20 +419,93 @@ RBRInstrumentError RBRInstrument_setAuxOutput(
     const RBRInstrumentAuxOutput *auxOutput);
 
 /**
+ * \brief A flag set on a sample reading.
+ */
+typedef enum RBRInstrumentReadingFlag
+{
+    /** No flag. */
+    RBRINSTRUMENT_READING_FLAG_NONE,
+    /** The channel is uncalibrated. */
+    RBRINSTRUMENT_READING_FLAG_UNCALIBRATED,
+    /** The reading is an error. */
+    RBRINSTRUMENT_READING_FLAG_ERROR,
+    /** The number of reading flags. */
+    RBRINSTRUMENT_READING_FLAG_COUNT,
+    /** An unknown or unrecognized reading flag. */
+    RBRINSTRUMENT_UNKNOWN_READING_FLAG
+} RBRInstrumentReadingFlag;
+
+/**
+ * \brief Get a human-readable string name for a reading flag.
+ *
+ * \param [in] flag the reading flag
+ * \return a string name for the reading flag
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentReadingFlag_name(RBRInstrumentReadingFlag flag);
+
+/**
+ * \brief Get the error flag from a reading.
+ *
+ * If the reading is not a NaN, returns the error flag encoded within the NaN.
+ * Otherwise, returns #RBRINSTRUMENT_READING_FLAG_NONE.
+ *
+ * \param reading the reading
+ * \return the error flag of the reading, if present
+ * \see RBRInstrumentReading_getError() to get the error value, if present
+ * \see RBRInstrumentReading_setError() to create a reading with an error set
+ */
+RBRInstrumentReadingFlag RBRInstrumentReading_getFlag(double reading);
+
+/**
+ * \brief Get the error value from a reading.
+ *
+ * If the reading is not a NaN, returns the error value encoded within the NaN.
+ * Otherwise, returns 0.
+ *
+ * \param reading the reading
+ * \return the error value of the reading, if present
+ * \see RBRInstrumentReading_getFlag() to get the error flag, if present
+ * \see RBRInstrumentReading_setError() to create a reading with an error set
+ */
+uint8_t RBRInstrumentReading_getError(double reading);
+
+/**
+ * \brief Synthesize a reading with an error set.
+ *
+ * \param flag the error flag
+ * \param value the error value
+ * \return the error reading
+ * \see RBRInstrumentReading_getFlag() to get the error flag, if present
+ * \see RBRInstrumentReading_getError() to get the error value, if present
+ */
+double RBRInstrumentReading_setError(RBRInstrumentReadingFlag flag,
+                                     uint8_t value);
+
+/**
  * \brief An instrument sample.
  */
 typedef struct RBRInstrumentSample
 {
     /** \brief The timestamp of the sample. */
     RBRInstrumentDateTime timestamp;
-    /** \brief The number of populated sample values. */
+    /** \brief The number of populated sample readings. */
     int32_t channels;
     /**
-     * \brief The sample values.
+     * \brief The sample readings.
      *
-     * Only the first RBRInstrumentSample.channels values will be populated.
+     * Only the first RBRInstrumentSample.channels readings will be populated.
+     * Other readings will be set to 0.
+     *
+     * Readings are represented as double-precision floating point. If they
+     * need to encode an error, it's stored in the trailing bits of a NaN, and
+     * a flag is set to indicate which sort of error.
+     *
+     * \see RBRInstrumentReading_getFlag() to get the error flag, if present
+     * \see RBRInstrumentReading_getError() to get the error value, if present
+     * \see RBRInstrumentReading_setError() to synthesize a error reading
      */
-    double values[RBRINSTRUMENT_CHANNEL_MAX];
+    double readings[RBRINSTRUMENT_CHANNEL_MAX];
 } RBRInstrumentSample;
 
 /**

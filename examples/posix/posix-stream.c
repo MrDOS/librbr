@@ -41,7 +41,7 @@ RBRInstrumentError instrumentSample(
     printf("%" PRIi64, sample->timestamp);
     for (int32_t i = 0; i < sample->channels; i++)
     {
-        printf(", %lf", sample->values[i]);
+        printf(", %lf", sample->readings[i]);
     }
     printf("\n");
 

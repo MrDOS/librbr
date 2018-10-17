@@ -121,8 +121,10 @@ static void recalculatePoints()
                                       samplePointChannelCount);
         for (int channel = 0; channel < samplePointChannelCount; channel++)
         {
-            minVal[channel] = MIN(samples[i].values[channel], minVal[channel]);
-            maxVal[channel] = MAX(samples[i].values[channel], maxVal[channel]);
+            minVal[channel] = MIN(samples[i].readings[channel],
+                                  minVal[channel]);
+            maxVal[channel] = MAX(samples[i].readings[channel],
+                                  maxVal[channel]);
         }
     }
     double verScale[RBRINSTRUMENT_CHANNEL_MAX];
@@ -136,7 +138,7 @@ static void recalculatePoints()
         RBRInstrumentDateTime timestamp = samples[i].timestamp - minTime;
         for (int channel = 0; channel < samplePointChannelCount; channel++)
         {
-            double value = samples[i].values[channel] - minVal[channel];
+            double value = samples[i].readings[channel] - minVal[channel];
             samplePoints[channel][i].x = timestamp * horScale;
             samplePoints[channel][i].y = height - (value * verScale[channel]) - VER_PAD;
         }

@@ -8,6 +8,8 @@
  * Licensed under the Apache License, Version 2.0.
  */
 
+/* Required for isnan, NAN. */
+#include <math.h>
 /* Required for strchr, strcmp, strcpy. */
 #include <string.h>
 
@@ -15,6 +17,11 @@
 
 #include "RBRInstrument.h"
 #include "RBRInstrumentInternal.h"
+
+#define READING_FLAG_MASK     0x00FF0000
+#define READING_FLAG_OFFSET  (2 * 8)
+#define READING_ERROR_MASK    0x0000FFFF
+#define READING_ERROR_OFFSET (0 * 8)
 
 RBRInstrumentError RBRInstrument_getChannelsList(
     RBRInstrument *instrument,
@@ -430,6 +437,77 @@ RBRInstrumentError RBRInstrument_setAuxOutput(
         RBRInstrumentAuxOutputActiveLevel_name(auxOutput->active),
         auxOutput->aux,
         RBRInstrumentAuxOutputSleepLevel_name(auxOutput->sleep));
+}
+
+const char *RBRInstrumentReadingFlag_name(RBRInstrumentReadingFlag flag)
+{
+    switch (flag)
+    {
+    case RBRINSTRUMENT_READING_FLAG_NONE:
+        return "none";
+    case RBRINSTRUMENT_READING_FLAG_UNCALIBRATED:
+        return "uncalibrated";
+    case RBRINSTRUMENT_READING_FLAG_ERROR:
+        return "error";
+    case RBRINSTRUMENT_READING_FLAG_COUNT:
+        return "reading flag count";
+    case RBRINSTRUMENT_UNKNOWN_READING_FLAG:
+    default:
+        return "unknown reading flag";
+    }
+}
+
+inline RBRInstrumentReadingFlag RBRInstrumentReading_getFlag(double reading)
+{
+    if (!isnan(reading))
+    {
+        return RBRINSTRUMENT_READING_FLAG_NONE;
+    }
+
+    union
+    {
+        double reading;
+        uint64_t raw;
+    }
+    alias;
+    alias.reading = reading;
+
+    return (alias.raw & READING_FLAG_MASK) >> READING_FLAG_OFFSET;
+}
+
+inline uint8_t RBRInstrumentReading_getError(double reading)
+{
+    if (!isnan(reading))
+    {
+        return 0;
+    }
+
+    union
+    {
+        double reading;
+        uint64_t raw;
+    }
+    alias;
+    alias.reading = reading;
+
+    return (alias.raw & READING_ERROR_MASK) >> READING_ERROR_OFFSET;
+}
+
+inline double RBRInstrumentReading_setError(RBRInstrumentReadingFlag flag,
+                                            uint8_t error)
+{
+    union
+    {
+        double reading;
+        uint64_t raw;
+    }
+    alias;
+    alias.reading = NAN;
+
+    alias.raw |= ((flag << READING_FLAG_OFFSET) & READING_FLAG_MASK)
+                 | ((error << READING_ERROR_OFFSET) & READING_ERROR_MASK);
+
+    return alias.reading;
 }
 
 RBRInstrumentError RBRInstrument_readSample(RBRInstrument *instrument)
