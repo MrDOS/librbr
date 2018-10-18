@@ -33,8 +33,6 @@
 #define WAKE_COMMAND_LEN 1
 #define WAKE_COMMAND_WAIT 50
 
-#define COMMAND_TERMINATOR "\r\n"
-#define COMMAND_TERMINATOR_LEN 2
 #define COMMAND_PROMPT "Ready: "
 #define COMMAND_PROMPT_LEN 7
 
@@ -146,6 +144,25 @@ static RBRInstrumentError RBRInstrument_wake(const RBRInstrument *instrument)
     return RBRINSTRUMENT_SUCCESS;
 }
 
+RBRInstrumentError RBRInstrument_sendBuffer(RBRInstrument *instrument)
+{
+    /* Wake the instrument if necessary. */
+    RBR_TRY(RBRInstrument_wake(instrument));
+
+    if (instrument->commandBufferLength > RBRINSTRUMENT_COMMAND_BUFFER_MAX)
+    {
+        instrument->commandBufferLength = RBRINSTRUMENT_COMMAND_BUFFER_MAX;
+    }
+
+    /* Send the command to the instrument. */
+    RBR_TRY(instrument->callbacks.write(instrument,
+                                        instrument->commandBuffer,
+                                        instrument->commandBufferLength));
+    RBR_TRY(instrument->callbacks.time(instrument,
+                                       &instrument->lastActivityTime));
+    return RBRINSTRUMENT_SUCCESS;
+}
+
 static RBRInstrumentError RBRInstrument_vSendCommand(RBRInstrument *instrument,
                                                      const char *command,
                                                      va_list format)
@@ -168,35 +185,29 @@ static RBRInstrumentError RBRInstrument_vSendCommand(RBRInstrument *instrument,
     }
 
     /* Make sure the command is CRLF-terminated. */
-    if (instrument->commandBufferLength < COMMAND_TERMINATOR_LEN
+    if (instrument->commandBufferLength < RBRINSTRUMENT_COMMAND_TERMINATOR_LEN
         || memcmp(instrument->commandBuffer
                   + instrument->commandBufferLength
-                  - COMMAND_TERMINATOR_LEN,
-                  COMMAND_TERMINATOR,
-                  COMMAND_TERMINATOR_LEN) != 0)
+                  - RBRINSTRUMENT_COMMAND_TERMINATOR_LEN,
+                  RBRINSTRUMENT_COMMAND_TERMINATOR,
+                  RBRINSTRUMENT_COMMAND_TERMINATOR_LEN) != 0)
     {
         /* It isn't. Make sure there's room before adding it. */
-        if (instrument->commandBufferLength + COMMAND_TERMINATOR_LEN
+        if (instrument->commandBufferLength
+            + RBRINSTRUMENT_COMMAND_TERMINATOR_LEN
             > RBRINSTRUMENT_COMMAND_BUFFER_MAX)
         {
             return RBRINSTRUMENT_BUFFER_TOO_SMALL;
         }
 
         memcpy(instrument->commandBuffer + instrument->commandBufferLength,
-               COMMAND_TERMINATOR,
-               COMMAND_TERMINATOR_LEN);
-        instrument->commandBufferLength += COMMAND_TERMINATOR_LEN;
+               RBRINSTRUMENT_COMMAND_TERMINATOR,
+               RBRINSTRUMENT_COMMAND_TERMINATOR_LEN);
+        instrument->commandBufferLength +=
+            RBRINSTRUMENT_COMMAND_TERMINATOR_LEN;
     }
 
-    RBR_TRY(RBRInstrument_wake(instrument));
-
-    /* Send the command to the instrument. */
-    RBR_TRY(instrument->callbacks.write(instrument,
-                                        instrument->commandBuffer,
-                                        instrument->commandBufferLength));
-    RBR_TRY(instrument->callbacks.time(instrument,
-                                       &instrument->lastActivityTime));
-    return RBRINSTRUMENT_SUCCESS;
+    return RBRInstrument_sendBuffer(instrument);
 }
 
 RBRInstrumentError RBRInstrument_sendCommand(RBRInstrument *instrument,
@@ -248,10 +259,11 @@ static RBRInstrumentError RBRInstrument_readSingleResponse(
     char **end)
 {
     int32_t readLength;
-    while ((*end = (char *) memmem(instrument->responseBuffer,
-                                   instrument->responseBufferLength,
-                                   COMMAND_TERMINATOR,
-                                   COMMAND_TERMINATOR_LEN)) == NULL)
+    while ((*end = (char *) memmem(
+                instrument->responseBuffer,
+                instrument->responseBufferLength,
+                RBRINSTRUMENT_COMMAND_TERMINATOR,
+                RBRINSTRUMENT_COMMAND_TERMINATOR_LEN)) == NULL)
     {
         /* If the buffer is full but doesn't contain a terminator, there's
          * not much we can do about it: throw out the buffer, then keep
@@ -313,7 +325,7 @@ static void RBRInstrument_terminateResponse(
     *beginning = (char *) instrument->responseBuffer;
     *end = '\0';
     instrument->lastResponseLength =
-        end + COMMAND_TERMINATOR_LEN - *beginning;
+        end + RBRINSTRUMENT_COMMAND_TERMINATOR_LEN - *beginning;
 
     /* Fast-forward leftover line termination characters. This shouldn't happen
      * in the middle of a standing conversation with an instrument, but it

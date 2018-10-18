@@ -48,7 +48,7 @@ RBRInstrumentError RBRInstrument_getMemoryInfo(
     memset(memoryInfo, 0, sizeof(RBRInstrumentMemoryInfo));
 
     RBR_TRY(RBRInstrument_converse(instrument,
-                                   "meminfo dataset = %d\r\n",
+                                   "meminfo dataset = %d",
                                    dataset));
 
     bool more = false;

@@ -20,6 +20,11 @@
 extern "C" {
 #endif
 
+/** \brief The terminator at the end of a command sent to the instrument. */
+#define RBRINSTRUMENT_COMMAND_TERMINATOR "\r\n"
+/** \brief The length of the command terminator. */
+#define RBRINSTRUMENT_COMMAND_TERMINATOR_LEN 2
+
 /**
  * \brief The length of the timestamp of a streamed sample.
  *
@@ -50,6 +55,23 @@ extern "C" {
 } while (0)
 
 /**
+ * Send the first RBRInstrument.commandBufferLength bytes of
+ * RBRInstrument.commandBuffer to the instrument. No formatting or validation
+ * of the contents of the buffer will be performed.
+ *
+ * You almost certainly want to use RBRInstrument_sendCommand() instead unless
+ * you have a specific requirement for custom buffer management (like sending
+ * a very large command in multiple pieces).
+ *
+ * \param [in] instrument the instrument connection
+ * \return #RBRINSTRUMENT_SUCCESS when the command is successfully written
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
+ * \see RBRInstrument_sendCommand() to send a string command
+ */
+RBRInstrumentError RBRInstrument_sendBuffer(RBRInstrument *instrument);
+
+/**
  * Send a command to the instrument. The command will be formatted into
  * RBRInstrument.commandBuffer and RBRInstrument.commandBufferLength will be
  * updated accordingly. If the command does not include a terminating `\r\n`,
@@ -69,6 +91,7 @@ extern "C" {
  *                                         large for the command buffer
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
+ * \see RBRInstrument_sendBuffer() to send raw data from the command buffer
  * \see RBRInstrument_readResponse() to read the command response
  * \see RBRInstrument_converse() for a send/receive shortcut
  */

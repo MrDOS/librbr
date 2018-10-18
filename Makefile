@@ -77,6 +77,7 @@ bin/tests: tests/main.o \
            tests/communication.o \
            tests/configuration.o \
            tests/deployment.o \
+           tests/fetching.o \
            tests/gating.o \
            tests/memory.o \
            tests/other.o \
@@ -91,6 +92,7 @@ bin/tests: tests/main.o \
 		tests/communication.o \
 		tests/configuration.o \
 		tests/deployment.o \
+		tests/fetching.o \
 		tests/gating.o \
 		tests/memory.o \
 		tests/other.o \
@@ -103,6 +105,7 @@ bin/tests: tests/main.o \
 tests/tests.c: tests/communication.c \
                tests/configuration.c \
                tests/deployment.c \
+               tests/fetching.c \
                tests/gating.c \
                tests/memory.c \
                tests/other.c \

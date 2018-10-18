@@ -75,7 +75,7 @@ extern "C" {
         } \
 } while (0)
 
-#define TESTIOBUFFERS_WRITE_BUFFER_SIZE 1024
+#define TESTIOBUFFERS_WRITE_BUFFER_SIZE 4096
 
 #define COMMAND_TERMINATOR "\r\n"
 #define PROMPT "Ready: "

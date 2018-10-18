@@ -19,7 +19,7 @@ extern "C" {
 
 #define _POSIX_C_SOURCE 199309L
 
-#define INSTRUMENT_TIMEOUT_MSEC 500
+#define INSTRUMENT_TIMEOUT_MSEC 4000
 
 int openSerialFd(char *devicePath);
 

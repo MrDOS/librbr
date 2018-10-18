@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
     RBRInstrumentError err;
     while (true)
     {
-        err = RBRInstrument_fetch(instrument, false, &sample);
+        err = RBRInstrument_fetch(instrument, NULL, false, &sample);
         if (err != RBRINSTRUMENT_SUCCESS)
         {
             fprintf(stderr, "Error: %s\n", RBRInstrumentError_name(err));
