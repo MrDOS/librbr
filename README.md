@@ -60,3 +60,25 @@ However, we're happy to take [contributions] generally.
 This project is licensed under the terms
 of the Apache License, Version 2.0;
 see https://www.apache.org/licenses/LICENSE-2.0.
+
+* The license is not “viral”.
+  You can include it
+  either as source
+  or by linking against it,
+  statically or dynamically,
+  without affecting the licensing
+  of your own code.
+* You do not need to include RBR's copyright notice
+  in your documentation,
+  nor do you need to display it
+  at program runtime.
+  You must retain RBR's copyright notice
+  in library source files.
+* You are under no legal obligation
+  to share your own modifications
+  (although we would appreciate it
+  if you did so).
+* If you make changes to the source,
+  in addition to retaining RBR's copyright notice,
+  you must add a notice stating that you changed it.
+  You may add your own copyright notices.
