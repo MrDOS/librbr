@@ -53,6 +53,7 @@ TEST_LOGGER2(now)
 {
     ClockTest tests[] = {
         {
+            "settings offsetfromutc" COMMAND_TERMINATOR
             "now" COMMAND_TERMINATOR,
             "settings offsetfromutc = unknown" COMMAND_TERMINATOR
             "now = 20180920214914" COMMAND_TERMINATOR,
@@ -62,6 +63,7 @@ TEST_LOGGER2(now)
             }
         },
         {
+            "settings offsetfromutc" COMMAND_TERMINATOR
             "now" COMMAND_TERMINATOR,
             "settings offsetfromutc = unknown" COMMAND_TERMINATOR
             "now = 20000101000000" COMMAND_TERMINATOR,
@@ -71,6 +73,7 @@ TEST_LOGGER2(now)
             }
         },
         {
+            "settings offsetfromutc" COMMAND_TERMINATOR
             "now" COMMAND_TERMINATOR,
             "settings offsetfromutc = unknown" COMMAND_TERMINATOR
             "now = 20991231235959" COMMAND_TERMINATOR,
@@ -80,6 +83,7 @@ TEST_LOGGER2(now)
             }
         },
         {
+            "settings offsetfromutc" COMMAND_TERMINATOR
             "now" COMMAND_TERMINATOR,
             "settings offsetfromutc = +7.50" COMMAND_TERMINATOR
             "now = 20180920214914" COMMAND_TERMINATOR,
@@ -89,6 +93,7 @@ TEST_LOGGER2(now)
             }
         },
         {
+            "settings offsetfromutc" COMMAND_TERMINATOR
             "now" COMMAND_TERMINATOR,
             "settings offsetfromutc = -4.00" COMMAND_TERMINATOR
             "now = 20180920214914" COMMAND_TERMINATOR,
@@ -396,6 +401,8 @@ TEST_LOGGER2(deployment)
 {
     DeploymentTest tests[] = {
         {
+            "starttime" COMMAND_TERMINATOR
+            "endtime" COMMAND_TERMINATOR
             "status" COMMAND_TERMINATOR,
             "starttime = 20000101000000" COMMAND_TERMINATOR
             "endtime = 2099123123595959" COMMAND_TERMINATOR

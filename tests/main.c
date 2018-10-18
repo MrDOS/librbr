@@ -102,10 +102,10 @@ RBRInstrumentError TestIOBuffers_write(const struct RBRInstrument *instrument,
         return RBRINSTRUMENT_CALLBACK_ERROR;
     }
     /* Otherwise, store the data to the write buffer. */
-    memcpy(buffers->writeBuffer, data, size);
+    memcpy(buffers->writeBuffer + buffers->writeBufferPos, data, size);
+    buffers->writeBufferPos += size;
     /* Null-terminate the buffer so we can do string comparisons with it. */
-    buffers->writeBuffer[size] = '\0';
-    buffers->writeBufferPos = size;
+    buffers->writeBuffer[buffers->writeBufferPos] = '\0';
     return RBRINSTRUMENT_SUCCESS;
 }
 
@@ -194,6 +194,8 @@ int main()
     printf("Running tests...\n");
     int success = EXIT_SUCCESS;
     RBRInstrument *testInstrument;
+    int32_t testsTotal = 0;
+    int32_t testsPassed = 0;
     for (int32_t i = 0; tests[i].function != NULL; i++)
     {
         if (tests[i].generation == RBRINSTRUMENT_LOGGER2)
@@ -208,9 +210,11 @@ int main()
         printf("Running %s test \"%s\"...",
                RBRInstrumentGeneration_name(tests[i].generation),
                tests[i].name);
+        ++testsTotal;
         if (tests[i].function(testInstrument, &buffers))
         {
             printf(" \033[32mok\033[0m\n");
+            ++testsPassed;
         }
         else
         {
@@ -219,6 +223,8 @@ int main()
         }
     }
 
-    printf("Tests completed.\n");
+    printf("Tests completed (%" PRIi32 "/%" PRIi32 " passed).\n",
+           testsPassed,
+           testsTotal);
     return success;
 }

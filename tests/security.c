@@ -105,7 +105,8 @@ TEST_LOGGER3(reboot)
                        0);
     RBRInstrumentError err = RBRInstrument_reboot(instrument, 123);
     TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
-    TEST_ASSERT_STR_EQ("reboot 123" COMMAND_TERMINATOR,
+    TEST_ASSERT_STR_EQ("permit command = reboot" COMMAND_TERMINATOR
+                       "reboot 123" COMMAND_TERMINATOR,
                        buffers->writeBuffer);
 
     return true;

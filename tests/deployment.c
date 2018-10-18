@@ -418,6 +418,7 @@ TEST_LOGGER3(simulation_set)
                 .state = false,
                 .period = 3600000
             },
+            "permit command = simulation" COMMAND_TERMINATOR
             "simulation state = off, period = 3600000" COMMAND_TERMINATOR,
             "permit command = simulation" COMMAND_TERMINATOR
             "simulation state = off, period = 3600000" COMMAND_TERMINATOR,
@@ -428,6 +429,7 @@ TEST_LOGGER3(simulation_set)
                 .state = true,
                 .period = 3600000
             },
+            "permit command = simulation" COMMAND_TERMINATOR
             "simulation state = on, period = 3600000" COMMAND_TERMINATOR,
             "permit command = simulation" COMMAND_TERMINATOR
             "simulation state = on, period = 3600000" COMMAND_TERMINATOR,
@@ -438,6 +440,7 @@ TEST_LOGGER3(simulation_set)
                 .state = true,
                 .period = 123
             },
+            "permit command = simulation" COMMAND_TERMINATOR
             "simulation state = on, period = 123" COMMAND_TERMINATOR,
             "permit command = simulation" COMMAND_TERMINATOR
             "E0108 invalid argument to command: '123'"

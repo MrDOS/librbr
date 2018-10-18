@@ -128,7 +128,7 @@ static RBRInstrumentError RBRInstrument_wake(const RBRInstrument *instrument)
     int64_t now;
     RBR_TRY(instrument->callbacks.time(instrument, &now));
 
-    if (instrument->lastActivityTime > 0
+    if (instrument->lastActivityTime >= 0
         && now - instrument->lastActivityTime < COMMAND_TIMEOUT)
     {
         return RBRINSTRUMENT_SUCCESS;
