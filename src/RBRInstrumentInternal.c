@@ -816,22 +816,14 @@ RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
             ++commandLength;
         }
 
-        /* Some command responses don't start with the command itself. There
-         * are few enough of these that it's simplest to hardcode them here
+        /* The Logger2 “read” command response don't start with the command
+         * itself. It's the only such command, so we'll just handle it here
          * rather than add another parameter to the function to indicate the
-         * expected response, or to specialize those command handling functions
+         * expected response, or to specialize the command handling function
          * to include error checking/retry. */
         uint8_t *commandResponse = instrument->commandBuffer;
-        int32_t commandResponseLength = commandLength;
-        /* Universal Logger1/2/3 “A” identification command. */
-        if (commandLength == 1 && command[0] == 'A')
-        {
-            commandResponse = (uint8_t *) "RBR ";
-            commandResponseLength = 4;
-        }
-        /* Logger2 “read” command responds with “data”. */
-        else if (commandLength == 4
-                 && memcmp("read", instrument->commandBuffer, 4) == 0)
+        if (commandLength == 4
+            && memcmp("read", instrument->commandBuffer, 4) == 0)
         {
             commandResponse = (uint8_t *) "data";
         }
@@ -924,7 +916,7 @@ RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
         } while ((instrument->message.message == NULL
                   || memcmp(instrument->message.message,
                             commandResponse,
-                            commandResponseLength) != 0));
+                            commandLength) != 0));
     } while (retry);
 
     va_end(format);

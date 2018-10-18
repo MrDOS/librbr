@@ -94,53 +94,13 @@ static RBRInstrumentError RBRInstrument_populateGeneration(
 {
     instrument->generation = RBRINSTRUMENT_UNKNOWN_GENERATION;
 
-    /* First, see if we're any sort of RBR instrument, and eliminate Logger1
-     * instruments. */
-    RBRInstrumentError err = RBRInstrument_converse(instrument, "A");
     /* If this isn't an RBR instrument, it'll just time out or the response
      * won't match. */
+    RBRInstrumentError err = RBRInstrument_getId(instrument, &instrument->id);
     if (err != RBRINSTRUMENT_SUCCESS)
     {
         return RBRINSTRUMENT_UNSUPPORTED;
     }
-
-    /*
-     * The response format for the “classic” identification command (“A”) is:
-     *
-     *     RBR XR-420 6.21 999999
-     *
-     * A modern instrument will respond more like:
-     *
-     *     RBR RBRduo3 1.090 999999
-     *
-     * So we'll check whether the response starts with “RBR” at all. Then we'll
-     * know it's at least Logger1.
-     */
-    if (strlen(instrument->message.message)
-        < RBRINSTRUMENT_ID_LOGGER1_PREFIX_LEN
-        || memcmp(instrument->message.message,
-                  RBRINSTRUMENT_ID_LOGGER1_PREFIX,
-                  RBRINSTRUMENT_ID_LOGGER1_PREFIX_LEN) != 0)
-    {
-        /* It's not an RBR instrument. Indicate success (because we did
-         * successfully set instrument->generation, just to UNKNOWN). */
-        return RBRINSTRUMENT_SUCCESS;
-    }
-
-    /* Now see if it's Logger2/3. */
-    if (strlen(instrument->message.message)
-        < RBRINSTRUMENT_ID_LOGGER23_PREFIX_LEN
-        || memcmp(instrument->message.message,
-                  RBRINSTRUMENT_ID_LOGGER23_PREFIX,
-                  RBRINSTRUMENT_ID_LOGGER23_PREFIX_LEN) != 0)
-    {
-        instrument->generation = RBRINSTRUMENT_LOGGER1;
-        return RBRINSTRUMENT_SUCCESS;
-    }
-
-    /* Once we know we're dealing with Logger2/3, we can use the `id` command
-     * to get the firmware type, and use that to identify generation. */
-    RBR_TRY(RBRInstrument_getId(instrument, &instrument->id));
 
     /* The concept of firmware type was introduced part-way through Logger2, so
      * early instruments with very old firmware won't report a firmware type.
