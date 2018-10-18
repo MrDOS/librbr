@@ -440,7 +440,7 @@ typedef RBRInstrumentError (*RBRInstrumentSampleCallback)(
  * \brief A set of callbacks from library to user code.
  *
  * RBRInstrument_open() requires all callbacks to be populated except for
- * RBRInstrumentCallbacks.sample, which may be NULL when undesired.
+ * RBRInstrumentCallbacks.sample, which may be `NULL` when undesired.
  */
 typedef struct RBRInstrumentCallbacks
 {
@@ -655,9 +655,9 @@ typedef struct RBRInstrument
  * ~~~
  *
  * *Do not* pass an uninitialized pointer to this constructor! It will be
- * dereferenced, which is undefined behaviour; and if a non-NULL value is read,
- * the constructor will think memory has been preallocated and will attempt to
- * write through the pointer.
+ * dereferenced, which is undefined behaviour; and if a non-`NULL` value is
+ * read, the constructor will think memory has been preallocated and will
+ * attempt to write through the pointer.
  *
  * ~~~{.c}
  * /​* Don't do this! *​/

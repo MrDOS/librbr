@@ -290,7 +290,7 @@ bool RBRInstrument_parseResponse(char *buffer,
  *
  * If \a end is not given as `NULL`, it will be modified to point to the first
  * character after the timestamp in \a s. If the timestamp cannot be parsed, it
- * will be modified to point to NULL.
+ * will be modified to point to `NULL`.
  *
  * \param [in] s the sample date/time string
  * \param [out] timestamp the parsed timestamp
@@ -309,7 +309,7 @@ RBRInstrumentError RBRInstrumentDateTime_parseSampleTime(
  *
  * If \a end is not given as `NULL`, it will be modified to point to the first
  * character after the timestamp in \a s. If the timestamp cannot be parsed, it
- * will be modified to point to NULL.
+ * will be modified to point to `NULL`.
  *
  * \param [in] s the sample date/time string
  * \param [out] timestamp the parsed timestamp
