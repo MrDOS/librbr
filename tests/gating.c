@@ -108,6 +108,22 @@ TEST_LOGGER3(thresholding)
                 .interval = 10000
             }
         },
+        {
+            "thresholding enabled = true, state = paused, channelindex = 2, "
+            "channellabel = thispressurelabelislongerthanthe31characterlimit, "
+            "condition = below, value = 600.0000, interval = 10000"
+            COMMAND_TERMINATOR,
+            {
+                .enabled = true,
+                .state = RBRINSTRUMENT_GATING_PAUSED,
+                .channelSelection = RBRINSTRUMENT_THRESHOLD_CHANNEL_BY_INDEX,
+                .channelIndex = 2,
+                .channelLabel = "thispressurelabelislongerthanth",
+                .condition = RBRINSTRUMENT_THRESHOLDING_BELOW,
+                .value = 600.0,
+                .interval = 10000
+            }
+        },
         {0}
     };
 

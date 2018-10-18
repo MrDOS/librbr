@@ -12,13 +12,13 @@
 #include <ctype.h>
 /* Required for INFINITY, NAN. */
 #include <math.h>
-/* Required for va_list, va_start, va_end. */
+/* Required for vsnprintf, va_list, va_start, va_end. */
 #include <stdarg.h>
 /* Required for strtod, strtol. */
 #include <stdlib.h>
 /* Required for memcmp, memcpy, memmove, memset, strlen, strstr. */
 #include <string.h>
-/* Required for sscanf, vsprintf. */
+/* Required for snprintf, sscanf. */
 #include <stdio.h>
 /* Required for gmtime, struct tm, mktime. */
 #include <time.h>
@@ -151,10 +151,21 @@ static RBRInstrumentError RBRInstrument_vSendCommand(RBRInstrument *instrument,
                                                      va_list format)
 {
     /* Prepare the command. */
-    instrument->commandBufferLength = vsprintf(
+    instrument->commandBufferLength = vsnprintf(
         (char *) instrument->commandBuffer,
+        sizeof(instrument->commandBuffer),
         command,
         format);
+
+    /* Make sure we're within buffer bounds. This is a greater-or-equal check,
+     * not just a greater-than check, because vsnprintf doesn't include the
+     * null terminator in its return value. The longest value vsnprintf can
+     * write is RBRINSTRUMENT_COMMAND_BUFFER_MAX - 1 bytes. */
+    if (instrument->commandBufferLength >= RBRINSTRUMENT_COMMAND_BUFFER_MAX)
+    {
+        instrument->commandBufferLength = RBRINSTRUMENT_COMMAND_BUFFER_MAX;
+        return RBRINSTRUMENT_BUFFER_TOO_SMALL;
+    }
 
     /* Make sure the command is CRLF-terminated. */
     if (instrument->commandBufferLength < COMMAND_TERMINATOR_LEN
@@ -164,10 +175,17 @@ static RBRInstrumentError RBRInstrument_vSendCommand(RBRInstrument *instrument,
                   COMMAND_TERMINATOR,
                   COMMAND_TERMINATOR_LEN) != 0)
     {
+        /* It isn't. Make sure there's room before adding it. */
+        if (instrument->commandBufferLength + COMMAND_TERMINATOR_LEN
+            > RBRINSTRUMENT_COMMAND_BUFFER_MAX)
+        {
+            return RBRINSTRUMENT_BUFFER_TOO_SMALL;
+        }
+
         memcpy(instrument->commandBuffer + instrument->commandBufferLength,
                COMMAND_TERMINATOR,
                COMMAND_TERMINATOR_LEN);
-        instrument->commandBufferLength += 2;
+        instrument->commandBufferLength += COMMAND_TERMINATOR_LEN;
     }
 
     RBR_TRY(RBRInstrument_wake(instrument));
@@ -1127,19 +1145,21 @@ RBRInstrumentError RBRInstrumentDateTime_parseScheduleTime(
 
 static void RBRInstrumentDateTime_toFormat(RBRInstrumentDateTime timestamp,
                                            char *s,
+                                           size_t size,
                                            const char *format)
 {
     time_t t = timestamp / 1000;
     struct tm *split = gmtime(&t);
-    sprintf(s,
-            format,
-            split->tm_year + 1900,
-            split->tm_mon + 1,
-            split->tm_mday,
-            split->tm_hour,
-            split->tm_min,
-            split->tm_sec,
-            timestamp % 1000);
+    snprintf(s,
+             size,
+             format,
+             split->tm_year + 1900,
+             split->tm_mon + 1,
+             split->tm_mday,
+             split->tm_hour,
+             split->tm_min,
+             split->tm_sec,
+             timestamp % 1000);
 }
 
 void RBRInstrumentDateTime_toSampleTime(RBRInstrumentDateTime timestamp,
@@ -1147,6 +1167,7 @@ void RBRInstrumentDateTime_toSampleTime(RBRInstrumentDateTime timestamp,
 {
     RBRInstrumentDateTime_toFormat(timestamp,
                                    s,
+                                   RBRINSTRUMENT_SAMPLE_TIME_LEN + 1,
                                    RBRInstrumentDateTime_sampleFormat);
 }
 
@@ -1155,5 +1176,6 @@ void RBRInstrumentDateTime_toScheduleTime(RBRInstrumentDateTime timestamp,
 {
     RBRInstrumentDateTime_toFormat(timestamp,
                                    s,
+                                   RBRINSTRUMENT_SCHEDULE_TIME_LEN + 1,
                                    RBRInstrumentDateTime_scheduleFormat);
 }

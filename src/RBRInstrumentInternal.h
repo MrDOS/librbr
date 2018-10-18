@@ -65,6 +65,8 @@ extern "C" {
  * \param [in] instrument the instrument connection
  * \param [in] command the command to send as a printf-style format string
  * \return #RBRINSTRUMENT_SUCCESS when the command is successfully written
+ * \return #RBRINSTRUMENT_BUFFER_TOO_SMALL when the formatted command is too
+ *                                         large for the command buffer
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
  * \see RBRInstrument_readResponse() to read the command response

@@ -10,7 +10,7 @@
 
 /* Required for NAN. */
 #include <math.h>
-/* Required for sprintf. */
+/* Required for snprintf. */
 #include <stdio.h>
 /* Required for memset, strcmp. */
 #include <string.h>
@@ -110,7 +110,10 @@ static RBRInstrumentError RBRInstrument_getChannelAll(
 {
     for (int32_t channel = 0; channel < channels->count; ++channel)
     {
-        strcpy(channels->channels[channel].label, "none");
+        snprintf(channels->channels[channel].label,
+                 sizeof(channels->channels[channel].label),
+                 "%s",
+                 "none");
     }
 
     if (instrument->generation == RBRINSTRUMENT_LOGGER2)
@@ -136,7 +139,10 @@ static RBRInstrumentError RBRInstrument_getChannelAll(
 
         if (strcmp(parameter.key, "type") == 0)
         {
-            strcpy(channel->type, parameter.value);
+            snprintf(channel->type,
+                     sizeof(channel->type),
+                     "%s",
+                     parameter.value);
         }
         else if (strcmp(parameter.key, "module") == 0)
         {
@@ -157,11 +163,17 @@ static RBRInstrumentError RBRInstrument_getChannelAll(
         }
         else if (strcmp(parameter.key, "equation") == 0)
         {
-            strcpy(channel->equation, parameter.value);
+            snprintf(channel->equation,
+                     sizeof(channel->equation),
+                     "%s",
+                     parameter.value);
         }
         else if (strcmp(parameter.key, "userunits") == 0)
         {
-            strcpy(channel->userUnits, parameter.value);
+            snprintf(channel->userUnits,
+                     sizeof(channel->userUnits),
+                     "%s",
+                     parameter.value);
         }
         else if (strcmp(parameter.key, "derived") == 0)
         {
@@ -169,7 +181,10 @@ static RBRInstrumentError RBRInstrument_getChannelAll(
         }
         else if (strcmp(parameter.key, "label") == 0)
         {
-            strcpy(channel->label, parameter.value);
+            snprintf(channel->label,
+                     sizeof(channel->label),
+                     "%s",
+                     parameter.value);
         }
     } while (more);
 
@@ -455,8 +470,8 @@ RBRInstrumentError RBRInstrument_getSensorParameters(
         return err;
     }
 
-    char channelStr[3];
-    sprintf(channelStr, "%i", channel);
+    char channelStr[RBRINSTRUMENT_CHANNEL_MAX_LEN];
+    snprintf(channelStr, sizeof(channelStr), "%i", channel);
 
     bool more = false;
     char *command = NULL;
@@ -485,10 +500,16 @@ RBRInstrumentError RBRInstrument_getSensorParameters(
             break;
         }
 
-        strcpy(parameters->parameters[parameters->count].key,
-               parameter.key);
-        strcpy(parameters->parameters[parameters->count].value,
-               parameter.value);
+        snprintf(parameters->parameters[parameters->count].key,
+                 sizeof(parameters->parameters[parameters->count].key),
+                 "%s",
+                 parameter.key);
+
+        snprintf(parameters->parameters[parameters->count].value,
+                 sizeof(parameters->parameters[parameters->count].value),
+                 "%s",
+                 parameter.value);
+
         ++parameters->count;
     } while (more);
 

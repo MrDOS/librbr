@@ -22,7 +22,7 @@
 #include <math.h>
 /* Required for SDL_*. */
 #include <SDL2/SDL.h>
-/* Required for fprintf, printf, sprintf. */
+/* Required for fprintf. */
 #include <stdio.h>
 /* Required for memcpy, strerror. */
 #include <string.h>

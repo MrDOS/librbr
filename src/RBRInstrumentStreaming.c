@@ -10,9 +10,9 @@
 
 /* Required for isnan, NAN. */
 #include <math.h>
-/* Required for strchr, strcmp, strcpy. */
+/* Required for strchr, strcmp. */
 #include <string.h>
-
+/* Required for snprintf. */
 #include <stdio.h>
 
 #include "RBRInstrument.h"
@@ -63,8 +63,15 @@ RBRInstrumentError RBRInstrument_getChannelsList(
                 break;
             }
 
-            strcpy(channelsList->channels[channel].name, nameStart);
-            strcpy(channelsList->channels[channel].unit, unitStart);
+            snprintf(channelsList->channels[channel].name,
+                     sizeof(channelsList->channels[channel].name),
+                     "%s",
+                     nameStart);
+
+            snprintf(channelsList->channels[channel].unit,
+                     sizeof(channelsList->channels[channel].unit),
+                     "%s",
+                     unitStart);
 
             next = strtok(NULL, "(");
         }
@@ -106,7 +113,10 @@ RBRInstrumentError RBRInstrument_getLabelsList(
         char *labelStart = strtok(parameter.value, "|");
         for (label = 0; labelStart != NULL; label++)
         {
-            strcpy(labelsList->labels[label], labelStart);
+            snprintf(labelsList->labels[label],
+                     sizeof(labelsList->labels[label]),
+                     "%s",
+                     labelStart);
 
             labelStart = strtok(NULL, "|");
         }

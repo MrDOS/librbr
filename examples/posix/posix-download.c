@@ -18,7 +18,7 @@
 #include <fcntl.h>
 /* Required for PATH_MAX. */
 #include <limits.h>
-/* Required for fprintf, printf, sprintf. */
+/* Required for fprintf, printf, snprintf. */
 #include <stdio.h>
 /* Required for strerror. */
 #include <string.h>
@@ -122,8 +122,8 @@ int main(int argc, char *argv[])
     printf("It's currently storing data of format %s.\n",
            RBRInstrumentMemoryFormat_name(memformat));
 
-    char filename[PATH_MAX];
-    sprintf(filename, "%06d.bin", id.serial);
+    char filename[PATH_MAX + 1];
+    snprintf(filename, sizeof(filename), "%06d.bin", id.serial);
     int downloadFd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
     uint8_t buf[1024];

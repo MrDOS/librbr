@@ -10,8 +10,10 @@
 
 /* Required for NAN. */
 #include <math.h>
-/* Required for memcpy, memset, strcmp, strcpy. */
+/* Required for memcpy, memset, strcmp. */
 #include <string.h>
+/* Required for snprintf. */
+#include <stdio.h>
 /* Required for strtol. */
 #include <stdlib.h>
 
@@ -51,8 +53,8 @@ int RBRInstrumentVersion_compare(const char *inA, const char *inB)
      * the separator) with impunity. */
     char a[VERSION_MAX];
     char b[VERSION_MAX];
-    strcpy(a, inA);
-    strcpy(b, inB);
+    snprintf(a, VERSION_MAX, "%s", inA);
+    snprintf(b, VERSION_MAX, "%s", inB);
 
     /* '.' for production firmware releases; 'X' for developer versions. */
     char *separatorPosA = strchr(a, '.');
@@ -136,11 +138,17 @@ RBRInstrumentError RBRInstrument_getId(RBRInstrument *instrument,
                                            &parameter);
         if (strcmp(parameter.key, "model") == 0)
         {
-            strcpy(id->model, parameter.value);
+            snprintf(id->model,
+                     sizeof(id->model),
+                     "%s",
+                     parameter.value);
         }
         else if (strcmp(parameter.key, "version") == 0)
         {
-            strcpy(id->version, parameter.value);
+            snprintf(id->version,
+                     sizeof(id->version),
+                     "%s",
+                     parameter.value);
         }
         else if (strcmp(parameter.key, "serial") == 0)
         {
@@ -182,7 +190,10 @@ RBRInstrumentError RBRInstrument_getHardwareRevision(
         }
         else if (strcmp(parameter.key, "cpu") == 0)
         {
-            strcpy(hwrev->cpu, parameter.value);
+            snprintf(hwrev->cpu,
+                     sizeof(hwrev->cpu),
+                     "%s",
+                     parameter.value);
         }
         else if (strcmp(parameter.key, "bsl") == 0)
         {

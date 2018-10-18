@@ -28,7 +28,7 @@ extern "C" {
  * \brief The size of the buffer storing commands destined for the instrument.
  *
  * Must be large enough to hold the largest command you will want to send to
- * the instrument plus the trailing line termination (`\r\n`).
+ * the instrument plus the trailing line termination (`\r\n\0`).
  *
  * A buffer of this size is included in RBRInstrument. Whether you let
  * RBRInstrument_open() perform its own allocation or you perform your own
@@ -63,6 +63,13 @@ extern "C" {
  */
 #define RBRINSTRUMENT_CHANNEL_MAX 32
 
+/** \brief Stringize the result of macro expansion. */
+#define xstr(s) str(s)
+/** \brief Stringize the macro argument. */
+#define str(s) #s
+/** \brief The string length of the maximum number of instrument channels. */
+#define RBRINSTRUMENT_CHANNEL_MAX_LEN sizeof(xstr(RBRINSTRUMENT_CHANNEL_MAX))
+
 /**
  * \brief The maximum number of characters in a channel name (e.g.,
  * “Temperature”).
@@ -88,7 +95,8 @@ extern "C" {
 /**
  * \brief The maximum number of characters in a channel label.
  *
- * Does not include any null terminator.
+ * Does not include any null terminator. Must be at least 4 (to hold “none”,
+ * the default value).
  */
 #define RBRINSTRUMENT_CHANNEL_LABEL_MAX 31
 
@@ -158,6 +166,8 @@ typedef enum RBRInstrumentError
     RBRINSTRUMENT_SUCCESS,
     /** An error occurred while allocating memory. This is typically fatal. */
     RBRINSTRUMENT_ALLOCATION_FAILURE,
+    /** The command buffer was too small to hold the outbound command. */
+    RBRINSTRUMENT_BUFFER_TOO_SMALL,
     /** A required callback function was not provided. */
     RBRINSTRUMENT_MISSING_CALLBACK,
     /** An unrecoverable error from within a user callback function. */

@@ -8,9 +8,9 @@
  * Licensed under the Apache License, Version 2.0.
  */
 
-/* Required for sprintf. */
+/* Required for snprintf. */
 #include <stdio.h>
-/* Required for memset, strcmp, strcpy. */
+/* Required for memset, strcmp. */
 #include <string.h>
 
 #include "RBRInstrument.h"
@@ -115,7 +115,10 @@ RBRInstrumentError RBRInstrument_getThresholding(
         }
         else if (strcmp(parameter.key, "channellabel") == 0)
         {
-            strcpy(threshold->channelLabel, parameter.value);
+            snprintf(threshold->channelLabel,
+                     sizeof(threshold->channelLabel),
+                     "%s",
+                     parameter.value);
         }
         else if (strcmp(parameter.key, "condition") == 0)
         {
@@ -189,12 +192,18 @@ RBRInstrumentError RBRInstrument_setThresholding(
     if (threshold->channelSelection ==
         RBRINSTRUMENT_THRESHOLD_CHANNEL_BY_INDEX)
     {
-        sprintf(channelValue, "%" PRIi32, threshold->channelIndex);
+        snprintf(channelValue,
+                 sizeof(channelValue),
+                 "%" PRIi32,
+                 threshold->channelIndex);
     }
     else
     {
         channelParameter = "channellabel";
-        strcpy(channelValue, threshold->channelLabel);
+        snprintf(channelValue,
+                 sizeof(channelValue),
+                 "%s",
+                 threshold->channelLabel);
     }
 
     return RBRInstrument_converse(

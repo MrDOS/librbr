@@ -20,7 +20,7 @@
 #include <limits.h>
 /* Required for isnan. */
 #include <math.h>
-/* Required for fprintf, printf, sprintf. */
+/* Required for fprintf, printf, snprintf. */
 #include <stdio.h>
 /* Required for strerror. */
 #include <string.h>
