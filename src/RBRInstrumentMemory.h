@@ -137,20 +137,17 @@ typedef struct RBRInstrumentData
  * fwrite(buf, data.size, 1, datasetFile);
  * ~~~
  *
- * A hardware error will be reported if the CRC check of the read data fails.
- * In this case, the message returned by RBRInstrument_getLastMessage() will be
- * of type #RBRINSTRUMENT_MESSAGE_ERROR, but it will _not_ have an error number
- * or message (RBRInstrumentMessage.number will be `0` and
- * RBRInstrumentMessage.message will be `NULL`). However, \a data will still
- * faithfully reflect the response parameters and data. Be sure to check the
- * return value lest you accidentally consume invalid/corrupt data!
+ * A checksum error will be reported if the CRC check of the read data fails.
+ * However, \a data will still faithfully reflect the response parameters and
+ * data. Be sure to check the return value lest you accidentally consume
+ * invalid/corrupt data!
  *
  * \param [in] instrument the instrument connection
  * \param [in,out] data the instrument data
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \return #RBRINSTRUMENT_HARDWARE_ERROR in the event of a CRC failure
+ * \return #RBRINSTRUMENT_CHECKSUM_ERROR in the event of a CRC failure
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when an invalid dataset is
  *                                                requested
  * \see https://docs.rbr-global.com/L3commandreference/commands/memory-and-data-retrieval/readdata

@@ -132,16 +132,7 @@ TEST_LOGGER3(readdata_crc_failure)
                        COMMAND_TERMINATOR,
                        0);
     RBRInstrumentError err = RBRInstrument_readData(instrument, &actual);
-    TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_HARDWARE_ERROR, err, RBRInstrumentError);
-
-    const RBRInstrumentMessage *message =
-        RBRInstrument_getLastMessage(instrument);
-    TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_MESSAGE_ERROR,
-                        message->type,
-                        RBRInstrumentMessageType);
-    TEST_ASSERT_EQ(0, message->number, "%" PRIi32);
-    TEST_ASSERT_EQ(NULL, message->message, "%p");
-
+    TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_CHECKSUM_ERROR, err, RBRInstrumentError);
     TEST_ASSERT_EQ(expected.dataset, actual.dataset, "%" PRIi32);
     TEST_ASSERT_EQ(expected.size, actual.size, "%" PRIi32);
     TEST_ASSERT_EQ(expected.offset, actual.offset, "%" PRIi32);

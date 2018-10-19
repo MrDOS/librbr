@@ -14,7 +14,7 @@ typedef struct StatusTest
 {
     const char *command;
     RBRInstrumentError expectedError;
-    RBRInstrumentMessage expectedMessage;
+    RBRInstrumentResponse expectedResponse;
     RBRInstrumentDeploymentStatus expected;
 } StatusTest;
 
@@ -30,11 +30,11 @@ static bool test_verify(RBRInstrument *instrument,
         TestIOBuffers_init(buffers, tests[i].command, 0);
         err = RBRInstrument_verify(instrument, false, &actual);
         TEST_ASSERT_ENUM_EQ(tests[i].expectedError, err, RBRInstrumentError);
-        TEST_ASSERT_ENUM_EQ(tests[i].expectedMessage.type,
-                            instrument->message.type,
-                            RBRInstrumentMessageType);
-        TEST_ASSERT_EQ(tests[i].expectedMessage.number,
-                       instrument->message.number,
+        TEST_ASSERT_ENUM_EQ(tests[i].expectedResponse.type,
+                            instrument->response.type,
+                            RBRInstrumentResponseType);
+        TEST_ASSERT_EQ(tests[i].expectedResponse.error,
+                       instrument->response.error,
                        "%" PRIi32);
         TEST_ASSERT_ENUM_EQ(tests[i].expected,
                             actual,
@@ -51,8 +51,8 @@ TEST_LOGGER2(verify)
             "verify = pending" COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_INFO,
-                .number = 0
+                .type = RBRINSTRUMENT_RESPONSE_INFO,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_NONE
             },
             RBRINSTRUMENT_STATUS_PENDING
         },
@@ -60,8 +60,8 @@ TEST_LOGGER2(verify)
             "verify = logging" COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_INFO,
-                .number = 0
+                .type = RBRINSTRUMENT_RESPONSE_INFO,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_NONE
             },
             RBRINSTRUMENT_STATUS_LOGGING
         },
@@ -70,8 +70,8 @@ TEST_LOGGER2(verify)
             COMMAND_TERMINATOR,
             RBRINSTRUMENT_HARDWARE_ERROR,
             {
-                .type = RBRINSTRUMENT_MESSAGE_ERROR,
-                .number = 402
+                .type = RBRINSTRUMENT_RESPONSE_ERROR,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_MEMORY_NOT_EMPTY_ERASE_FIRST
             },
             RBRINSTRUMENT_UNKNOWN_STATUS
         },
@@ -80,8 +80,8 @@ TEST_LOGGER2(verify)
             COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_WARNING,
-                .number = 401
+                .type = RBRINSTRUMENT_RESPONSE_WARNING,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_ESTIMATED_MEMORY_USAGE_EXCEEDS_CAPACITY
             },
             RBRINSTRUMENT_STATUS_LOGGING
         },
@@ -98,8 +98,8 @@ TEST_LOGGER3(verify)
             "verify status = pending, warning = none" COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_INFO,
-                .number = 0
+                .type = RBRINSTRUMENT_RESPONSE_INFO,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_NONE
             },
             RBRINSTRUMENT_STATUS_PENDING
         },
@@ -107,8 +107,8 @@ TEST_LOGGER3(verify)
             "verify status = logging, warning = none" COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_INFO,
-                .number = 0
+                .type = RBRINSTRUMENT_RESPONSE_INFO,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_NONE
             },
             RBRINSTRUMENT_STATUS_LOGGING
         },
@@ -116,8 +116,8 @@ TEST_LOGGER3(verify)
             "E0402 memory not empty, erase first" COMMAND_TERMINATOR,
             RBRINSTRUMENT_HARDWARE_ERROR,
             {
-                .type = RBRINSTRUMENT_MESSAGE_ERROR,
-                .number = 402
+                .type = RBRINSTRUMENT_RESPONSE_ERROR,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_MEMORY_NOT_EMPTY_ERASE_FIRST
             },
             RBRINSTRUMENT_UNKNOWN_STATUS
         },
@@ -125,8 +125,8 @@ TEST_LOGGER3(verify)
             "verify status = logging, warning = W0401" COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_WARNING,
-                .number = 401
+                .type = RBRINSTRUMENT_RESPONSE_WARNING,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_ESTIMATED_MEMORY_USAGE_EXCEEDS_CAPACITY
             },
             RBRINSTRUMENT_STATUS_LOGGING
         },
@@ -148,11 +148,11 @@ static bool test_enable(RBRInstrument *instrument,
         TestIOBuffers_init(buffers, tests[i].command, 0);
         err = RBRInstrument_enable(instrument, false, &actual);
         TEST_ASSERT_ENUM_EQ(tests[i].expectedError, err, RBRInstrumentError);
-        TEST_ASSERT_ENUM_EQ(tests[i].expectedMessage.type,
-                            instrument->message.type,
-                            RBRInstrumentMessageType);
-        TEST_ASSERT_EQ(tests[i].expectedMessage.number,
-                       instrument->message.number,
+        TEST_ASSERT_ENUM_EQ(tests[i].expectedResponse.type,
+                            instrument->response.type,
+                            RBRInstrumentResponseType);
+        TEST_ASSERT_EQ(tests[i].expectedResponse.error,
+                       instrument->response.error,
                        "%" PRIi32);
         TEST_ASSERT_ENUM_EQ(tests[i].expected,
                             actual,
@@ -169,8 +169,8 @@ TEST_LOGGER2(enable)
             "enable = pending" COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_INFO,
-                .number = 0
+                .type = RBRINSTRUMENT_RESPONSE_INFO,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_NONE
             },
             RBRINSTRUMENT_STATUS_PENDING
         },
@@ -178,8 +178,8 @@ TEST_LOGGER2(enable)
             "enable = logging" COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_INFO,
-                .number = 0
+                .type = RBRINSTRUMENT_RESPONSE_INFO,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_NONE
             },
             RBRINSTRUMENT_STATUS_LOGGING
         },
@@ -188,8 +188,8 @@ TEST_LOGGER2(enable)
             COMMAND_TERMINATOR,
             RBRINSTRUMENT_HARDWARE_ERROR,
             {
-                .type = RBRINSTRUMENT_MESSAGE_ERROR,
-                .number = 402
+                .type = RBRINSTRUMENT_RESPONSE_ERROR,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_MEMORY_NOT_EMPTY_ERASE_FIRST
             },
             RBRINSTRUMENT_UNKNOWN_STATUS
         },
@@ -198,8 +198,8 @@ TEST_LOGGER2(enable)
             COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_WARNING,
-                .number = 401
+                .type = RBRINSTRUMENT_RESPONSE_WARNING,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_ESTIMATED_MEMORY_USAGE_EXCEEDS_CAPACITY
             },
             RBRINSTRUMENT_STATUS_LOGGING
         },
@@ -216,8 +216,8 @@ TEST_LOGGER3(enable)
             "enable status = pending, warning = none" COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_INFO,
-                .number = 0
+                .type = RBRINSTRUMENT_RESPONSE_INFO,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_NONE
             },
             RBRINSTRUMENT_STATUS_PENDING
         },
@@ -225,8 +225,8 @@ TEST_LOGGER3(enable)
             "enable status = logging, warning = none" COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_INFO,
-                .number = 0
+                .type = RBRINSTRUMENT_RESPONSE_INFO,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_NONE
             },
             RBRINSTRUMENT_STATUS_LOGGING
         },
@@ -234,8 +234,8 @@ TEST_LOGGER3(enable)
             "E0402 memory not empty, erase first" COMMAND_TERMINATOR,
             RBRINSTRUMENT_HARDWARE_ERROR,
             {
-                .type = RBRINSTRUMENT_MESSAGE_ERROR,
-                .number = 402
+                .type = RBRINSTRUMENT_RESPONSE_ERROR,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_MEMORY_NOT_EMPTY_ERASE_FIRST
             },
             RBRINSTRUMENT_UNKNOWN_STATUS
         },
@@ -243,8 +243,8 @@ TEST_LOGGER3(enable)
             "enable status = logging, warning = W0401" COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_WARNING,
-                .number = 401
+                .type = RBRINSTRUMENT_RESPONSE_WARNING,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_ESTIMATED_MEMORY_USAGE_EXCEEDS_CAPACITY
             },
             RBRINSTRUMENT_STATUS_LOGGING
         },
@@ -266,11 +266,11 @@ static bool test_disable(RBRInstrument *instrument,
         TestIOBuffers_init(buffers, tests[i].command, 0);
         err = RBRInstrument_disable(instrument, &actual);
         TEST_ASSERT_ENUM_EQ(tests[i].expectedError, err, RBRInstrumentError);
-        TEST_ASSERT_ENUM_EQ(tests[i].expectedMessage.type,
-                            instrument->message.type,
-                            RBRInstrumentMessageType);
-        TEST_ASSERT_EQ(tests[i].expectedMessage.number,
-                       instrument->message.number,
+        TEST_ASSERT_ENUM_EQ(tests[i].expectedResponse.type,
+                            instrument->response.type,
+                            RBRInstrumentResponseType);
+        TEST_ASSERT_EQ(tests[i].expectedResponse.error,
+                       instrument->response.error,
                        "%" PRIi32);
         TEST_ASSERT_ENUM_EQ(tests[i].expected,
                             actual,
@@ -287,8 +287,8 @@ TEST_LOGGER2(stop)
             "stop = stopped" COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_INFO,
-                .number = 0
+                .type = RBRINSTRUMENT_RESPONSE_INFO,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_NONE
             },
             RBRINSTRUMENT_STATUS_STOPPED
         },
@@ -296,8 +296,8 @@ TEST_LOGGER2(stop)
             "E0406 not logging, stop = stopped" COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_WARNING,
-                .number = 406
+                .type = RBRINSTRUMENT_RESPONSE_WARNING,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_NOT_LOGGING
             },
             RBRINSTRUMENT_STATUS_STOPPED
         },
@@ -305,8 +305,8 @@ TEST_LOGGER2(stop)
             "E0406 not logging, stop = fullandstopped" COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_WARNING,
-                .number = 406
+                .type = RBRINSTRUMENT_RESPONSE_WARNING,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_NOT_LOGGING
             },
             RBRINSTRUMENT_STATUS_FULLANDSTOPPED
         },
@@ -314,8 +314,8 @@ TEST_LOGGER2(stop)
             "E0406 not logging, stop = disabled" COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_WARNING,
-                .number = 406
+                .type = RBRINSTRUMENT_RESPONSE_WARNING,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_NOT_LOGGING
             },
             RBRINSTRUMENT_STATUS_DISABLED
         },
@@ -332,8 +332,8 @@ TEST_LOGGER3(disable)
             "disable status = stopped" COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_INFO,
-                .number = 0
+                .type = RBRINSTRUMENT_RESPONSE_INFO,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_NONE
             },
             RBRINSTRUMENT_STATUS_STOPPED
         },
@@ -341,8 +341,8 @@ TEST_LOGGER3(disable)
             "disable status = fullandstopped" COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_INFO,
-                .number = 0
+                .type = RBRINSTRUMENT_RESPONSE_INFO,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_NONE
             },
             RBRINSTRUMENT_STATUS_FULLANDSTOPPED
         },
@@ -350,8 +350,8 @@ TEST_LOGGER3(disable)
             "disable status = disabled" COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
-                .type = RBRINSTRUMENT_MESSAGE_INFO,
-                .number = 0
+                .type = RBRINSTRUMENT_RESPONSE_INFO,
+                .error = RBRINSTRUMENT_HARDWARE_ERROR_NONE
             },
             RBRINSTRUMENT_STATUS_DISABLED
         },

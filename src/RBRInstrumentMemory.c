@@ -56,7 +56,7 @@ RBRInstrumentError RBRInstrument_getMemoryInfo(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->message.message,
+        more = RBRInstrument_parseResponse(instrument->response.response,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "dataset") == 0)
@@ -84,7 +84,7 @@ static RBRInstrumentError RBRInstrumentL2_parseDataResponse(
     RBRInstrument *instrument,
     RBRInstrumentData *data)
 {
-    sscanf(instrument->message.message,
+    sscanf(instrument->response.response,
            "data %d %d %d",
            (int *) &data->dataset,
            &data->size,
@@ -101,7 +101,7 @@ static RBRInstrumentError RBRInstrumentL3_parseDataResponse(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->message.message,
+        more = RBRInstrument_parseResponse(instrument->response.response,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "dataset") == 0)
@@ -273,9 +273,7 @@ RBRInstrumentError RBRInstrument_readData(RBRInstrument *instrument,
     uint16_t calculatedCrc = calculateCrc(data->data, workingData.size);
     if (calculatedCrc != crc.value)
     {
-        instrument->message.type = RBRINSTRUMENT_MESSAGE_ERROR;
-        instrument->message.message = NULL;
-        return RBRINSTRUMENT_HARDWARE_ERROR;
+        return RBRINSTRUMENT_CHECKSUM_ERROR;
     }
 
     memcpy(data, &workingData, sizeof(RBRInstrumentData));
@@ -347,7 +345,7 @@ RBRInstrumentError RBRInstrument_getAvailableMemoryFormats(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->message.message,
+        more = RBRInstrument_parseResponse(instrument->response.response,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "availabletypes") != 0
@@ -398,7 +396,7 @@ RBRInstrumentError RBRInstrument_getCurrentMemoryFormat(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->message.message,
+        more = RBRInstrument_parseResponse(instrument->response.response,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "type") != 0)
@@ -437,7 +435,7 @@ RBRInstrumentError RBRInstrument_getNewMemoryFormat(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->message.message,
+        more = RBRInstrument_parseResponse(instrument->response.response,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "newtype") != 0)

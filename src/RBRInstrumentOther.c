@@ -133,7 +133,7 @@ RBRInstrumentError RBRInstrument_getId(RBRInstrument *instrument,
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->message.message,
+        more = RBRInstrument_parseResponse(instrument->response.response,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "model") == 0)
@@ -181,7 +181,7 @@ RBRInstrumentError RBRInstrument_getHardwareRevision(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->message.message,
+        more = RBRInstrument_parseResponse(instrument->response.response,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "pcb") == 0)
@@ -244,7 +244,7 @@ RBRInstrumentError RBRInstrument_getPower(RBRInstrument *instrument,
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->message.message,
+        more = RBRInstrument_parseResponse(instrument->response.response,
                                            &command,
                                            &parameter);
 
@@ -355,7 +355,7 @@ RBRInstrumentError RBRInstrument_getPowerInternal(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->message.message,
+        more = RBRInstrument_parseResponse(instrument->response.response,
                                            &command,
                                            &parameter);
 
@@ -486,7 +486,7 @@ RBRInstrumentError RBRInstrument_getPowerExternal(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->message.message,
+        more = RBRInstrument_parseResponse(instrument->response.response,
                                            &command,
                                            &parameter);
 

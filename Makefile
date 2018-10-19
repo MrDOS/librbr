@@ -53,6 +53,7 @@ lib: bin bin/librbr.a(src/RBRInstrument.o \
                       src/RBRInstrumentDeployment.o \
                       src/RBRInstrumentFetching.o \
                       src/RBRInstrumentGating.o \
+                      src/RBRInstrumentHardwareErrors.o \
                       src/RBRInstrumentInternal.o \
                       src/RBRInstrumentMemory.o \
                       src/RBRInstrumentOther.o \

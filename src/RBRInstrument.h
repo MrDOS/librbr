@@ -24,6 +24,8 @@ extern "C" {
 #include <stdbool.h>
 #include <stdlib.h>
 
+#include "RBRInstrumentHardwareErrors.h"
+
 /**
  * \brief The size of the buffer storing commands destined for the instrument.
  *
@@ -179,9 +181,11 @@ typedef enum RBRInstrumentError
     /**
      * The physical instrument reported a warning or error.
      *
-     * \see RBRInstrument_getLastMessage()
+     * \see RBRInstrument_getLastHardwareError()
      */
     RBRINSTRUMENT_HARDWARE_ERROR,
+    /** A CRC check failed. */
+    RBRINSTRUMENT_CHECKSUM_ERROR,
     /** The given value is out of bounds or otherwise unsuitable. */
     RBRINSTRUMENT_INVALID_PARAMETER_VALUE,
     /**
@@ -473,76 +477,72 @@ typedef struct RBRInstrumentCallbacks
 } RBRInstrumentCallbacks;
 
 /**
- * \brief The types of messages returned by the instrument.
+ * \brief The types of responses returned by the instrument.
  *
- * Used by RBRInstrumentMessage.
+ * Used by RBRInstrumentResponse.
  */
-typedef enum RBRInstrumentMessageType
+typedef enum RBRInstrumentResponseType
 {
-    /** A success indicator or informational message. */
-    RBRINSTRUMENT_MESSAGE_INFO,
+    /** A success indicator or informational response. */
+    RBRINSTRUMENT_RESPONSE_INFO,
     /** Typically indicates that the command succeeded but with caveats. */
-    RBRINSTRUMENT_MESSAGE_WARNING,
+    RBRINSTRUMENT_RESPONSE_WARNING,
     /** A command failure. */
-    RBRINSTRUMENT_MESSAGE_ERROR,
+    RBRINSTRUMENT_RESPONSE_ERROR,
     /** The number of specific types. */
-    RBRINSTRUMENT_MESSAGE_TYPE_COUNT,
-    /** The message has been incorrectly or incompletely populated. */
-    RBRINSTRUMENT_MESSAGE_UNKNOWN_TYPE
-} RBRInstrumentMessageType;
+    RBRINSTRUMENT_RESPONSE_TYPE_COUNT,
+    /** The response has been incorrectly or incompletely populated. */
+    RBRINSTRUMENT_RESPONSE_UNKNOWN_TYPE
+} RBRInstrumentResponseType;
 
 /**
- * \brief Get a human-readable string name for a message type.
+ * \brief Get a human-readable string name for a response type.
  *
- * \param [in] type the message type
- * \return a string name for the message type
+ * \param [in] type the response type
+ * \return a string name for the response type
  * \see RBRInstrumentError_name() for a description of the format of names
  */
-const char *RBRInstrumentMessageType_name(RBRInstrumentMessageType type);
+const char *RBRInstrumentResponseType_name(RBRInstrumentResponseType type);
 
 /**
- * \brief A warning or error returned by the instrument.
- *
- * For a non-comprehensive list of possible error messages, see the [command
- * reference page on error messages][messages].
- *
- * [messages]: https://docs.rbr-global.com/L3commandreference/error-messages
+ * \brief A command response returned by the instrument.
  */
-typedef struct RBRInstrumentMessage
+typedef struct RBRInstrumentResponse
 {
     /**
-     * \brief The type of this message: informational, warning, or error.
+     * \brief The type of this response: informational, warning, or error.
      *
      * Successful commands, as indicated by the command having returned
-     * #RBRINSTRUMENT_SUCCESS, may yield informational or warning messages
-     * (types #RBRINSTRUMENT_MESSAGE_INFO and #RBRINSTRUMENT_MESSAGE_WARNING,
+     * #RBRINSTRUMENT_SUCCESS, may yield informational or warning responses
+     * (types #RBRINSTRUMENT_RESPONSE_INFO and #RBRINSTRUMENT_RESPONSE_WARNING,
      * respectively). Commands having resulted in a hardware error will return
-     * #RBRINSTRUMENT_HARDWARE_ERROR and yield an error message (type
-     * #RBRINSTRUMENT_MESSAGE_ERROR). In any other case, the message is
+     * #RBRINSTRUMENT_HARDWARE_ERROR and yield an error response (type
+     * #RBRINSTRUMENT_RESPONSE_ERROR). In any other case, the response is
      * unpopulated and its contents are irrelevant (type
-     * #RBRINSTRUMENT_MESSAGE_UNKNOWN_TYPE).
+     * #RBRINSTRUMENT_RESPONSE_UNKNOWN_TYPE).
      *
-     * - Informational messages will provide only a message (number as `0`).
-     * - Warnings and errors will provide a number and occasionally a message.
-     * - Otherwise, the message number will be `0`, and the message `NULL`.
+     * - Informational responses will provide only a response (number as `0`).
+     * - Warnings and errors will provide a number and occasionally a response.
+     * - Otherwise, the response number will be `0`, and the response `NULL`.
      */
-    RBRInstrumentMessageType type;
+    RBRInstrumentResponseType type;
     /**
      * \brief The instrument warning or error number, if applicable.
      *
-     * Will be `0` for informational messages. Otherwise, will include the
+     * Will be `0` for informational responses. Otherwise, will include the
      * error number indicated by the instrument; e.g., for “E0109: feature not
-     * available”, this field will contain `109`.
+     * available”, this field will contain `109`, aka
+     * RBRINSTRUMENT_HARDWARE_ERROR_FEATURE_NOT_AVAILABLE.
      */
-    uint16_t number;
+    RBRInstrumentHardwareError error;
     /**
-     * \brief The message, if available.
+     * \brief The response, if available.
      *
      * Will be `NULL` when absent (_not_ a pointer to a 0-length string).
      * Otherwise points to a null-terminated C string.
      */
-    char *message;
-} RBRInstrumentMessage;
+    char *response;
+} RBRInstrumentResponse;
 
 /**
  * \brief Core library context object.
@@ -613,21 +613,19 @@ typedef struct RBRInstrument
      *
      * Intentionally not a `char` array to discourage the use of `str`
      * functions. Responses may contain binary data and should not be assumed
-     * to be null-terminated. \ref RBRInstrumentMessage.message, when non-null,
-     * provides a null-terminated, C-string-safe access to the response.
+     * to be null-terminated. \ref RBRInstrumentResponse.response, when
+     * non-`NULL`, provides null-terminated, C-string access to the response.
      */
     uint8_t responseBuffer[RBRINSTRUMENT_RESPONSE_BUFFER_MAX];
 
     /**
-     * \brief The most recent message received from the instrument.
+     * \brief The most recent response received from the instrument.
      *
-     * After parsing a command response, the verbatim response is left in the
-     * response buffer until we begin receiving the next response. The message
-     * pointer on the instrument message struct points into the response buffer
-     * appropriately: to the beginning of the error message if one is present;
-     * otherwise, to the beginning of the response.
+     * After the response parser identifies and terminates a command response,
+     * attributes of the response and its beginning position within the
+     * response buffer are recorded within this struct.
      */
-    RBRInstrumentMessage message;
+    RBRInstrumentResponse response;
 
     /**
      * \brief Whether the instance memory was dynamically allocated by the
@@ -762,26 +760,16 @@ void *RBRInstrument_getUserData(const RBRInstrument *instrument);
 void RBRInstrument_setUserData(RBRInstrument *instrument, void *userData);
 
 /**
- * \brief Get the most recent message returned by the instrument.
+ * \brief Get the error which resulted from the last instrument command, if
+ *        applicable.
  *
- * The fields of the message vary based on the status returned by the
- * most-recently-executed instrument communication. See RBRInstrumentMessage
- * for details.
+ * If the instrument responded with an error or a warning to the last command,
+ * this function returns that error. Otherwise, and before any commands have
+ * been issued to the instrument, it returns RBRINSTRUMENT_HARDWARE_ERROR_NONE.
  *
  * Note that this information is _not_ recorded by the instrument: it is
  * recorded by the library as responses are parsed. Accordingly, the value will
  * not persist across instrument connections.
- *
- * The buffer used by RBRInstrumentMessage.message will change whenever
- * instrument communication occurs. The message should be considered invalid
- * after making any subsequent calls for the same instrument instance. If you
- * need to retain a copy of the message, you should `strcpy()` it to your own
- * buffer and update the struct pointer.
- *
- * If the most recent instrument communication returned anything other than
- * #RBRINSTRUMENT_SUCCESS or #RBRINSTRUMENT_HARDWARE_ERROR, the message type
- * will be reset to #RBRINSTRUMENT_MESSAGE_UNKNOWN_TYPE, the message number to
- * 0, and the message string to `NULL`.
  *
  * Error messages can be quite long: in particular, errors E0102 (“invalid
  * command '<unknown-command-name>'”) and E0108 (“invalid argument to command:
@@ -789,10 +777,47 @@ void RBRInstrument_setUserData(RBRInstrument *instrument, void *userData);
  * perform bounds-checking as necessary when consuming them.
  *
  * \param [in] instrument the instrument connection
- * \return message the message
- * \see RBRInstrumentMessage for details on field contents by message type
+ * \return the last error
+ * \see RBRInstrument_getLastHardwareErrorMessage() for the error message
  */
-const RBRInstrumentMessage *RBRInstrument_getLastMessage(
+RBRInstrumentHardwareError RBRInstrument_getLastHardwareError(
+    const RBRInstrument *instrument);
+
+/**
+ * \brief Get the error message which resulted from the last instrument
+ *        command, if applicable.
+ *
+ * If the last instrument command returned #RBRINSTRUMENT_HARDWARE_ERROR and an
+ * error message is available, this function returns the verbatim error
+ * message. Otherwise, and before any commands have been issued to the
+ * instrument, it returns `NULL`.
+ *
+ * This function differs from RBRInstrumentHardwareError_name() in that it
+ * returns the literal message produced by the instrument. This may include
+ * instance-specific error details (e.g., in the case of an invalid parameter,
+ * exactly which parameter was invalid). However, the enum name is a good
+ * fallback for cases where no message is available (e.g., warnings).
+ *
+ * Note that this information is _not_ recorded by the instrument: it is
+ * recorded by the library as responses are parsed. Accordingly, the value will
+ * not persist across instrument connections.
+ *
+ * The buffer into which the return value points will change whenever
+ * instrument communication occurs. The message should be considered invalid
+ * after making any subsequent calls to the same instrument instance. If you
+ * need to retain a copy of the message, you should `strcpy()` it to your own
+ * buffer.
+ *
+ * Error messages can be quite long: in particular, errors E0102 (“invalid
+ * command '<unknown-command-name>'”) and E0108 (“invalid argument to command:
+ * '<invalid-argument>'”) both include user-provided data. Make sure you
+ * perform bounds-checking as necessary when consuming them.
+ *
+ * \param [in] instrument the instrument connection
+ * \return the last error message
+ * \see RBRInstrument_getLastHardwareError() for the error number/presence
+ */
+const char *RBRInstrument_getLastHardwareErrorMessage(
     const RBRInstrument *instrument);
 
 /* To help keep declarations and documentation organized and discoverable,

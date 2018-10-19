@@ -51,17 +51,15 @@
 /* The length of an error number plus trailing space: “Exxxx ”. */
 #define ERROR_LEN 6
 
-#define ERROR_INVALID_COMMAND 102
-
 /*
  * Logger2 instruments don't distinguish between warnings and errors. Some of
  * the “errors” produced by `verify`/`enable`/`stop` are non-fatal, but the
  * output doesn't distinguish between them – the consumer needs to be aware of
  * the difference. This is a list of error numbers which are actually warnings.
  */
-static const int32_t WARNING_NUMBERS[] = {
-    401,
-    406
+static const RBRInstrumentHardwareError WARNING_NUMBERS[] = {
+    RBRINSTRUMENT_HARDWARE_ERROR_ESTIMATED_MEMORY_USAGE_EXCEEDS_CAPACITY,
+    RBRINSTRUMENT_HARDWARE_ERROR_NOT_LOGGING
 };
 #define WARNING_NUMBER_COUNT \
     ((long) (sizeof(WARNING_NUMBERS) / sizeof(WARNING_NUMBERS[0])))
@@ -423,7 +421,7 @@ static RBRInstrumentError RBRInstrumentSample_parse(
 /**
  * \brief Check for errors or warnings in an instrument response.
  *
- * Updates RBRInstrument.message as appropriate.
+ * Updates RBRInstrument.response as appropriate.
  *
  * \param [in,out] instrument the instrument connection
  * \param [in] beginning the beginning of the textual response
@@ -444,17 +442,17 @@ static RBRInstrumentError RBRInstrument_errorCheckResponse(
      */
     if (*beginning == 'E')
     {
-        instrument->message.type = RBRINSTRUMENT_MESSAGE_ERROR;
-        instrument->message.number = strtol(beginning + 1, NULL, 10);
+        instrument->response.type = RBRINSTRUMENT_RESPONSE_ERROR;
+        instrument->response.error = strtol(beginning + 1, NULL, 10);
         /* Make sure we actually have a message to go along with the error.
          * There should be one, but it's best to play safe. */
         if (end - beginning >= ERROR_LEN)
         {
-            instrument->message.message = beginning + ERROR_LEN;
+            instrument->response.response = beginning + ERROR_LEN;
         }
         else
         {
-            instrument->message.message = NULL;
+            instrument->response.response = NULL;
         }
 
         /* Logger2 instruments don't distinguish between warnings and errors,
@@ -464,12 +462,12 @@ static RBRInstrumentError RBRInstrument_errorCheckResponse(
         {
             for (int i = 0; i < WARNING_NUMBER_COUNT; ++i)
             {
-                if (instrument->message.number != WARNING_NUMBERS[i])
+                if (instrument->response.error != WARNING_NUMBERS[i])
                 {
                     continue;
                 }
 
-                instrument->message.type = RBRINSTRUMENT_MESSAGE_WARNING;
+                instrument->response.type = RBRINSTRUMENT_RESPONSE_WARNING;
 
                 /*
                  * The actual command response will be after the warning, so
@@ -479,16 +477,16 @@ static RBRInstrumentError RBRInstrument_errorCheckResponse(
                  * containing commas. However, while there are multiple error
                  * messages which contain commas, there are no such warnings.
                  */
-                if (instrument->message.message != NULL)
+                if (instrument->response.response != NULL)
                 {
-                    instrument->message.message = strchr(
-                        instrument->message.message,
+                    instrument->response.response = strchr(
+                        instrument->response.response,
                         ',');
                 }
 
-                if (instrument->message.message != NULL)
+                if (instrument->response.response != NULL)
                 {
-                    instrument->message.message += 2;
+                    instrument->response.response += 2;
                 }
 
                 return RBRINSTRUMENT_SUCCESS;
@@ -500,9 +498,9 @@ static RBRInstrumentError RBRInstrument_errorCheckResponse(
         return RBRINSTRUMENT_HARDWARE_ERROR;
     }
 
-    instrument->message.type = RBRINSTRUMENT_MESSAGE_INFO;
-    instrument->message.number = 0;
-    instrument->message.message = beginning;
+    instrument->response.type = RBRINSTRUMENT_RESPONSE_INFO;
+    instrument->response.error = RBRINSTRUMENT_HARDWARE_ERROR_NONE;
+    instrument->response.response = beginning;
 
     /*
      * In Logger3, warnings are at the end of a response. E.g.,
@@ -520,8 +518,8 @@ static RBRInstrumentError RBRInstrument_errorCheckResponse(
                   WARNING_PARAMETER,
                   WARNING_PARAMETER_LEN) == 0)
     {
-        instrument->message.type = RBRINSTRUMENT_MESSAGE_WARNING;
-        instrument->message.number = strtol(end - WARNING_NUMBER_LEN,
+        instrument->response.type = RBRINSTRUMENT_RESPONSE_WARNING;
+        instrument->response.error = strtol(end - WARNING_NUMBER_LEN,
                                             NULL,
                                             10);
         *(end - WARNING_PARAMETER_LEN - WARNING_NUMBER_LEN) = '\0';
@@ -534,10 +532,10 @@ RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument,
                                               bool breakOnSample,
                                               RBRInstrumentSample *sample)
 {
-    /* Reset the message state. */
-    instrument->message.type = RBRINSTRUMENT_MESSAGE_UNKNOWN_TYPE;
-    instrument->message.number = 0;
-    instrument->message.message = NULL;
+    /* Reset the response state. */
+    instrument->response.type = RBRINSTRUMENT_RESPONSE_UNKNOWN_TYPE;
+    instrument->response.error = RBRINSTRUMENT_HARDWARE_ERROR_NONE;
+    instrument->response.response = NULL;
 
     RBRInstrumentSample *sampleTarget;
     if (sample == NULL)
@@ -853,11 +851,12 @@ RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
              *   all and should be ignored.
              */
             if (err == RBRINSTRUMENT_HARDWARE_ERROR
-                && instrument->message.number == ERROR_INVALID_COMMAND)
+                && (instrument->response.error ==
+                    RBRINSTRUMENT_HARDWARE_ERROR_INVALID_COMMAND))
             {
                 /* We have no message to inspect, so we can only assume the
                  * error is legitimate and pass it along to the user. */
-                if (instrument->message.message == NULL)
+                if (instrument->response.response == NULL)
                 {
                     break;
                 }
@@ -865,7 +864,7 @@ RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
                 /* The error message indicates what the invalid command was.
                  * It's enclosed in single quotes, so we can look for those to
                  * find its bounds. */
-                char *invalidCommand = strchr(instrument->message.message,
+                char *invalidCommand = strchr(instrument->response.response,
                                               '\'');
                 if (invalidCommand == NULL)
                 {
@@ -913,8 +912,8 @@ RBRInstrumentError RBRInstrument_converse(RBRInstrument *instrument,
             {
                 break;
             }
-        } while ((instrument->message.message == NULL
-                  || memcmp(instrument->message.message,
+        } while ((instrument->response.response == NULL
+                  || memcmp(instrument->response.response,
                             commandResponse,
                             commandLength) != 0));
     } while (retry);
@@ -938,7 +937,7 @@ RBRInstrumentError RBRInstrument_getBool(RBRInstrument *instrument,
     RBRInstrumentResponseParameter responseParameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->message.message,
+        more = RBRInstrument_parseResponse(instrument->response.response,
                                            &responseCommand,
                                            &responseParameter);
 
@@ -967,7 +966,7 @@ RBRInstrumentError RBRInstrument_getFloat(RBRInstrument *instrument,
     RBRInstrumentResponseParameter responseParameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->message.message,
+        more = RBRInstrument_parseResponse(instrument->response.response,
                                            &responseCommand,
                                            &responseParameter);
 
@@ -996,7 +995,7 @@ RBRInstrumentError RBRInstrument_getInt(RBRInstrument *instrument,
     RBRInstrumentResponseParameter responseParameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->message.message,
+        more = RBRInstrument_parseResponse(instrument->response.response,
                                            &responseCommand,
                                            &responseParameter);
 

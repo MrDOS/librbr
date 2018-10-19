@@ -109,8 +109,8 @@ RBRInstrumentError RBRInstrument_sendCommand(RBRInstrument *instrument,
  * appended to any trailing incomplete response. Some minor parsing of the
  * response will be performed: any leading prompt will be stripped off; the
  * carriage return portion of the response line terminator will be replaced
- * with a null terminator; and RBRInstrument.message and
- * RBRInstrument.messageLength will be populated appropriately.
+ * with a null terminator; and RBRInstrument.response and
+ * RBRInstrument.lastResponseLength will be populated appropriately.
  *
  * If \a breakOnSample is true, then the function will return
  * #RBRINSTRUMENT_SAMPLE immediately after parsing a sample. Otherwise, it will

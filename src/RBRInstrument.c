@@ -31,6 +31,8 @@ const char *RBRInstrumentError_name(RBRInstrumentError error)
         return "success";
     case RBRINSTRUMENT_ALLOCATION_FAILURE:
         return "allocation failure";
+    case RBRINSTRUMENT_BUFFER_TOO_SMALL:
+        return "buffer too small";
     case RBRINSTRUMENT_MISSING_CALLBACK:
         return "missing callback";
     case RBRINSTRUMENT_CALLBACK_ERROR:
@@ -41,6 +43,8 @@ const char *RBRInstrumentError_name(RBRInstrumentError error)
         return "unsupported";
     case RBRINSTRUMENT_HARDWARE_ERROR:
         return "hardware error";
+    case RBRINSTRUMENT_CHECKSUM_ERROR:
+        return "checksum error";
     case RBRINSTRUMENT_INVALID_PARAMETER_VALUE:
         return "invalid parameter value";
     case RBRINSTRUMENT_SAMPLE:
@@ -71,21 +75,21 @@ const char *RBRInstrumentGeneration_name(RBRInstrumentGeneration generation)
     }
 }
 
-const char *RBRInstrumentMessageType_name(RBRInstrumentMessageType type)
+const char *RBRInstrumentResponseType_name(RBRInstrumentResponseType type)
 {
     switch (type)
     {
-    case RBRINSTRUMENT_MESSAGE_INFO:
+    case RBRINSTRUMENT_RESPONSE_INFO:
         return "info";
-    case RBRINSTRUMENT_MESSAGE_WARNING:
+    case RBRINSTRUMENT_RESPONSE_WARNING:
         return "warning";
-    case RBRINSTRUMENT_MESSAGE_ERROR:
+    case RBRINSTRUMENT_RESPONSE_ERROR:
         return "error";
-    case RBRINSTRUMENT_MESSAGE_TYPE_COUNT:
-        return "type count";
-    case RBRINSTRUMENT_MESSAGE_UNKNOWN_TYPE:
+    case RBRINSTRUMENT_RESPONSE_TYPE_COUNT:
+        return "response type count";
+    case RBRINSTRUMENT_RESPONSE_UNKNOWN_TYPE:
     default:
-        return "unknown type";
+        return "unknown response type";
     }
 }
 
@@ -150,7 +154,7 @@ RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
     (*instrument)->callbacks.sample  = NULL;
     (*instrument)->userData          = userData;
     (*instrument)->lastActivityTime  = RBRINSTRUMENT_NO_ACTIVITY;
-    (*instrument)->message.type      = RBRINSTRUMENT_MESSAGE_UNKNOWN_TYPE;
+    (*instrument)->response.type     = RBRINSTRUMENT_RESPONSE_UNKNOWN_TYPE;
     (*instrument)->managedAllocation = allocated;
 
     RBRInstrumentError err;
@@ -207,8 +211,29 @@ void RBRInstrument_setUserData(RBRInstrument *instrument, void *userData)
     instrument->userData = userData;
 }
 
-const RBRInstrumentMessage *RBRInstrument_getLastMessage(
+RBRInstrumentHardwareError RBRInstrument_getLastHardwareError(
     const RBRInstrument *instrument)
 {
-    return &instrument->message;
+    if (instrument->response.type == RBRINSTRUMENT_RESPONSE_ERROR
+        || instrument->response.type == RBRINSTRUMENT_RESPONSE_WARNING)
+    {
+        return instrument->response.error;
+    }
+    else
+    {
+        return RBRINSTRUMENT_HARDWARE_ERROR_NONE;
+    }
+}
+
+const char *RBRInstrument_getLastHardwareErrorMessage(
+    const RBRInstrument *instrument)
+{
+    if (instrument->response.type == RBRINSTRUMENT_RESPONSE_ERROR)
+    {
+        return instrument->response.response;
+    }
+    else
+    {
+        return NULL;
+    }
 }

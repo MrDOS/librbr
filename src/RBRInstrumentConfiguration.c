@@ -18,8 +18,6 @@
 #include "RBRInstrument.h"
 #include "RBRInstrumentInternal.h"
 
-#define FEATURE_NOT_AVAILABLE 109
-
 static RBRInstrumentError RBRInstrument_getCalibrations(
     RBRInstrument *instrument,
     RBRInstrumentChannels *channels)
@@ -54,7 +52,7 @@ static RBRInstrumentError RBRInstrument_getCalibrations(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->message.message,
+        more = RBRInstrument_parseResponse(instrument->response.response,
                                            &command,
                                            &parameter);
 
@@ -130,7 +128,7 @@ static RBRInstrumentError RBRInstrument_getChannelAll(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->message.message,
+        more = RBRInstrument_parseResponse(instrument->response.response,
                                            &command,
                                            &parameter);
 
@@ -203,7 +201,7 @@ RBRInstrumentError RBRInstrument_getChannels(RBRInstrument *instrument,
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->message.message,
+        more = RBRInstrument_parseResponse(instrument->response.response,
                                            &command,
                                            &parameter);
 
@@ -460,9 +458,10 @@ RBRInstrumentError RBRInstrument_getSensorParameters(
 
     if (instrument->generation == RBRINSTRUMENT_LOGGER2
         && err == RBRINSTRUMENT_HARDWARE_ERROR
-        && instrument->message.number == FEATURE_NOT_AVAILABLE)
+        && (instrument->response.error ==
+            RBRINSTRUMENT_HARDWARE_ERROR_FEATURE_NOT_AVAILABLE))
     {
-        instrument->message.type = RBRINSTRUMENT_MESSAGE_INFO;
+        instrument->response.type = RBRINSTRUMENT_RESPONSE_INFO;
         return RBRINSTRUMENT_SUCCESS;
     }
     else if (err != RBRINSTRUMENT_SUCCESS)
@@ -478,7 +477,7 @@ RBRInstrumentError RBRInstrument_getSensorParameters(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->message.message,
+        more = RBRInstrument_parseResponse(instrument->response.response,
                                            &command,
                                            &parameter);
 
