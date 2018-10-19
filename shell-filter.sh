@@ -4,7 +4,6 @@
 ##
 ## \brief Doxygen filter for makefiles/shell scripts.
 ##
-## \author Samuel Coleman <samuel.coleman@rbr-global.com>
 ## \copyright Copyright (c) 2017 RBR Ltd
 
 # We want Doxygen to handle lines starting with “##” so we'll re-prefix with
