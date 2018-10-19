@@ -56,7 +56,7 @@ RBRInstrumentError RBRInstrument_getMemoryInfo(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "dataset") == 0)
@@ -101,7 +101,7 @@ static RBRInstrumentError RBRInstrumentL3_parseDataResponse(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "dataset") == 0)
@@ -345,7 +345,7 @@ RBRInstrumentError RBRInstrument_getAvailableMemoryFormats(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "availabletypes") != 0
@@ -396,7 +396,7 @@ RBRInstrumentError RBRInstrument_getCurrentMemoryFormat(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "type") != 0)
@@ -435,7 +435,7 @@ RBRInstrumentError RBRInstrument_getNewMemoryFormat(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "newtype") != 0)

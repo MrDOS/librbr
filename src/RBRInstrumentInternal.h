@@ -272,15 +272,15 @@ typedef struct RBRInstrumentResponseParameter
  * `calibration alllabels`), then \a parameter.index is incremented whenever
  * the delimiter is found.
  *
- * This function mutates the buffer. As such, it can't be called more than once
- * on the same input.
+ * This function mutates the instrument response buffer. As such, it can't be
+ * called more than once on the same response.
  *
- * \param [in,out] buffer the buffer holding the response
+ * \param [in] instrument the instrument connection
  * \param [in,out] command the name of the command as indicated by the response
  * \param [in,out] parameter the most-recently-parsed response parameter
  * \return whether there are any more parameters to parse
  */
-bool RBRInstrument_parseResponse(char *buffer,
+bool RBRInstrument_parseResponse(RBRInstrument *instrument,
                                  char **command,
                                  RBRInstrumentResponseParameter *parameter);
 

@@ -46,7 +46,7 @@ RBRInstrumentError RBRInstrument_getLink(RBRInstrument *instrument,
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "link") == 0
@@ -160,7 +160,7 @@ RBRInstrumentError RBRInstrument_getSerial(RBRInstrument *instrument,
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "baudrate") == 0)
@@ -303,7 +303,7 @@ RBRInstrumentError RBRInstrument_getWiFi(RBRInstrument *instrument,
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "enabled") == 0)

@@ -24,7 +24,7 @@ static RBRInstrumentError RBRInstrument_parseDeploymentResponse(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "status") != 0
@@ -117,7 +117,7 @@ RBRInstrumentError RBRInstrument_getSimulation(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "state") == 0)

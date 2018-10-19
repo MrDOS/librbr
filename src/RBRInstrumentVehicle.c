@@ -62,7 +62,7 @@ RBRInstrumentError RBRInstrument_getRegimes(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "direction") == 0)
@@ -141,7 +141,7 @@ RBRInstrumentError RBRInstrument_getRegime(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
 
@@ -209,7 +209,7 @@ RBRInstrumentError RBRInstrument_getDirectionDependentSampling(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "direction") == 0)

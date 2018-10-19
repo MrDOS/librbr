@@ -80,7 +80,7 @@ RBRInstrumentError RBRInstrument_getThresholding(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "enabled") == 0)
@@ -233,7 +233,7 @@ RBRInstrumentError RBRInstrument_getTwistActivation(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "enabled") == 0)

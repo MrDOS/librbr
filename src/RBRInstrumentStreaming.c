@@ -41,7 +41,7 @@ RBRInstrumentError RBRInstrument_getChannelsList(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "channelslist") != 0)
@@ -101,7 +101,7 @@ RBRInstrumentError RBRInstrument_getLabelsList(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "labelslist") != 0)
@@ -180,7 +180,7 @@ RBRInstrumentError RBRInstrument_getAvailableOutputFormats(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, searchKey) != 0)
@@ -230,7 +230,7 @@ RBRInstrumentError RBRInstrument_getOutputFormat(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "type") != 0)
@@ -365,7 +365,7 @@ RBRInstrumentError RBRInstrument_getAuxOutput(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "aux1_state") == 0)

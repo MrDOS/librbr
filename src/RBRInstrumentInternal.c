@@ -588,7 +588,7 @@ RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument,
     }
 }
 
-bool RBRInstrument_parseResponse(char *buffer,
+bool RBRInstrument_parseResponse(RBRInstrument *instrument,
                                  char **command,
                                  RBRInstrumentResponseParameter *parameter)
 {
@@ -597,7 +597,7 @@ bool RBRInstrument_parseResponse(char *buffer,
     {
         memset(parameter, 0, sizeof(RBRInstrumentResponseParameter));
 
-        *command = buffer;
+        *command = instrument->response.response;
         char *commandEnd = *command;
 
         while (true)
@@ -735,11 +735,10 @@ foundCommandEnd:
         {
             separatorLength = PARAMETER_SEPARATOR_LEN;
         }
-        /* TODO: Only check the L2/L3-specific separator for that generation of
-         * instrument. Will need to take the generation as an argument. */
-        else if (memcmp(parameter->nextKey,
-                        ARRAY_SEPARATOR_L2,
-                        ARRAY_SEPARATOR_LEN_L2) == 0)
+        else if (instrument->generation == RBRINSTRUMENT_LOGGER2
+                 && memcmp(parameter->nextKey,
+                           ARRAY_SEPARATOR_L2,
+                           ARRAY_SEPARATOR_LEN_L2) == 0)
         {
             separatorLength = ARRAY_SEPARATOR_LEN_L2;
         }
@@ -937,7 +936,7 @@ RBRInstrumentError RBRInstrument_getBool(RBRInstrument *instrument,
     RBRInstrumentResponseParameter responseParameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &responseCommand,
                                            &responseParameter);
 
@@ -966,7 +965,7 @@ RBRInstrumentError RBRInstrument_getFloat(RBRInstrument *instrument,
     RBRInstrumentResponseParameter responseParameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &responseCommand,
                                            &responseParameter);
 
@@ -995,7 +994,7 @@ RBRInstrumentError RBRInstrument_getInt(RBRInstrument *instrument,
     RBRInstrumentResponseParameter responseParameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &responseCommand,
                                            &responseParameter);
 

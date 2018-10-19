@@ -52,7 +52,7 @@ static RBRInstrumentError RBRInstrument_getCalibrations(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
 
@@ -128,7 +128,7 @@ static RBRInstrumentError RBRInstrument_getChannelAll(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
 
@@ -201,7 +201,7 @@ RBRInstrumentError RBRInstrument_getChannels(RBRInstrument *instrument,
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
 
@@ -477,7 +477,7 @@ RBRInstrumentError RBRInstrument_getSensorParameters(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
 

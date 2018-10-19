@@ -41,7 +41,7 @@ static RBRInstrumentError RBRInstrument_getClockL2(RBRInstrument *instrument,
         command = NULL;
         do
         {
-            more = RBRInstrument_parseResponse(instrument->response.response,
+            more = RBRInstrument_parseResponse(instrument,
                                                &command,
                                                &parameter);
             if (strcmp(parameter.key, "offsetfromutc") != 0)
@@ -63,7 +63,7 @@ static RBRInstrumentError RBRInstrument_getClockL2(RBRInstrument *instrument,
     command = NULL;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "now") != 0)
@@ -89,7 +89,7 @@ static RBRInstrumentError RBRInstrument_getClockL3(RBRInstrument *instrument,
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "datetime") == 0)
@@ -293,7 +293,7 @@ RBRInstrumentError RBRInstrument_getSampling(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "mode") == 0)
@@ -509,7 +509,7 @@ static RBRInstrumentError RBRInstrument_getDeploymentL2(
     command = NULL;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "starttime") != 0)
@@ -527,7 +527,7 @@ static RBRInstrumentError RBRInstrument_getDeploymentL2(
     command = NULL;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "endtime") != 0)
@@ -545,7 +545,7 @@ static RBRInstrumentError RBRInstrument_getDeploymentL2(
     command = NULL;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "status") != 0)
@@ -578,7 +578,7 @@ static RBRInstrumentError RBRInstrument_getDeploymentL3(
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument->response.response,
+        more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
         if (strcmp(parameter.key, "starttime") == 0)
