@@ -8,9 +8,11 @@
 ## - `docs` will generate the documentation via Doxygen (in `docs/`)
 ## - `tests` will run library tests (from `tests/`)
 ##
-## An additional target may be useful to developers:
+## Additional targets may be useful to developers:
 ##
 ## - `clean` will remove any compiled binaries and documentation
+## - `devdocs` will generate the documentation inclusive of content only of
+##   interest to library developers
 ## - `tidy` will remove indent backup files
 ##
 ## \copyright Copyright (c) 2017 RBR Ltd
@@ -63,7 +65,11 @@ lib: bin bin/librbr.a(src/RBRInstrument.o \
 
 .PHONY: docs
 docs:
-	doxygen Doxyfile
+	doxygen Doxyfile-docs
+
+.PHONY: devdocs
+devdocs:
+	doxygen Doxyfile-devdocs
 
 tests: CFLAGS += -Isrc -Wno-error=unused-parameter
 tests: LDFLAGS += -Lbin

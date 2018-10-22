@@ -32,3 +32,5 @@ pipelines:
                 - apt-get update && apt-get -y install doxygen graphviz
                 - make clean
                 - make docs
+                - make clean
+                - make devdocs

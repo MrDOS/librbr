@@ -1,0 +1,4 @@
+@INCLUDE = Doxyfile
+
+# Developer documentation should include the test framework headers.
+INPUT += tests/tests.h

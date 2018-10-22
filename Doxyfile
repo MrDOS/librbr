@@ -13,12 +13,12 @@ instrument."
 ALIASES += "nol2=This parameter is unavailable for Logger2 instruments."
 ALIASES += "nol3=This parameter is unavailable for Logger3 instruments."
 
-# Include anything in the repository root and the library source code.
-INPUT = . src tests/tests.h
-# There should be nothing of interest (as far as documentation is concerned) in
-# the implementation files or in library-internal functions: everything
-# intended for consumption by the end user is encompassed in headers.
-EXCLUDE_PATTERNS = */src/*.c #*/src/RBRInstrumentInternal.*
+# Both consumer and developer documentation sets will be interested in anything
+# in the repository root and the library source code.
+INPUT = . src
+# And neither the consumer nor developer documentation sets will care about
+# anything in implementation files.
+EXCLUDE_PATTERNS = */src/*.c
 
 # Include the makefile and shell scripts.
 FILTER_SOURCE_FILES = YES
