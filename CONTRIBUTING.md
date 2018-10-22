@@ -4,10 +4,12 @@ We are open to pull requests.
 Before making one,
 please ensure that your code:
 
-* is tested and doesn't break any existing tests
+* is [tested] and doesn't break any existing tests
 * produces no errors or warnings
 * is documented with Doxygen commands
 * meets our style requirements (see below)
+
+[tested]: tests.md
 
 ## Style
 

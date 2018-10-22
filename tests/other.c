@@ -80,6 +80,7 @@ TEST_LOGGER3(id)
                        "serial = 923456, fwtype = 104" COMMAND_TERMINATOR,
                        0);
     RBRInstrumentError err = RBRInstrument_getId(instrument, &actual);
+    TEST_ASSERT_STR_EQ("id" COMMAND_TERMINATOR, buffers->writeBuffer);
     TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
     TEST_ASSERT_STR_EQ(expected.model, actual.model);
     TEST_ASSERT_STR_EQ(expected.version, actual.version);

@@ -3,8 +3,8 @@
  *
  * \brief Common testing definitions, structures, and functions.
  *
- * TODO: Documentation. End users shouldn't need to consume anything from this
- * file, but library developers will need to know how to write tests.
+ * End users shouldn't need to consume anything from this file, but library
+ * developers will want to consult it for insight on test authoring.
  *
  * \copyright
  * Copyright (c) 2018 RBR Ltd.
@@ -25,6 +25,15 @@ extern "C" {
 
 #include "RBRInstrument.h"
 
+/**
+ * \brief Assert that a condition is true.
+ *
+ * If the assertion fails, an error message will be printed containing the file
+ * name and line number on which the macro invocation occurs, and the
+ * surrounding function will `return false;`.
+ *
+ * \param [in] _condition the condition to test
+ */
 #define TEST_ASSERT(_condition) do { \
         if (!(_condition)) \
         { \
@@ -35,6 +44,20 @@ extern "C" {
         } \
 } while (0)
 
+/**
+ * \brief Assert that two variables are equal.
+ *
+ * If the assertion fails, an error message will be printed containing the file
+ * name and line number on which the macro invocation occurs and the expected
+ * and actual values, and the surrounding function will `return false;`.
+ *
+ * Because \a _expected, \a _actual, and \a _type will be evaluated multiple
+ * times by the macro, do not pass expressions having side effects.
+ *
+ * \param [in] _expected the expected value
+ * \param [in] _actual the actual value
+ * \param [in] _type a printf format string suitable for the values
+ */
 #define TEST_ASSERT_EQ(_expected, _actual, _type) do { \
         if ((_expected) != (_actual)) \
         { \
@@ -48,6 +71,20 @@ extern "C" {
         } \
 } while (0)
 
+/**
+ * \brief Assert that two enum members are equal.
+ *
+ * If the assertion fails, an error message will be printed containing the file
+ * name and line number on which the macro invocation occurs and the expected
+ * and actual members, and the surrounding function will `return false;`.
+ *
+ * Because \a _expected, \a _actual, and \a _type will be evaluated multiple
+ * times by the macro, do not pass expressions having side effects.
+ *
+ * \param [in] _expected the expected enum member
+ * \param [in] _actual the actual enum member
+ * \param [in] _enum the type name of the enum of which the values are members
+ */
 #define TEST_ASSERT_ENUM_EQ(_expected, _actual, _enum) do { \
         if ((_expected) != (_actual)) \
         { \
@@ -61,6 +98,19 @@ extern "C" {
         } \
 } while (0)
 
+/**
+ * \brief Assert that two strings are equal.
+ *
+ * If the assertion fails, an error message will be printed containing the file
+ * name and line number on which the macro invocation occurs and the expected
+ * and actual strings, and the surrounding function will `return false;`.
+ *
+ * Because \a _expected, \a _actual, and \a _type will be evaluated multiple
+ * times by the macro, do not pass expressions having side effects.
+ *
+ * \param [in] _expected the expected string
+ * \param [in] _actual the actual string
+ */
 #define TEST_ASSERT_STR_EQ(_expected, _actual) do { \
         if (strcmp((_expected), (_actual)) != 0) \
         { \
@@ -75,18 +125,28 @@ extern "C" {
         } \
 } while (0)
 
+/** \brief The size of the write buffer used for tests. */
 #define TESTIOBUFFERS_WRITE_BUFFER_SIZE 4096
 
+/** \brief The characters terminating an instrument command response. */
 #define COMMAND_TERMINATOR "\r\n"
-#define PROMPT "Ready: "
 
+/**
+ * \brief The I/O buffers used for tests.
+ */
 typedef struct TestIOBuffers
 {
+    /** \brief The instrument under test will read from this buffer. */
     const char *readBuffer;
+    /** \brief The size of the test read buffer. */
     int32_t readBufferSize;
+    /** \brief How far into the read buffer the instrument has read. */
     int32_t readBufferPos;
+    /** \brief The instrument under test will write back into this buffer. */
     char writeBuffer[TESTIOBUFFERS_WRITE_BUFFER_SIZE];
+    /** \brief How far into the write buffer the instrument has written. */
     int32_t writeBufferPos;
+    /** \brief The last sample received from the test instrument. */
     RBRInstrumentSample streamSample;
 } TestIOBuffers;
 
@@ -104,25 +164,70 @@ void TestIOBuffers_init(TestIOBuffers *buffers,
                         const char *readBuffer,
                         int32_t readBufferSize);
 
-/** \brief Enables the use of TEST_ASSERT_ENUM_EQ for boolean values. */
+/**
+ * \brief Get a string name for a boolean value.
+ *
+ * Enables the use of TEST_ASSERT_ENUM_EQ with boolean values.
+ *
+ * \param [in] value the boolean value
+ * \return a string name for the value
+ */
 const char *bool_name(bool value);
 
+/**
+ * \brief Declare a test function.
+ *
+ * \param [in] fn the name of the test function
+ */
 /* Uncrustify thinks that asterisks in macros are multiplication operators and
  * incorrectly adds spacing, so we'll turn *INDENT-OFF* just for this. */
 #define _TEST(fn) bool test_##fn(RBRInstrument *instrument, \
                                  TestIOBuffers *buffers)
 /* *INDENT-ON* */
+
+/**
+ * \brief Declare a test function for Logger2-generation instruments.
+ *
+ * \param [in] fn the name of the test function
+ */
 #define TEST_LOGGER2(fn) _TEST(fn##_l2)
+
+/**
+ * \brief Declare a test function for Logger2-generation instruments.
+ *
+ * \param [in] fn the name of the test function
+ */
 #define TEST_LOGGER3(fn) _TEST(fn##_l3)
 
+/**
+ * \brief A test to be run.
+ *
+ * \param instrument the instrument connection
+ * \param buffers the test I/O buffers
+ * \return whether the test passed
+ */
 typedef bool (TestFunction)(RBRInstrument *instrument, TestIOBuffers *buffers);
+
+/**
+ * \brief Declaration of a test.
+ *
+ * Instances of this struct are generated in `tests.c` at build time.
+ */
 typedef struct TestDeclaration
 {
+    /** \brief The name of the test. */
     char *name;
+    /** \brief The instrument generation to which this test applies. */
     RBRInstrumentGeneration generation;
+    /** \brief The test. to be run */
     TestFunction *function;
 } TestDeclaration;
 
+/**
+ * \brief All the tests to run.
+ *
+ * Generated in `tests.c` at build time.
+ */
 extern TestDeclaration tests[];
 
 #ifdef __cplusplus
