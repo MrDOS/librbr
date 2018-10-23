@@ -4,7 +4,9 @@
 ##
 ## \brief Doxygen filter for makefiles/shell scripts.
 ##
-## \copyright Copyright (c) 2017 RBR Ltd
+## \copyright
+## Copyright (c) 2018 RBR Ltd.
+## Licensed under the Apache License, Version 2.0.
 
 # We want Doxygen to handle lines starting with “##” so we'll re-prefix with
 # “//!”, which gets picked up by the C parser. And we want to capture

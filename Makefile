@@ -15,7 +15,9 @@
 ##   interest to library developers
 ## - `tidy` will remove indent backup files
 ##
-## \copyright Copyright (c) 2017 RBR Ltd
+## \copyright
+## Copyright (c) 2018 RBR Ltd.
+## Licensed under the Apache License, Version 2.0.
 
 ## \brief Archiver flags.
 ##
