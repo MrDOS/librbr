@@ -125,6 +125,7 @@ static RBRInstrumentError RBRInstrument_populateGeneration(
 
 RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
                                       const RBRInstrumentCallbacks *callbacks,
+                                      int64_t commandTimeout,
                                       void *userData)
 {
     if (callbacks == NULL
@@ -148,10 +149,13 @@ RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
     }
 
     memset(*instrument, 0, sizeof(RBRInstrument));
-    memcpy(&(*instrument)->callbacks, callbacks, sizeof(RBRInstrumentCallbacks));
+    memcpy(&(*instrument)->callbacks,
+           callbacks,
+           sizeof(RBRInstrumentCallbacks));
     /* We don't want the streaming sample data callback to be called before the
      * constructor has finished. */
     (*instrument)->callbacks.sample  = NULL;
+    (*instrument)->commandTimeout    = commandTimeout;
     (*instrument)->userData          = userData;
     (*instrument)->lastActivityTime  = RBRINSTRUMENT_NO_ACTIVITY;
     (*instrument)->response.type     = RBRINSTRUMENT_RESPONSE_UNKNOWN_TYPE;
@@ -199,6 +203,17 @@ RBRInstrumentGeneration RBRInstrument_getGeneration(
     const RBRInstrument *instrument)
 {
     return instrument->generation;
+}
+
+int64_t RBRInstrument_getCommandTimeout(const RBRInstrument *instrument)
+{
+    return instrument->commandTimeout;
+}
+
+void RBRInstrument_setCommandTimeout(RBRInstrument *instrument,
+                                     int64_t commandTimeout)
+{
+    instrument->commandTimeout = commandTimeout;
 }
 
 void *RBRInstrument_getUserData(const RBRInstrument *instrument)

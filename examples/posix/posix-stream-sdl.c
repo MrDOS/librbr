@@ -206,6 +206,7 @@ int main(int argc, char *argv[])
     if ((error = RBRInstrument_open(
              &instrument,
              &callbacks,
+             INSTRUMENT_COMMAND_TIMEOUT_MSEC,
              (void *) &instrumentFd)) != RBRINSTRUMENT_SUCCESS)
     {
         fprintf(stderr, "%s: Failed to establish instrument connection: %s!\n",

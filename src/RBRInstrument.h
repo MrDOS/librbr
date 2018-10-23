@@ -574,6 +574,14 @@ typedef struct RBRInstrument
     /** \brief The set of callbacks to be used by the connection. */
     RBRInstrumentCallbacks callbacks;
 
+    /**
+     * \brief The command timeout in milliseconds.
+     *
+     * See [Timeouts](timeouts.md) for details on how the library handles
+     * timeouts.
+     */
+    int64_t commandTimeout;
+
     /** \brief Arbitrary user data; useful in callbacks. */
     void *userData;
 
@@ -704,6 +712,7 @@ typedef struct RBRInstrument
  *
  * \param [in,out] instrument the context object to populate
  * \param [in] callbacks the set of callbacks to be used by the connection
+ * \param [in] commandTimeout the command timeout in milliseconds
  * \param [in] userData arbitrary user data; useful in callbacks
  * \return #RBRINSTRUMENT_SUCCESS if the instrument was opened successfully
  * \return #RBRINSTRUMENT_ALLOCATION_FAILURE if memory allocation failed
@@ -715,6 +724,7 @@ typedef struct RBRInstrument
  */
 RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
                                       const RBRInstrumentCallbacks *callbacks,
+                                      int64_t commandTimeout,
                                       void *userData);
 
 /**
@@ -737,6 +747,25 @@ RBRInstrumentError RBRInstrument_close(RBRInstrument *instrument);
  */
 RBRInstrumentGeneration RBRInstrument_getGeneration(
     const RBRInstrument *instrument);
+
+/**
+ * \brief Get the command timeout.
+ *
+ * \param [in] instrument the instrument connection
+ * \return the command timeout
+ * \see RBRInstrument_setCommandTimeout()
+ */
+int64_t RBRInstrument_getCommandTimeout(const RBRInstrument *instrument);
+
+/**
+ * \brief Set the command timeout.
+ *
+ * \param [in,out] instrument the instrument connection
+ * \param [in] commandTimeout the new command timeout
+ * \see RBRInstrument_getCommandTimeout()
+ */
+void RBRInstrument_setCommandTimeout(RBRInstrument *instrument,
+                                     int64_t commandTimeout);
 
 /**
  * \brief Get the pointer to arbitrary user data.

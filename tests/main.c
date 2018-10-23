@@ -156,7 +156,10 @@ int main()
         "id model = RBRoem, version = 1.430, serial = 999999, fwtype = 103"
         COMMAND_TERMINATOR,
         0);
-    err = RBRInstrument_open(&instrumentL2, &callbacks, &buffers);
+    err = RBRInstrument_open(&instrumentL2,
+                             &callbacks,
+                             /* command timeout */ 0,
+                             &buffers);
     if (err != RBRINSTRUMENT_SUCCESS)
     {
         fprintf(stderr,
@@ -178,7 +181,10 @@ int main()
         "id model = RBRoem3, version = 1.090, serial = 999999, fwtype = 104"
         COMMAND_TERMINATOR,
         0);
-    err = RBRInstrument_open(&instrumentL3, &callbacks, &buffers);
+    err = RBRInstrument_open(&instrumentL3,
+                             &callbacks,
+                             /* command timeout */ 0,
+                             &buffers);
     if (err != RBRINSTRUMENT_SUCCESS)
     {
         fprintf(stderr,

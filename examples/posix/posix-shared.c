@@ -43,7 +43,7 @@ int openSerialFd(char *devicePath)
     portSettings.c_cflag = B115200 | CS8 | CLOCAL | CREAD;
     portSettings.c_lflag = 0;
     portSettings.c_cc[VMIN] = 0;
-    portSettings.c_cc[VTIME] = INSTRUMENT_TIMEOUT_MSEC / 100;
+    portSettings.c_cc[VTIME] = INSTRUMENT_CHARACTER_TIMEOUT_MSEC / 100;
     if (tcsetattr(instrumentFd, TCSANOW, &portSettings) < 0)
     {
         return -1;
@@ -117,8 +117,8 @@ RBRInstrumentError instrumentWrite(const struct RBRInstrument *instrument,
         FD_SET(*instrumentFd, &instrumentFdSet);
 
         struct timeval writeTimeout = (struct timeval) {
-            .tv_sec =   INSTRUMENT_TIMEOUT_MSEC / 1000,
-            .tv_usec = (INSTRUMENT_TIMEOUT_MSEC % 1000) * 1000000
+            .tv_sec =   INSTRUMENT_CHARACTER_TIMEOUT_MSEC / 1000,
+            .tv_usec = (INSTRUMENT_CHARACTER_TIMEOUT_MSEC % 1000) * 1000000
         };
 
         /* We could just loop on write(), but we want to enforce a timeout, so

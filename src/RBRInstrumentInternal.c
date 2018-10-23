@@ -247,6 +247,7 @@ static void RBRInstrument_removeLastResponse(RBRInstrument *instrument)
  *        callback indicates a timeout.
  *
  * \param [in,out] instrument the instrument connection
+ * \param [in] startTime when we started trying to read the command response
  * \param [out] end the end of the response within the response buffer
  * \return #RBRINSTRUMENT_SUCCESS when data is successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
@@ -254,8 +255,10 @@ static void RBRInstrument_removeLastResponse(RBRInstrument *instrument)
  */
 static RBRInstrumentError RBRInstrument_readSingleResponse(
     RBRInstrument *instrument,
+    int64_t startTime,
     char **end)
 {
+    int64_t now;
     int32_t readLength;
     while ((*end = (char *) memmem(
                 instrument->responseBuffer,
@@ -263,6 +266,32 @@ static RBRInstrumentError RBRInstrument_readSingleResponse(
                 RBRINSTRUMENT_COMMAND_TERMINATOR,
                 RBRINSTRUMENT_COMMAND_TERMINATOR_LEN)) == NULL)
     {
+        /*
+         * If we're not seeing any response at all then the read callback
+         * should return a character-level timeout. But if we're reading
+         * characters, then we could also hit the command timeout if:
+         *
+         * - We're not seeing the command terminator. This could happen if our
+         *   connection to the instrument isn't direct and there's some
+         *   improper CR-LF translation happening, or if we're not talking to
+         *   an RBR instrument.
+         * - We've seen the command terminator, but the only accompanying
+         *   responses have been samples. If the command got lost en-route and
+         *   the instrument is streaming then we'll keep seeing complete
+         *   responses, but none of them will be for the command. Because the
+         *   start time is set in RBRInstrument_readResponse(), we have context
+         *   for the total amount of time spent attempting to read a command
+         *   response, not just how long has been spent on _this_ response.
+         *
+         * In either of these cases, we want to give up and indicate a timeout
+         * to the caller.
+         */
+        RBR_TRY(instrument->callbacks.time(instrument, &now));
+        if (now - startTime > instrument->commandTimeout)
+        {
+            return RBRINSTRUMENT_TIMEOUT;
+        }
+
         /* If the buffer is full but doesn't contain a terminator, there's
          * not much we can do about it: throw out the buffer, then keep
          * trying to fill it. */
@@ -547,21 +576,17 @@ RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument,
         sampleTarget = sample;
     }
 
-    /*
-     * Skip over streaming samples until we find a real command response.
-     *
-     * TODO: What happens when we're inundated with streaming requests so we
-     * never hit a timeout but the expected response never shows up? Should we
-     * cap the number of streaming samples we accept without a corresponding
-     * command response?
-     */
+    /* Skip over streaming samples until we find a real command response, or
+     * until we exceed the command timeout. */
+    int64_t startTime;
+    RBR_TRY(instrument->callbacks.time(instrument, &startTime));
     while (true)
     {
         RBRInstrument_removeLastResponse(instrument);
 
         char *beginning;
         char *end;
-        RBR_TRY(RBRInstrument_readSingleResponse(instrument, &end));
+        RBR_TRY(RBRInstrument_readSingleResponse(instrument, startTime, &end));
         RBRInstrument_terminateResponse(instrument, &beginning, end);
 
         if (sampleTarget != NULL
