@@ -85,14 +85,14 @@ of the module names in the declaration.
 For example,
 to add a new module
 for tests having to do with “frobbing”,
-create the file `tests/“frobbing”.c`,
+create the file `tests/frobbing.c`,
 and add it to the Makefile:
 
 ~~~
 TEST_MODULES := communication \
                 ...
                 fetching \
-                “frobbing” \
+                frobbing \
                 gating \
                 ...
 ~~~
