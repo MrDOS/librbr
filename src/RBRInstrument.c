@@ -23,6 +23,10 @@
 
 #define RBRINSTRUMENT_NO_ACTIVITY -1
 
+const char *RBRINSTRUMENT_LIB_NAME = LIB_NAME;
+const char *RBRINSTRUMENT_LIB_VERSION = LIB_VERSION;
+const char *RBRINSTRUMENT_LIB_BUILD_DATE = LIB_BUILD_DATE;
+
 const char *RBRInstrumentError_name(RBRInstrumentError error)
 {
     switch (error)

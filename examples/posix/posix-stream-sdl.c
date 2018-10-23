@@ -194,6 +194,13 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
+    fprintf(stderr,
+            "%s: Using %s v%s (built %s).\n",
+            programName,
+            RBRINSTRUMENT_LIB_NAME,
+            RBRINSTRUMENT_LIB_VERSION,
+            RBRINSTRUMENT_LIB_BUILD_DATE);
+
     RBRInstrumentCallbacks callbacks = {
         .time = instrumentTime,
         .sleep = instrumentSleep,

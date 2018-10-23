@@ -14,6 +14,7 @@
 # C macros. Then we filter out everything else so Doxygen doesn't get confused.
 
 sed -e 's/^##/\/\/!/' \
-    -e 's/\(.*\) \:= /#define \1 /' \
+    -e 's/^\(export\s*\)\?\([A-Za-z0-9_]*\)\s*[:?]\?= /#define \2 /' \
+    -e ':c /\\$/ { N; s/\\\n\s*//g ; bc }' \
     "$1" \
-    | grep '^$\|^//!\|#define'
+    | grep '^$\|^//!\|^#define'

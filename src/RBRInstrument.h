@@ -27,6 +27,28 @@ extern "C" {
 #include "RBRInstrumentHardwareErrors.h"
 
 /**
+ * \brief The library name.
+ *
+ * As shipped by RBR, this builds with the value “librbr”. Project forks might
+ * like to change this at build time to easily identify which library variant
+ * is in use. See the Makefile for details.
+ */
+extern const char *RBRINSTRUMENT_LIB_NAME;
+/**
+ * \brief The library version.
+ *
+ * As shipped by RBR, this builds with a value based on the closest Git tag.
+ * Project forks might also like to override this at build time.
+ */
+extern const char *RBRINSTRUMENT_LIB_VERSION;
+/**
+ * \brief The library build date.
+ *
+ * Stored in ISO 8601 format (“YYYY-mm-ddTHH:MM:SS±hhmm”).
+ */
+extern const char *RBRINSTRUMENT_LIB_BUILD_DATE;
+
+/**
  * \brief The size of the buffer storing commands destined for the instrument.
  *
  * Must be large enough to hold the largest command you will want to send to

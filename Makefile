@@ -19,6 +19,23 @@
 ## Copyright (c) 2018 RBR Ltd.
 ## Licensed under the Apache License, Version 2.0.
 
+## \brief The project name.
+##
+## Embedded into the library and documentation.
+##
+## Project forks might like to override this by setting the `LIB_NAME`
+## environment variable before invoking `make(1)` to easily identify which
+## library variant is in use.
+export LIB_NAME ?= librbr
+
+## \brief The project version.
+##
+## Embedded into the library and documentation. Determined automatically from
+## the Git tag.
+export LIB_VERSION ?= $(shell \
+  git describe --tags --dirty --always \
+  | sed -e 's|^v||')
+
 ## \brief Archiver flags.
 ##
 ## “Archive”, in this case, refers to the `.a` archive produced by building the
@@ -46,7 +63,17 @@ ARFLAGS := crsU
 ## to go out of your way to enable them. If you don't want them, we suggest
 ## using `strip(1)` on the archives as opposed to changing this makefile to
 ## minimize the friction of pulling in library updates.
-CFLAGS := -Werror -Wall -Wextra -pedantic -pedantic-errors -std=c99 -g
+CFLAGS := -Werror \
+          -Wall \
+          -Wextra \
+          -pedantic \
+          -pedantic-errors \
+          -std=c99 \
+          -g
+
+CFLAGS += -DLIB_NAME=\""$(LIB_NAME)"\" \
+          -DLIB_VERSION=\""$(LIB_VERSION)"\" \
+          -DLIB_BUILD_DATE=\"$(shell date '+%FT%T%z')\"
 
 all: lib docs tests
 
