@@ -4,6 +4,7 @@ PROJECT_NUMBER =
 PROJECT_BRIEF = "RBR instrument communication API"
 PROJECT_LOGO = res/rbr.png
 OUTPUT_DIRECTORY = docs
+OPTIMIZE_OUTPUT_FOR_C = YES
 
 ALIASES  = "readonly=The corresponding instrument parameter is read-only. \
 This member is used only when reading parameters from the instrument; its \
