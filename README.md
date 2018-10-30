@@ -24,6 +24,8 @@ that this project is maintained
 The library can be built with GNU Make.
 For documentation on Make targets,
 see the [Makefile].
+Library compilation requires a C99-compliant C compiler;
+API document compilation requires [Doxygen].
 
 You may prefer to integrate
 the entire library source
@@ -35,9 +37,14 @@ where possible
 to make updating easier.
 
 [Makefile]: Makefile.html
+[Doxygen]: http://doxygen.org/
 [Git submodule]: https://git-scm.com/docs/git-submodule
 
 ## Using
+
+API documentation is built into the `docs/` subdirectory.
+Prebuilt API documentation corresponding to the latest release
+is available at https://docs.rbr-global.com/librbr/.
 
 * TODO: API introduction.
 * TODO: Streaming data introduction.
