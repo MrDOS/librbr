@@ -467,17 +467,76 @@ RBRInstrumentError RBRInstrument_setValueSetting(
     return RBRINSTRUMENT_SUCCESS;
 }
 
+RBRInstrumentError RBRInstrument_getSensorParameter(
+    RBRInstrument *instrument,
+    RBRInstrumentChannelIndex channel,
+    RBRInstrumentSensorParameter *parameter)
+{
+    memset(parameter->value, 0, sizeof(parameter->value));
+
+    RBRInstrumentError err;
+    /* Logger2 returns “E0501 item is not configured” when the requested
+     * parameter doesn't exist, so we can't wrap the conversation in RBR_TRY
+     * because we need to suppress that error. */
+    err = RBRInstrument_converse(instrument,
+                                 "sensor %d %s",
+                                 channel,
+                                 parameter->key);
+
+    if (instrument->generation == RBRINSTRUMENT_LOGGER2
+        && err == RBRINSTRUMENT_HARDWARE_ERROR
+        && (instrument->response.error ==
+            RBRINSTRUMENT_HARDWARE_ERROR_ITEM_IS_NOT_CONFIGURED))
+    {
+        snprintf(parameter->value,
+                 sizeof(parameter->value),
+                 "n/a");
+        instrument->response.type = RBRINSTRUMENT_RESPONSE_INFO;
+        return RBRINSTRUMENT_SUCCESS;
+    }
+    else if (err != RBRINSTRUMENT_SUCCESS)
+    {
+        return err;
+    }
+
+    bool more = false;
+    char *command = NULL;
+    RBRInstrumentResponseParameter responseParameter;
+    do
+    {
+        more = RBRInstrument_parseResponse(instrument,
+                                           &command,
+                                           &responseParameter);
+
+        snprintf(parameter->key,
+                 sizeof(parameter->key),
+                 "%s",
+                 responseParameter.key);
+
+        snprintf(parameter->value,
+                 sizeof(parameter->value),
+                 "%s",
+                 responseParameter.value);
+    } while (more);
+
+    return RBRINSTRUMENT_SUCCESS;
+}
+
 RBRInstrumentError RBRInstrument_getSensorParameters(
     RBRInstrument *instrument,
     RBRInstrumentChannelIndex channel,
-    RBRInstrumentSensorParameters *parameters)
+    RBRInstrumentSensorParameter *parameters,
+    int32_t *size)
 {
+    int32_t maxSize = *size;
+    *size = 0;
+
     if (channel < 1 || channel > RBRINSTRUMENT_CHANNEL_MAX)
     {
         return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
     }
 
-    memset(parameters, 0, sizeof(RBRInstrumentSensorParameters));
+    memset(parameters, 0, sizeof(RBRInstrumentSensorParameter) * maxSize);
 
     RBRInstrumentError err;
     /* Logger2 returns “E0109 feature not available” for channels which have no
@@ -528,17 +587,20 @@ RBRInstrumentError RBRInstrument_getSensorParameters(
             break;
         }
 
-        snprintf(parameters->parameters[parameters->count].key,
-                 sizeof(parameters->parameters[parameters->count].key),
+        snprintf(parameters[*size].key,
+                 sizeof(parameters[*size].key),
                  "%s",
                  parameter.key);
 
-        snprintf(parameters->parameters[parameters->count].value,
-                 sizeof(parameters->parameters[parameters->count].value),
+        snprintf(parameters[*size].value,
+                 sizeof(parameters[*size].value),
                  "%s",
                  parameter.value);
 
-        ++parameters->count;
+        if (++(*size) >= maxSize)
+        {
+            break;
+        }
     } while (more);
 
     return RBRINSTRUMENT_SUCCESS;

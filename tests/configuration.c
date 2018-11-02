@@ -603,10 +603,13 @@ TEST_LOGGER3(settings_atmosphere_set)
     return true;
 }
 
+#define TEST_SENSOR_PARAMETER_MAX 3
+
 typedef struct SensorTest
 {
     const char *command;
-    RBRInstrumentSensorParameters expected;
+    RBRInstrumentSensorParameter expected[TEST_SENSOR_PARAMETER_MAX];
+    int32_t size;
 } SensorTest;
 
 static bool test_sensor(RBRInstrument *instrument,
@@ -614,21 +617,48 @@ static bool test_sensor(RBRInstrument *instrument,
                         SensorTest *tests)
 {
     RBRInstrumentError err;
-    RBRInstrumentSensorParameters actual;
+    RBRInstrumentSensorParameter actual;
+
+    for (int i = 0; tests[i].command != NULL; ++i)
+    {
+        snprintf(actual.key,
+                 sizeof(actual.key),
+                 "%s",
+                 tests[i].expected[0].key);
+        TestIOBuffers_init(buffers, tests[i].command, 0);
+        err = RBRInstrument_getSensorParameter(instrument, 1, &actual);
+        TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
+        TEST_ASSERT_STR_EQ(tests[i].expected[0].key, actual.key);
+        TEST_ASSERT_STR_EQ(tests[i].expected[0].value, actual.value);
+    }
+
+    return true;
+}
+
+static bool test_sensors(RBRInstrument *instrument,
+                         TestIOBuffers *buffers,
+                         SensorTest *tests)
+{
+    RBRInstrumentError err;
+    RBRInstrumentSensorParameter actual[TEST_SENSOR_PARAMETER_MAX];
 
     for (int i = 0; tests[i].command != NULL; ++i)
     {
         TestIOBuffers_init(buffers, tests[i].command, 0);
-        err = RBRInstrument_getSensorParameters(instrument, 1, &actual);
+        int32_t size = TEST_SENSOR_PARAMETER_MAX;
+        err = RBRInstrument_getSensorParameters(instrument,
+                                                1,
+                                                &actual[0],
+                                                &size);
         TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
-        TEST_ASSERT_EQ(tests[i].expected.count, actual.count, "%" PRIi32);
+        TEST_ASSERT_EQ(tests[i].size, size, "%" PRIi32);
 
-        for (int parameter = 0; parameter < actual.count; ++parameter)
+        for (int parameter = 0; parameter < size; ++parameter)
         {
-            TEST_ASSERT_STR_EQ(tests[i].expected.parameters[parameter].key,
-                               actual.parameters[parameter].key);
-            TEST_ASSERT_STR_EQ(tests[i].expected.parameters[parameter].value,
-                               actual.parameters[parameter].value);
+            TEST_ASSERT_STR_EQ(tests[i].expected[parameter].key,
+                               actual[parameter].key);
+            TEST_ASSERT_STR_EQ(tests[i].expected[parameter].value,
+                               actual[parameter].value);
         }
     }
 
@@ -639,43 +669,24 @@ TEST_LOGGER2(sensor)
 {
     SensorTest tests[] = {
         {
-            "sensor 1 serial = 12345" COMMAND_TERMINATOR,
-            {
-                .count = 1,
-                .parameters = {
-                    {
-                        .key = "serial",
-                        .value = "12345"
-                    }
+            .command = "sensor 1 serial = 12345" COMMAND_TERMINATOR,
+            .expected = {
+                {
+                    .key = "serial",
+                    .value = "12345"
                 }
-            }
+            },
+            .size = 0
         },
         {
-            "sensor 1 serial = 12345, manufacturer = Whoever, foo = bar"
-            COMMAND_TERMINATOR,
-            {
-                .count = 3,
-                .parameters = {
-                    {
-                        .key = "serial",
-                        .value = "12345"
-                    },
-                    {
-                        .key = "manufacturer",
-                        .value = "Whoever"
-                    },
-                    {
-                        .key = "foo",
-                        .value = "bar"
-                    }
+            .command = "E0501 item is not configured" COMMAND_TERMINATOR,
+            .expected = {
+                {
+                    .key = "serial",
+                    .value = "n/a"
                 }
-            }
-        },
-        {
-            "E0109 feature not available" COMMAND_TERMINATOR,
-            {
-                .count = 0
-            }
+            },
+            .size = 0
         },
         {0}
     };
@@ -683,50 +694,134 @@ TEST_LOGGER2(sensor)
     return test_sensor(instrument, buffers, tests);
 }
 
+TEST_LOGGER2(sensor_all)
+{
+    SensorTest tests[] = {
+        {
+            .command = "sensor 1 serial = 12345" COMMAND_TERMINATOR,
+            .expected = {
+                {
+                    .key = "serial",
+                    .value = "12345"
+                }
+            },
+            .size = 1
+        },
+        {
+            .command = "sensor 1 serial = 12345, manufacturer = Whoever, "
+                       "foo = bar" COMMAND_TERMINATOR,
+            .expected = {
+                {
+                    .key = "serial",
+                    .value = "12345"
+                },
+                {
+                    .key = "manufacturer",
+                    .value = "Whoever"
+                },
+                {
+                    .key = "foo",
+                    .value = "bar"
+                }
+            },
+            .size = 3
+        },
+        {
+            .command = "E0109 feature not available" COMMAND_TERMINATOR,
+            .size = 0
+        },
+        {0}
+    };
+
+    return test_sensors(instrument, buffers, tests);
+}
+
 TEST_LOGGER3(sensor)
 {
     SensorTest tests[] = {
         {
-            "sensor 1 serial = 12345" COMMAND_TERMINATOR,
-            {
-                .count = 1,
-                .parameters = {
-                    {
-                        .key = "serial",
-                        .value = "12345"
-                    }
+            .command = "sensor 1 serial = 12345" COMMAND_TERMINATOR,
+            .expected = {
+                {
+                    .key = "serial",
+                    .value = "12345"
                 }
-            }
+            },
+            .size = 0
         },
         {
-            "sensor 1 serial = 12345, manufacturer = Whoever, foo = bar"
-            COMMAND_TERMINATOR,
-            {
-                .count = 3,
-                .parameters = {
-                    {
-                        .key = "serial",
-                        .value = "12345"
-                    },
-                    {
-                        .key = "manufacturer",
-                        .value = "Whoever"
-                    },
-                    {
-                        .key = "foo",
-                        .value = "bar"
-                    }
+            .command = "sensor 1 serial = n/a" COMMAND_TERMINATOR,
+            .expected = {
+                {
+                    .key = "serial",
+                    .value = "n/a"
                 }
-            }
-        },
-        {
-            "sensor 1" COMMAND_TERMINATOR,
-            {
-                .count = 0
-            }
+            },
+            .size = 0
         },
         {0}
     };
 
     return test_sensor(instrument, buffers, tests);
+}
+
+TEST_LOGGER3(sensor_all)
+{
+    SensorTest tests[] = {
+        {
+            .command = "sensor 1 serial = 12345" COMMAND_TERMINATOR,
+            .expected = {
+                {
+                    .key = "serial",
+                    .value = "12345"
+                }
+            },
+            .size = 1
+        },
+        {
+            .command = "sensor 1 serial = 12345, manufacturer = Whoever, "
+                       "foo = bar" COMMAND_TERMINATOR,
+            .expected = {
+                {
+                    .key = "serial",
+                    .value = "12345"
+                },
+                {
+                    .key = "manufacturer",
+                    .value = "Whoever"
+                },
+                {
+                    .key = "foo",
+                    .value = "bar"
+                }
+            },
+            .size = 3
+        },
+        {
+            .command = "sensor 1 serial = 12345, manufacturer = Whoever, "
+                       "foo = bar, baz = lem" COMMAND_TERMINATOR,
+            .expected = {
+                {
+                    .key = "serial",
+                    .value = "12345"
+                },
+                {
+                    .key = "manufacturer",
+                    .value = "Whoever"
+                },
+                {
+                    .key = "foo",
+                    .value = "bar"
+                }
+            },
+            .size = 3
+        },
+        {
+            .command = "sensor 1" COMMAND_TERMINATOR,
+            .size = 0
+        },
+        {0}
+    };
+
+    return test_sensors(instrument, buffers, tests);
 }
