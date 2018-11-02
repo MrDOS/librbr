@@ -25,6 +25,13 @@ extern "C" {
 #define RBRINSTRUMENT_HWREV_CPU_MAX 5
 
 /**
+ * \brief The maximum number of characters in an instrument part number.
+ *
+ * Does not include any null terminator.
+ */
+#define RBRINSTRUMENT_PART_NUMBER_MAX 255
+
+/**
  * \brief Compare two firmware version strings.
  *
  * If either string is not a version string (format XXSYYY) then the result
@@ -406,6 +413,35 @@ RBRInstrumentError RBRInstrument_setPowerExternalBatteryType(
  */
 RBRInstrumentError RBRInstrument_resetPowerExternalUsed(
     RBRInstrument *instrument);
+
+/**
+ * \brief Instrument `info` command parameters.
+ *
+ * \see RBRInstrument_getInfo()
+ * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/info
+ */
+typedef struct RBRInstrumentInfo
+{
+    /** The RBR part number of the instrument. */
+    char partNumber[RBRINSTRUMENT_PART_NUMBER_MAX + 1];
+} RBRInstrumentInfo;
+
+/**
+ * \brief Get more information about the instrument.
+ *
+ * \nol2
+ *
+ * \param [in] instrument the instrument connection
+ * \param [out] info the extended instrument information
+ * \return #RBRINSTRUMENT_UNSUPPORTED for Logger2 instruments
+ * \return #RBRINSTRUMENT_SUCCESS when the information is successfully read
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
+ * \see https://docs.rbr-global.com/L3commandreference/commands/other-information/info
+ */
+RBRInstrumentError RBRInstrument_getInfo(
+    RBRInstrument *instrument,
+    RBRInstrumentInfo *info);
 
 #ifdef __cplusplus
 }

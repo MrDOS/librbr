@@ -535,3 +535,39 @@ RBRInstrumentError RBRInstrument_resetPowerExternalUsed(
 {
     return RBRInstrument_converse(instrument, "powerexternal used = 0");
 }
+
+RBRInstrumentError RBRInstrument_getInfo(
+    RBRInstrument *instrument,
+    RBRInstrumentInfo *info)
+{
+    if (instrument->generation == RBRINSTRUMENT_LOGGER2)
+    {
+        return RBRINSTRUMENT_UNSUPPORTED;
+    }
+
+    memset(info, 0, sizeof(RBRInstrumentInfo));
+
+    RBR_TRY(RBRInstrument_converse(instrument, "info"));
+
+    bool more = false;
+    char *command = NULL;
+    RBRInstrumentResponseParameter parameter;
+    do
+    {
+        more = RBRInstrument_parseResponse(instrument,
+                                           &command,
+                                           &parameter);
+        if (strcmp(parameter.key, "pn") != 0)
+        {
+            continue;
+        }
+
+        snprintf(info->partNumber,
+                 sizeof(info->partNumber),
+                 "%s",
+                 parameter.value);
+        break;
+    } while (more);
+
+    return RBRINSTRUMENT_SUCCESS;
+}

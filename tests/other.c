@@ -265,3 +265,36 @@ TEST_LOGGER3(powerexternal)
 
     return true;
 }
+
+TEST_LOGGER2(info)
+{
+    RBRInstrumentInfo actual;
+
+    TestIOBuffers_init(buffers,
+                       "E0102 invalid command 'info'" COMMAND_TERMINATOR,
+                       0);
+    RBRInstrumentError err = RBRInstrument_getInfo(instrument,
+                                                   &actual);
+    TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_UNSUPPORTED, err, RBRInstrumentError);
+
+    return true;
+}
+
+TEST_LOGGER3(info)
+{
+    RBRInstrumentInfo expected = {
+        .partNumber = "L3-M11-BEC11-SC11-ST11-SP11"
+    };
+    RBRInstrumentInfo actual;
+
+    TestIOBuffers_init(buffers,
+                       "info pn = L3-M11-BEC11-SC11-ST11-SP11"
+                       COMMAND_TERMINATOR,
+                       0);
+    RBRInstrumentError err = RBRInstrument_getInfo(instrument,
+                                                   &actual);
+    TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
+    TEST_ASSERT_STR_EQ(expected.partNumber, actual.partNumber);
+
+    return true;
+}
