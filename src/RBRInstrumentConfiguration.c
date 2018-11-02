@@ -50,14 +50,27 @@ static RBRInstrumentError RBRInstrument_getCalibrations(
     bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
+    int32_t channelIndex;
+    RBRInstrumentChannel *channel;
     do
     {
         more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
 
-        RBRInstrumentChannel *channel =
-            &channels->channels[parameter.index - 1];
+        channelIndex = parameter.index - 1;
+        if (channelIndex < 0)
+        {
+            continue;
+        }
+        else if (channelIndex >= RBRINSTRUMENT_CHANNEL_MAX)
+        {
+            break;
+        }
+        else
+        {
+            channel = &channels->channels[channelIndex];
+        }
 
         if (strcmp(parameter.key, "datetime") == 0)
         {
@@ -75,15 +88,18 @@ static RBRInstrumentError RBRInstrument_getCalibrations(
 
         int32_t index = strtol(&parameter.key[1], NULL, 10);
 
-        if (parameter.key[0] == 'c')
+        if (parameter.key[0] == 'c'
+            && index < RBRINSTRUMENT_CALIBRATION_C_COEFFICIENT_MAX)
         {
             channel->calibration.c[index] = strtod(parameter.value, NULL);
         }
-        else if (parameter.key[0] == 'x')
+        else if (parameter.key[0] == 'x'
+                 && index < RBRINSTRUMENT_CALIBRATION_X_COEFFICIENT_MAX)
         {
             channel->calibration.x[index] = strtod(parameter.value, NULL);
         }
-        else if (parameter.key[0] == 'n')
+        else if (parameter.key[0] == 'n'
+                 && index < RBRINSTRUMENT_CALIBRATION_N_COEFFICIENT_MAX)
         {
             RBRInstrumentChannelIndex coefficient;
             if (strcmp(parameter.value, "value") == 0)
@@ -125,6 +141,8 @@ static RBRInstrumentError RBRInstrument_getChannelAll(
 
     bool more = false;
     char *command = NULL;
+    int32_t channelIndex;
+    RBRInstrumentChannel *channel;
     RBRInstrumentResponseParameter parameter;
     do
     {
@@ -132,8 +150,19 @@ static RBRInstrumentError RBRInstrument_getChannelAll(
                                            &command,
                                            &parameter);
 
-        RBRInstrumentChannel *channel =
-            &channels->channels[parameter.index - 1];
+        channelIndex = parameter.index - 1;
+        if (channelIndex < 0)
+        {
+            continue;
+        }
+        else if (channelIndex >= RBRINSTRUMENT_CHANNEL_MAX)
+        {
+            break;
+        }
+        else
+        {
+            channel = &channels->channels[channelIndex];
+        }
 
         if (strcmp(parameter.key, "type") == 0)
         {
