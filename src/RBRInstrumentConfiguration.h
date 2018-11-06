@@ -54,6 +54,11 @@ extern "C" {
  */
 #define RBRINSTRUMENT_CALIBRATION_EQUATION_MAX 31
 
+/**
+ * \brief The maximum number of gain settings for a channel.
+ */
+#define RBRINSTRUMENT_CHANNEL_GAINS_MAX 8
+
 /** \brief The minimum input timeout. */
 #define RBRINSTRUMENT_INPUT_TIMEOUT_MIN 10000
 
@@ -116,6 +121,67 @@ typedef struct RBRInstrumentCalibration
 } RBRInstrumentCalibration;
 
 /**
+ * \brief Possible channel gain ranging modes.
+ *
+ * \see RBRInstrumentChannel
+ * \see https://docs.rbr-global.com/L3commandreference/format-of-stored-data/standard-rawbin00-format/deployment-header/version-2-001
+ */
+typedef enum RBRInstrumentChannelRangingMode
+{
+    /** No gain ranging is available. */
+    RBRINSTRUMENT_RANGING_NONE,
+    /** A fixed gain is used. */
+    RBRINSTRUMENT_RANGING_MANUAL,
+    /** The channel auto-ranges over the available gain settings. */
+    RBRINSTRUMENT_RANGING_AUTO,
+    /** The number of specific gain ranging modes. */
+    RBRINSTRUMENT_RANGING_COUNT,
+    /** An unknown or unrecognized gain ranging mode. */
+    RBRINSTRUMENT_UNKNOWN_RANGING
+} RBRInstrumentChannelRangingMode;
+
+/**
+ * \brief Get a human-readable string name for a channel gain ranging mode.
+ *
+ * \param [in] mode the ranging mode
+ * \return a string name for the ranging mode
+ * \see RBRInstrumentError_name() for a description of the format of names
+ */
+const char *RBRInstrumentChannelRangingMode_name(
+    RBRInstrumentChannelRangingMode mode);
+
+/**
+ * Gain parameters for a channel.
+ *
+ * \see RBRInstrumentChannel
+ * \see RBRInstrument_setChannelGain()
+ */
+typedef struct RBRInstrumentChannelGain
+{
+    /** \brief The gain selection mode employed by the sensor. */
+    RBRInstrumentChannelRangingMode rangingMode;
+
+    /**
+     * \brief The gain value in use by the sensor.
+     *
+     * Only applies when RBRInstrumentChannelGain.rangingMode is
+     * #RBRINSTRUMENT_RANGING_MANUAL. Otherwise set to NaN.
+     */
+    float currentGain;
+
+    /**
+     * \brief The gain settings supported by the sensor.
+     *
+     * Only applies where RBRInstrumentChannelGain.rangingMode is
+     * #RBRINSTRUMENT_RANGING_MANUAL or #RBRINSTRUMENT_RANGING_AUTO. Otherwise
+     * all values are set to NaN.
+     *
+     * Unused entries are set to NaN.
+     */
+    float availableGains[RBRINSTRUMENT_CHANNEL_GAINS_MAX];
+} RBRInstrumentChannelGain;
+
+/**
  * \brief Details reported by the instrument `channel` command.
  *
  * \see RBRInstrumentChannels
@@ -131,27 +197,37 @@ typedef struct RBRInstrumentChannel
      * \see https://docs.rbr-global.com/L3commandreference/supported-channel-types
      */
     char type[RBRINSTRUMENT_CHANNEL_TYPE_MAX + 1];
+
     /** \brief The internal address to which the channel responds. */
     RBRInstrumentModuleAddress module;
-    /** \brief Whether the channel is activated for sampling. */
+
+    /**
+     * \brief Whether the channel is activated for sampling.
+     *
+     * \see RBRInstrument_setChannelStatus()
+     */
     bool status;
+
     /**
      * \brief The minimum power-on settling time required by this channel.
      *
      * Specified in milliseconds.
      */
     RBRInstrumentPeriod settlingTime;
+
     /**
      * \brief The typical data acquisition time required by this channel.
      *
      * Specified in milliseconds.
      */
     RBRInstrumentPeriod readTime;
+
     /**
      * \brief The type of formula used to convert raw readings to physical
      * measurement units as a null-terminated C string.
      */
     char equation[RBRINSTRUMENT_CALIBRATION_EQUATION_MAX + 1];
+
     /**
      * \brief The unit in which processed data is normally reported from the
      * logger as a null-terminated C string.
@@ -159,8 +235,13 @@ typedef struct RBRInstrumentChannel
      * E.g., “C” for Celsius, “V” for Volts, “dbar” for decibars.
      */
     char userUnits[RBRINSTRUMENT_CHANNEL_UNIT_MAX + 1];
+
+    /** \brief Gain parameters for the channel. */
+    RBRInstrumentChannelGain gain;
+
     /** \brief Whether the channel is a derived channel. */
     bool derived;
+
     /**
      * \brief An alphanumeric description of the physical parameter measured as
      * a null-terminated C string.
@@ -170,6 +251,7 @@ typedef struct RBRInstrumentChannel
      * \nol2 Always populated with “none”.
      */
     char label[RBRINSTRUMENT_CHANNEL_LABEL_MAX + 1];
+
     /** \brief The calibration for the channel. */
     RBRInstrumentCalibration calibration;
 } RBRInstrumentChannel;
@@ -258,6 +340,44 @@ RBRInstrumentError RBRInstrument_setChannelStatus(
     RBRInstrument *instrument,
     RBRInstrumentChannelIndex channel,
     bool status);
+
+/**
+ * \brief Set the gain parameters of a channel.
+ *
+ * RBRInstrumentChannelGain.rangingMode must be either
+ * #RBRINSTRUMENT_RANGING_MANUAL or #RBRINSTRUMENT_RANGING_AUTO. Otherwise,
+ * #RBRINSTRUMENT_INVALID_PARAMETER_VALUE is returned.
+ *
+ * For manual gain selection, the gain given by
+ * RBRInstrumentChannelGain.currentGain must be one of the available gains
+ * reported by the instrument. Otherwise, the instrument will produce a
+ * hardware error. If RBRInstrumentChannelGain.availableGains is populated
+ * (contains at least one leading non-NaN entry), this function will verify the
+ * presence of the chosen gain. If it is not found,
+ * #RBRINSTRUMENT_INVALID_PARAMETER_VALUE is returned.
+ *
+ * RBRInstrumentChannelGain.availableGains is only used for parameter
+ * verification. It is not sent to the instrument.
+ *
+ * \param [in] instrument the instrument connection
+ * \param [in] channel the index of the channel to update
+ * \param [in] gain the gain parameters for the channel
+ * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully written
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
+ * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument is logging, or an
+ *                                       invalid gain value is given
+ * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE if the ranging mode is
+ *                                                invalid, or if the gain value
+ *                                                can be conclusively
+ *                                                determined to be invalid
+ * \see RBRInstrument_getChannels()
+ * \see https://docs.rbr-global.com/L3commandreference/commands/configuration-information-and-calibration/channel
+ */
+RBRInstrumentError RBRInstrument_setChannelGain(
+    RBRInstrument *instrument,
+    RBRInstrumentChannelIndex channel,
+    RBRInstrumentChannelGain *gain);
 
 /**
  * \brief Update a channel's calibration coefficients.

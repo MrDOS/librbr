@@ -18,6 +18,25 @@
 #include "RBRInstrument.h"
 #include "RBRInstrumentInternal.h"
 
+const char *RBRInstrumentChannelRangingMode_name(
+    RBRInstrumentChannelRangingMode mode)
+{
+    switch (mode)
+    {
+    case RBRINSTRUMENT_RANGING_NONE:
+        return "none";
+    case RBRINSTRUMENT_RANGING_MANUAL:
+        return "manual";
+    case RBRINSTRUMENT_RANGING_AUTO:
+        return "auto";
+    case RBRINSTRUMENT_RANGING_COUNT:
+        return "ranging mode count";
+    case RBRINSTRUMENT_UNKNOWN_RANGING:
+    default:
+        return "unknown ranging mode";
+    }
+}
+
 static RBRInstrumentError RBRInstrument_getCalibrations(
     RBRInstrument *instrument,
     RBRInstrumentChannels *channels)
@@ -124,6 +143,13 @@ static RBRInstrumentError RBRInstrument_getChannelAll(
 {
     for (int32_t channel = 0; channel < channels->count; ++channel)
     {
+        channels->channels[channel].gain.currentGain = NAN;
+
+        for (int32_t gain = 0; gain < RBRINSTRUMENT_CHANNEL_GAINS_MAX; ++gain)
+        {
+            channels->channels[channel].gain.availableGains[gain] = NAN;
+        }
+
         snprintf(channels->channels[channel].label,
                  sizeof(channels->channels[channel].label),
                  "%s",
@@ -132,11 +158,13 @@ static RBRInstrumentError RBRInstrument_getChannelAll(
 
     if (instrument->generation == RBRINSTRUMENT_LOGGER2)
     {
-        RBR_TRY(RBRInstrument_converse(instrument, "channel all"));
+        RBR_TRY(RBRInstrument_converse(
+                    instrument,
+                    "channel all all derived gain gainsavailable"));
     }
     else
     {
-        RBR_TRY(RBRInstrument_converse(instrument, "channel allindices"));
+        RBR_TRY(RBRInstrument_converse(instrument, "channel allindices all"));
     }
 
     bool more = false;
@@ -206,6 +234,40 @@ static RBRInstrumentError RBRInstrument_getChannelAll(
         {
             channel->derived = (strcmp(parameter.value, "on") == 0);
         }
+        else if (strcmp(parameter.key, "gain") == 0)
+        {
+            if (strcmp(parameter.value, "none") == 0)
+            {
+                continue;
+            }
+            else if (strcmp(parameter.value, "auto") == 0)
+            {
+                channel->gain.rangingMode = RBRINSTRUMENT_RANGING_AUTO;
+            }
+            else
+            {
+                channel->gain.rangingMode = RBRINSTRUMENT_RANGING_MANUAL;
+                channel->gain.currentGain = strtod(parameter.value, NULL);
+            }
+        }
+        else if (strcmp(parameter.key, "availablegains") == 0
+                 || strcmp(parameter.key, "gainsavailable") == 0)
+        {
+            if (strcmp(parameter.value, "none") == 0)
+            {
+                continue;
+            }
+
+            char *gains = parameter.value;
+            int32_t gainCount = 0;
+            char *gain = NULL;
+            while ((gain = strtok(gains, "|")) != NULL
+                   && gainCount < RBRINSTRUMENT_CHANNEL_GAINS_MAX)
+            {
+                gains = NULL;
+                channel->gain.availableGains[gainCount++] = strtod(gain, NULL);
+            }
+        }
         else if (strcmp(parameter.key, "label") == 0)
         {
             snprintf(channel->label,
@@ -272,6 +334,49 @@ RBRInstrumentError RBRInstrument_setChannelStatus(
                                   "channel %d status = %s",
                                   channel,
                                   status ? "on" : "off");
+}
+
+RBRInstrumentError RBRInstrument_setChannelGain(
+    RBRInstrument *instrument,
+    RBRInstrumentChannelIndex channel,
+    RBRInstrumentChannelGain *gain)
+{
+    if (gain->rangingMode == RBRINSTRUMENT_RANGING_MANUAL)
+    {
+        bool validGain = false;
+        int32_t i;
+        for (i = 0;
+             i < RBRINSTRUMENT_CHANNEL_GAINS_MAX
+             && !isnan(gain->availableGains[i]);
+             ++i)
+        {
+            if (gain->currentGain == gain->availableGains[i])
+            {
+                validGain = true;
+                break;
+            }
+        }
+
+        if (i > 0 && !validGain)
+        {
+            return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
+        }
+
+        return RBRInstrument_converse(instrument,
+                                      "channel %d gain = %0.1f",
+                                      channel,
+                                      gain->currentGain);
+    }
+    else if (gain->rangingMode == RBRINSTRUMENT_RANGING_AUTO)
+    {
+        return RBRInstrument_converse(instrument,
+                                      "channel %d gain = auto",
+                                      channel);
+    }
+    else
+    {
+        return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
+    }
 }
 
 RBRInstrumentError RBRInstrument_setCalibration(
