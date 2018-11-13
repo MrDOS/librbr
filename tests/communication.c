@@ -225,7 +225,9 @@ static bool test_wifi(RBRInstrument *instrument,
         TEST_ASSERT_ENUM_EQ(tests[i].expected.state,
                             actual.state,
                             RBRInstrumentWiFiState);
-        TEST_ASSERT_EQ(tests[i].expected.timeout, actual.timeout, "%" PRIi32);
+        TEST_ASSERT_EQ(tests[i].expected.powerTimeout,
+                       actual.powerTimeout,
+                       "%" PRIi32);
         TEST_ASSERT_EQ(tests[i].expected.commandTimeout,
                        actual.commandTimeout,
                        "%" PRIi32);
@@ -241,13 +243,13 @@ TEST_LOGGER2(wifi)
 {
     WiFiTest tests[] = {
         {
-            "wifi timeout = 60, commandtimeout = 60" COMMAND_TERMINATOR,
+            "wifi timeout = 60, commandtimeout = 90" COMMAND_TERMINATOR,
             RBRINSTRUMENT_SUCCESS,
             {
                 false,
                 RBRINSTRUMENT_UNKNOWN_WIFI,
-                60,
-                60,
+                60000,
+                90000,
                 RBRINSTRUMENT_SERIAL_BAUD_NONE
             }
         },
@@ -267,8 +269,8 @@ TEST_LOGGER3(wifi)
             {
                 false,
                 RBRINSTRUMENT_WIFI_NA,
-                60,
-                60,
+                60000,
+                60000,
                 RBRINSTRUMENT_SERIAL_BAUD_921600
             }
         },
@@ -279,8 +281,8 @@ TEST_LOGGER3(wifi)
             {
                 true,
                 RBRINSTRUMENT_WIFI_OFF,
-                90,
-                30,
+                90000,
+                30000,
                 RBRINSTRUMENT_SERIAL_BAUD_921600
             }
         },

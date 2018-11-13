@@ -326,11 +326,11 @@ RBRInstrumentError RBRInstrument_getWiFi(RBRInstrument *instrument,
         }
         else if (strcmp(parameter.key, "timeout") == 0)
         {
-            wifi->timeout = strtol(parameter.value, NULL, 10);
+            wifi->powerTimeout = strtol(parameter.value, NULL, 10) * 1000;
         }
         else if (strcmp(parameter.key, "commandtimeout") == 0)
         {
-            wifi->commandTimeout = strtol(parameter.value, NULL, 10);
+            wifi->commandTimeout = strtol(parameter.value, NULL, 10) * 1000;
         }
         else if (strcmp(parameter.key, "baudrate") == 0)
         {
@@ -354,8 +354,12 @@ RBRInstrumentError RBRInstrument_getWiFi(RBRInstrument *instrument,
 RBRInstrumentError RBRInstrument_setWiFi(RBRInstrument *instrument,
                                          const RBRInstrumentWiFi *wifi)
 {
-    if (wifi->timeout < 5 || wifi->timeout > 600
-        || wifi->commandTimeout < 5 || wifi->commandTimeout > 600)
+    if (wifi->powerTimeout < 5000
+        || wifi->powerTimeout > 600000
+        || wifi->powerTimeout % 1000 != 0
+        || wifi->commandTimeout < 5000
+        || wifi->commandTimeout > 600000
+        || wifi->commandTimeout % 1000 != 0)
     {
         return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
     }
@@ -365,8 +369,8 @@ RBRInstrumentError RBRInstrument_setWiFi(RBRInstrument *instrument,
         return RBRInstrument_converse(
             instrument,
             "wifi timeout = %d, commandtimeout = %d",
-            wifi->timeout,
-            wifi->commandTimeout);
+            wifi->powerTimeout / 1000,
+            wifi->commandTimeout / 1000);
     }
     else
     {
@@ -374,7 +378,7 @@ RBRInstrumentError RBRInstrument_setWiFi(RBRInstrument *instrument,
             instrument,
             "wifi enabled = %s, timeout = %d, commandtimeout = %d",
             wifi->enabled ? "true" : "false",
-            wifi->timeout,
-            wifi->commandTimeout);
+            wifi->powerTimeout / 1000,
+            wifi->commandTimeout / 1000);
     }
 }

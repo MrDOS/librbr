@@ -304,14 +304,16 @@ typedef struct RBRInstrumentWiFi
      * \brief How long the instrument will wait for a valid command after
      * first powering up the Wi-Fi radio before powering it back down.
      *
-     * Specified in seconds. Must be in the range 5—600.
+     * Specified in whole seconds expressed as milliseconds. Must be in the
+     * range 5,000—600,000 (5 seconds to 10 minutes).
      */
-    int32_t timeout;
+    int32_t powerTimeout;
     /**
      * \brief How long the instrument will wait between commands after the
      * first command before powering down the Wi-Fi radio.
      *
-     * Specified in seconds. Must be in the range 5—600.
+     * Specified in whole seconds expressed as milliseconds. Must be in the
+     * range 5,000—600,000 (5 seconds to 10 minutes).
      */
     int32_t commandTimeout;
     /**
@@ -344,10 +346,11 @@ RBRInstrumentError RBRInstrument_getWiFi(RBRInstrument *instrument,
  * \brief Reconfigure the instrument Wi-Fi settings.
  *
  * For Logger3 instruments, this sends the values of RBRInstrumentWiFi.enabled,
- * RBRInstrumentWiFi.timeout, and RBRInstrumentWiFi.commandTimeout. For Logger2
- * instruments, this sends only the values of RBRInstrumentWiFi.timeout and
- * RBRInstrumentWiFi.commandTimeout as the RBRInstrumentWiFi.enabled parameter
- * does not exist for that generation of instruments.
+ * RBRInstrumentWiFi.powerTimeout, and RBRInstrumentWiFi.commandTimeout. For
+ * Logger2 instruments, this sends only the values of
+ * RBRInstrumentWiFi.powerTimeout and RBRInstrumentWiFi.commandTimeout as the
+ * RBRInstrumentWiFi.enabled parameter does not exist for that generation of
+ * instruments.
  *
  * \param [in] instrument the instrument connection
  * \param [out] wifi the new Wi-Fi parameters
