@@ -391,8 +391,8 @@ typedef RBRInstrumentError (*RBRInstrumentSleepCallback)(
  * \param [in] instrument the instrument for which data is being requested
  * \param [in,out] data where up to \a size bytes of data can be written
  * \param [in,out] size initially, the maximum amount of data which can be
- *                        written to \a data; set by the callback to the number
- *                        of bytes actually written
+ *                      written to \a data; set by the callback to the number
+ *                      of bytes actually written
  * \return #RBRINSTRUMENT_SUCCESS when data is successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR when an unrecoverable error occurs
@@ -707,7 +707,7 @@ typedef struct RBRInstrument
  *
  * If you pass pre-allocated memory, its contents will be discarded.
  *
- * The \a callbacks structure will be copied into the RBRInstruments structure;
+ * The \a callbacks structure will be copied into the RBRInstrument structure;
  * no reference to it is retained, so any subsequent modifications will not
  * affect the connection. All callbacks must be given except for
  * RBRInstrumentCallbacks.sample. If any others are given as null pointers,

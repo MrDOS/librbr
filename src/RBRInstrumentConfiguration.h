@@ -79,7 +79,12 @@ extern "C" {
  */
 #define RBRINSTRUMENT_SENSOR_PARAMETER_VALUE_MAX 63
 
-/** \brief A channel identifier. */
+/**
+ * \brief A channel identifier.
+ *
+ * Channel indices are always 1-based. A value of 0 means the index is unset
+ * or empty.
+ */
 typedef uint8_t RBRInstrumentChannelIndex;
 
 /** \brief An internal module identifier. */
@@ -225,6 +230,8 @@ typedef struct RBRInstrumentChannel
     /**
      * \brief The type of formula used to convert raw readings to physical
      * measurement units as a null-terminated C string.
+     *
+     * \see https://docs.rbr-global.com/L3commandreference/calibration-equations-and-cross-channel-dependencies
      */
     char equation[RBRINSTRUMENT_CALIBRATION_EQUATION_MAX + 1];
 

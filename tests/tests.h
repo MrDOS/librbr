@@ -24,6 +24,7 @@ extern "C" {
 #include <string.h>
 
 #include "RBRInstrument.h"
+#include "RBRParser.h"
 
 /**
  * \brief Assert that a condition is true.
@@ -131,6 +132,12 @@ extern "C" {
 /** \brief The characters terminating an instrument command response. */
 #define COMMAND_TERMINATOR "\r\n"
 
+/** \brief The maximum number of parsed samples to buffer. */
+#define TESTPARSERBUFFERS_SAMPLES_MAX 64
+
+/** \brief The maximum number of parsed events to buffer. */
+#define TESTPARSERBUFFERS_EVENTS_MAX 64
+
 /**
  * \brief The I/O buffers used for tests.
  */
@@ -200,35 +207,102 @@ const char *bool_name(bool value);
 #define TEST_LOGGER3(fn) _TEST(fn##_l3)
 
 /**
- * \brief A test to be run.
+ * \brief An instrument test to be run.
  *
  * \param instrument the instrument connection
  * \param buffers the test I/O buffers
  * \return whether the test passed
  */
-typedef bool (TestFunction)(RBRInstrument *instrument, TestIOBuffers *buffers);
+typedef bool (InstrumentTestFunction)(RBRInstrument *instrument,
+                                      TestIOBuffers *buffers);
 
 /**
- * \brief Declaration of a test.
+ * \brief Declaration of an instrument test.
  *
- * Instances of this struct are generated in `tests.c` at build time.
+ * Instances are generated in `tests.c` at build time.
  */
-typedef struct TestDeclaration
+typedef struct InstrumentTest
 {
     /** \brief The name of the test. */
-    char *name;
+    const char *name;
     /** \brief The instrument generation to which this test applies. */
     RBRInstrumentGeneration generation;
-    /** \brief The test. to be run */
-    TestFunction *function;
-} TestDeclaration;
+    /** \brief The test to be run. */
+    InstrumentTestFunction *function;
+} InstrumentTest;
 
 /**
- * \brief All the tests to run.
+ * \brief All the instrument tests to run.
  *
  * Generated in `tests.c` at build time.
  */
-extern TestDeclaration tests[];
+extern InstrumentTest instrumentTests[];
+
+/**
+ * \brief Declare a test parser configuration.
+ *
+ * \param [in] cfg the name of the configuration
+ */
+#define TEST_PARSER_CONFIG(cfg) const RBRParserConfig test_##cfg##_parser_config
+
+/**
+ * \brief Declare a parser test function.
+ *
+ * \param [in] fn the name of the test function
+ * \param [in] cfg the name of the configuration used by the test
+ */
+/* *INDENT-OFF* */
+#define TEST_PARSER(fn, cfg) bool test_##fn##_parser( \
+    RBRParser *parser, \
+    TestParserBuffers *buffers)
+/* *INDENT-ON* */
+
+/**
+ * \brief The results of test parsings.
+ */
+typedef struct TestParserBuffers
+{
+    /** \brief The length of TestParserBuffers.samples. */
+    int32_t samplesLength;
+    /** \brief Parsed samples. */
+    RBRInstrumentSample samples[TESTPARSERBUFFERS_SAMPLES_MAX];
+    /** \brief The length of TestParserBuffers.events. */
+    int32_t eventsLength;
+    /** \brief Parsed events. */
+    RBRInstrumentEvent events[TESTPARSERBUFFERS_EVENTS_MAX];
+} TestParserBuffers;
+
+/**
+ * \brief A parser test to be run.
+ *
+ * \param parser the parser to test
+ * \param buffers the parser result buffers
+ * \return whether the test passed
+ */
+typedef bool (ParserTestFunction)(RBRParser *parser,
+                                  TestParserBuffers *buffers);
+
+/**
+ * \brief Declaration of a parser test.
+ *
+ * Instances are generated in `tests.c` at build time.
+ */
+typedef struct ParserTest
+{
+    /** \brief The name of the test. */
+    const char *name;
+    /** \brief The parser configuration. */
+    const RBRParserConfig *config;
+    /** \brief The test to be run. */
+    ParserTestFunction *function;
+} ParserTest;
+
+/**
+ * \brief All the parser tests to run.
+ *
+ * Generated in `tests.c` at build time.
+ */
+extern ParserTest parserTests[];
 
 #ifdef __cplusplus
 }

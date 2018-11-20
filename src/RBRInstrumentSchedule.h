@@ -222,7 +222,9 @@ typedef struct RBRInstrumentSampling
      * than #RBRINSTRUMENT_AVAILABLE_FAST_PERIODS_MAX are available, trailing
      * entries are discarded.
      *
-     * \nol2 Refer to RBRInstrumentSampling.userPeriodLimit instead.
+     * Logger2 instruments do not report available fast periods. For
+     * convenience, RBRInstrument_getSampling() will synthesize the contents of
+     * this field based on the value of RBRInstrumentSampling.userPeriodLimit.
      *
      * \readonly
      */

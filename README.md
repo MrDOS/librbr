@@ -27,6 +27,8 @@ see the [Makefile].
 Library compilation requires a C99-compliant C compiler;
 API document compilation requires [Doxygen].
 
+TODO: Platform assumptions/porting considerations.
+
 You may prefer to integrate
 the entire library source
 into your codebase.
@@ -48,6 +50,7 @@ is available at https://docs.rbr-global.com/librbr/.
 
 * TODO: API introduction.
 * TODO: Streaming data introduction.
+* TODO: Data parsing introduction.
 
 For examples,
 please see the `examples/` subdirectory.

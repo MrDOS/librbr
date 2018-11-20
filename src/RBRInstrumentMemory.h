@@ -28,7 +28,10 @@ typedef enum RBRInstrumentDataset
     /** EasyParse sample data */
     RBRINSTRUMENT_DATASET_EASYPARSE_SAMPLE_DATA = 1,
     /** EasyParse deployment header */
-    RBRINSTRUMENT_DATASET_EASYPARSE_DEPLOYMENT_HEADER = 2
+    RBRINSTRUMENT_DATASET_EASYPARSE_DEPLOYMENT_HEADER = 2,
+    /** Corresponds to the largest dataset enum value. */
+    RBRINSTRUMENT_DATASET_MAX
+        = RBRINSTRUMENT_DATASET_EASYPARSE_DEPLOYMENT_HEADER
 } RBRInstrumentDataset;
 
 /**

@@ -115,6 +115,38 @@ RBRInstrumentError TestIOBuffers_sample(
     return RBRINSTRUMENT_SUCCESS;
 }
 
+RBRInstrumentError TestParserBuffers_sample(
+    const struct RBRParser *parser,
+    const struct RBRInstrumentSample *const sample)
+{
+    TestParserBuffers *buffers;
+    buffers = (TestParserBuffers *) RBRParser_getUserData(parser);
+    if (buffers->samplesLength >= TESTPARSERBUFFERS_SAMPLES_MAX)
+    {
+        return RBRINSTRUMENT_CALLBACK_ERROR;
+    }
+    memcpy(&buffers->samples[buffers->samplesLength++],
+           sample,
+           sizeof(RBRInstrumentSample));
+    return RBRINSTRUMENT_SUCCESS;
+}
+
+RBRInstrumentError TestParserBuffers_event(
+    const struct RBRParser *parser,
+    const struct RBRInstrumentEvent *const event)
+{
+    TestParserBuffers *buffers;
+    buffers = (TestParserBuffers *) RBRParser_getUserData(parser);
+    if (buffers->eventsLength >= TESTPARSERBUFFERS_EVENTS_MAX)
+    {
+        return RBRINSTRUMENT_CALLBACK_ERROR;
+    }
+    memcpy(&buffers->events[buffers->eventsLength++],
+           event,
+           sizeof(RBRInstrumentEvent));
+    return RBRINSTRUMENT_SUCCESS;
+}
+
 const char *bool_name(bool value)
 {
     if (value)
@@ -130,29 +162,29 @@ const char *bool_name(bool value)
 int main()
 {
     RBRInstrumentError err;
-    TestIOBuffers buffers;
-    RBRInstrumentCallbacks callbacks = {
+    TestIOBuffers ioBuffers;
+    RBRInstrumentCallbacks instrumentCallbacks = {
         .time =  TestIOBuffers_time,
         .sleep = TestIOBuffers_sleep,
         .read = TestIOBuffers_read,
         .write = TestIOBuffers_write,
         .sample = TestIOBuffers_sample,
-        .sampleBuffer = &buffers.streamSample
+        .sampleBuffer = &ioBuffers.streamSample
     };
 
     RBRInstrument instrumentL2Buffer;
     RBRInstrument *instrumentL2 = &instrumentL2Buffer;
     TestIOBuffers_init(
-        &buffers,
+        &ioBuffers,
         "RBR RBRoem 1.430 999999"
         COMMAND_TERMINATOR
         "id model = RBRoem, version = 1.430, serial = 999999, fwtype = 103"
         COMMAND_TERMINATOR,
         0);
     err = RBRInstrument_open(&instrumentL2,
-                             &callbacks,
+                             &instrumentCallbacks,
                              /* command timeout */ 0,
-                             &buffers);
+                             &ioBuffers);
     if (err != RBRINSTRUMENT_SUCCESS)
     {
         fprintf(stderr,
@@ -168,16 +200,16 @@ int main()
     RBRInstrument instrumentL3Buffer;
     RBRInstrument *instrumentL3 = &instrumentL3Buffer;
     TestIOBuffers_init(
-        &buffers,
+        &ioBuffers,
         "RBR RBRduo3 1.090 999999"
         COMMAND_TERMINATOR
         "id model = RBRoem3, version = 1.090, serial = 999999, fwtype = 104"
         COMMAND_TERMINATOR,
         0);
     err = RBRInstrument_open(&instrumentL3,
-                             &callbacks,
+                             &instrumentCallbacks,
                              /* command timeout */ 0,
-                             &buffers);
+                             &ioBuffers);
     if (err != RBRINSTRUMENT_SUCCESS)
     {
         fprintf(stderr,
@@ -190,14 +222,27 @@ int main()
         printf("Initialized Logger3 test instrument.\n");
     }
 
+    TestParserBuffers parserBuffers;
+    RBRInstrumentSample parserSample;
+    RBRInstrumentEvent parserEvent;
+    RBRParserCallbacks parserCallbacks = {
+        .sample = TestParserBuffers_sample,
+        .sampleBuffer = &parserSample,
+        .event = TestParserBuffers_event,
+        .eventBuffer = &parserEvent
+    };
+
+    RBRParser parserBuffer;
+    RBRParser *parser = &parserBuffer;
+
     printf("Running tests...\n");
     int success = EXIT_SUCCESS;
     RBRInstrument *testInstrument;
     int32_t testsTotal = 0;
     int32_t testsPassed = 0;
-    for (int32_t i = 0; tests[i].function != NULL; i++)
+    for (int32_t i = 0; instrumentTests[i].function != NULL; i++)
     {
-        if (tests[i].generation == RBRINSTRUMENT_LOGGER2)
+        if (instrumentTests[i].generation == RBRINSTRUMENT_LOGGER2)
         {
             testInstrument = instrumentL2;
         }
@@ -207,10 +252,10 @@ int main()
         }
 
         printf("Running %s test \"%s\"...",
-               RBRInstrumentGeneration_name(tests[i].generation),
-               tests[i].name);
+               RBRInstrumentGeneration_name(instrumentTests[i].generation),
+               instrumentTests[i].name);
         ++testsTotal;
-        if (tests[i].function(testInstrument, &buffers))
+        if (instrumentTests[i].function(testInstrument, &ioBuffers))
         {
             printf(" \033[32mok\033[0m\n");
             ++testsPassed;
@@ -222,8 +267,42 @@ int main()
         }
     }
 
+    for (int32_t i = 0; parserTests[i].function != NULL; i++)
+    {
+        printf("Running parser test \"%s\"...", parserTests[i].name);
+        ++testsTotal;
+
+        memset(&parserBuffers, 0, sizeof(TestParserBuffers));
+
+        err = RBRParser_init(&parser,
+                             &parserCallbacks,
+                             parserTests[i].config,
+                             &parserBuffers);
+        if (err != RBRINSTRUMENT_SUCCESS)
+        {
+            printf(" \033[31minit fail\033[0m: %s\n",
+                   RBRInstrumentError_name(err));
+            success = EXIT_FAILURE;
+            continue;
+        }
+
+        if (parserTests[i].function(parser, &parserBuffers))
+        {
+            printf(" \033[32mok\033[0m\n");
+            ++testsPassed;
+        }
+        else
+        {
+            printf(" \033[31mfail\033[0m\n");
+            success = EXIT_FAILURE;
+        }
+
+        RBRParser_destroy(parser);
+    }
+
     printf("Tests completed (%" PRIi32 "/%" PRIi32 " passed).\n",
            testsPassed,
            testsTotal);
+
     return success;
 }
