@@ -100,7 +100,7 @@ docs:
 devdocs:
 	doxygen Doxyfile-devdocs
 
-tests: CFLAGS += -Isrc -Wno-error=unused-parameter
+tests: CFLAGS += -Isrc -Wno-error=unused-parameter -Wno-unused-parameter
 tests: LDFLAGS += -Lbin
 tests: LDLIBS += -lrbr
 tests: bin bin/tests

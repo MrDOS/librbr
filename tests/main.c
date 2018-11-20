@@ -31,9 +31,6 @@ RBRInstrumentError TestIOBuffers_time(
     const struct RBRInstrument *instrument,
     int64_t *time)
 {
-    /* Unused. */
-    instrument = instrument;
-
     /* No-op. */
     *time = 0;
     return RBRINSTRUMENT_SUCCESS;
@@ -43,10 +40,6 @@ RBRInstrumentError TestIOBuffers_sleep(
     const struct RBRInstrument *instrument,
     int64_t time)
 {
-    /* Unused. */
-    instrument = instrument;
-    time = time;
-
     /* No-op. */
     return RBRINSTRUMENT_SUCCESS;
 }

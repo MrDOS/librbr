@@ -14,10 +14,6 @@
 
 TEST_LOGGER3(version_comparison)
 {
-    /* Unused. */
-    instrument = instrument;
-    buffers = buffers;
-
     /* Valid versions. */
     TEST_ASSERT(RBRInstrumentVersion_compare("1.000", "1.000") == 0);
     TEST_ASSERT(RBRInstrumentVersion_compare("1.000", "1X000") > 0);
@@ -190,9 +186,6 @@ TEST_LOGGER3(power)
 
 TEST_LOGGER2(powerinternal)
 {
-    /* Unused argument warning suppression. */
-    buffers = buffers;
-
     RBRInstrumentPowerInternal actual;
     RBRInstrumentError err = RBRInstrument_getPowerInternal(instrument,
                                                             &actual);
@@ -229,9 +222,6 @@ TEST_LOGGER3(powerinternal)
 
 TEST_LOGGER2(powerexternal)
 {
-    /* Unused argument warning suppression. */
-    buffers = buffers;
-
     RBRInstrumentPowerExternal actual;
     RBRInstrumentError err = RBRInstrument_getPowerExternal(instrument,
                                                             &actual);

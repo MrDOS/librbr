@@ -12,9 +12,6 @@
 
 TEST_LOGGER2(outputformat_channelslist)
 {
-    /* Buffers unused: returning UNSUPPORTED should not require instrument
-     * communication. */
-    buffers = buffers;
     RBRInstrumentError err;
     RBRInstrumentChannelsList channelsList;
 
@@ -63,9 +60,6 @@ TEST_LOGGER3(outputformat_channelslist)
 
 TEST_LOGGER2(outputformat_labelslist)
 {
-    /* Buffers unused: returning UNSUPPORTED should not require instrument
-     * communication. */
-    buffers = buffers;
     RBRInstrumentError err;
     RBRInstrumentLabelsList labelsList;
 
@@ -315,9 +309,6 @@ TEST_LOGGER3(streamserial_aux)
 
 TEST_LOGGER3(streamserial_aux_invalid)
 {
-    /* Buffers unused: returning INVALID_PARAMETER_VALUE should not require
-     * instrument communication. */
-    buffers = buffers;
     RBRInstrumentError err;
     RBRInstrumentAuxOutput auxOutput;
     auxOutput.aux = 0;
