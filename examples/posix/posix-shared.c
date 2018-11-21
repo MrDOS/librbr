@@ -46,6 +46,7 @@ int openSerialFd(char *devicePath)
     portSettings.c_cc[VTIME] = INSTRUMENT_CHARACTER_TIMEOUT_MSEC / 100;
     if (tcsetattr(instrumentFd, TCSANOW, &portSettings) < 0)
     {
+        close(instrumentFd);
         return -1;
     }
     return instrumentFd;
@@ -55,7 +56,7 @@ RBRInstrumentError instrumentTime(const struct RBRInstrument *instrument,
                                   int64_t *time)
 {
     /* Unused. */
-    instrument = instrument;
+    (void) instrument;
 
     struct timespec result;
     clock_gettime(CLOCK_MONOTONIC, &result);
@@ -67,7 +68,7 @@ RBRInstrumentError instrumentSleep(const struct RBRInstrument *instrument,
                                    int64_t time)
 {
     /* Unused. */
-    instrument = instrument;
+    (void) instrument;
 
     struct timespec sleep = {
         .tv_sec  =  time / 1000,

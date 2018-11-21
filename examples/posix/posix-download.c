@@ -26,7 +26,7 @@
 #include <sys/stat.h>
 /* Required for clock_gettime. */
 #include <time.h>
-/* Required for close, read, write. */
+/* Required for close, write. */
 #include <unistd.h>
 
 #include "posix-shared.h"

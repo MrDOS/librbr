@@ -17,8 +17,6 @@ extern "C" {
 
 #include "RBRInstrument.h"
 
-#define _POSIX_C_SOURCE 199309L
-
 #define INSTRUMENT_CHARACTER_TIMEOUT_MSEC 4000
 #define INSTRUMENT_COMMAND_TIMEOUT_MSEC 10000
 

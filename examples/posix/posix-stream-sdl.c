@@ -9,26 +9,17 @@
  * Licensed under the Apache License, Version 2.0.
  */
 
-/* Prerequisite for PATH_MAX in limits.h. */
-#define _POSIX_C_SOURCE 199309L
-
 /* Required for errno. */
 #include <errno.h>
-/* Required for open. */
-#include <fcntl.h>
-/* Required for PATH_MAX. */
-#include <limits.h>
-/* Required for isnan. */
-#include <math.h>
+/* Required for DBL_MAX. */
+#include <float.h>
 /* Required for SDL_*. */
 #include <SDL2/SDL.h>
 /* Required for fprintf. */
 #include <stdio.h>
 /* Required for memcpy, strerror. */
 #include <string.h>
-/* Required for open. */
-#include <sys/stat.h>
-/* Required for close, read, write. */
+/* Required for close. */
 #include <unistd.h>
 
 #include "posix-shared.h"
@@ -83,7 +74,7 @@ RBRInstrumentError instrumentSample(
     const struct RBRInstrumentSample *const sample)
 {
     /* Unused. */
-    instrument = instrument;
+    (void) instrument;
 
     if (sampleCount == SAMPLE_SIZE)
     {
