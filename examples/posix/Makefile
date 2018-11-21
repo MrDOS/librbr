@@ -11,7 +11,7 @@ posix-fetch: posix-shared.o posix-fetch.o ../../bin/librbr.a
 
 posix-stream: posix-shared.o posix-stream.o ../../bin/librbr.a
 
-posix-stream-sdl: LDFLAGS += -lSDL2
+posix-stream-sdl: LDLIBS += -lSDL2
 posix-stream-sdl: posix-shared.o posix-stream-sdl.o
 
 .PHONY: clean
