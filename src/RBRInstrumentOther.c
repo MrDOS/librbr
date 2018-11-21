@@ -557,16 +557,18 @@ RBRInstrumentError RBRInstrument_getInfo(
         more = RBRInstrument_parseResponse(instrument,
                                            &command,
                                            &parameter);
-        if (strcmp(parameter.key, "pn") != 0)
-        {
-            continue;
-        }
 
-        snprintf(info->partNumber,
-                 sizeof(info->partNumber),
-                 "%s",
-                 parameter.value);
-        break;
+        if (strcmp(parameter.key, "pn") == 0)
+        {
+            snprintf(info->partNumber,
+                     sizeof(info->partNumber),
+                     "%s",
+                     parameter.value);
+        }
+        else if (strcmp(parameter.key, "fwlock") == 0)
+        {
+            info->fwLock = (strcmp(parameter.value, "on") == 0);
+        }
     } while (more);
 
     return RBRINSTRUMENT_SUCCESS;

@@ -273,7 +273,8 @@ TEST_LOGGER2(info)
 TEST_LOGGER3(info)
 {
     RBRInstrumentInfo expected = {
-        .partNumber = "L3-M11-BEC11-SC11-ST11-SP11"
+        .partNumber = "L3-M11-BEC11-SC11-ST11-SP11",
+        .fwLock = false
     };
     RBRInstrumentInfo actual;
 
@@ -285,6 +286,29 @@ TEST_LOGGER3(info)
                                                    &actual);
     TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
     TEST_ASSERT_STR_EQ(expected.partNumber, actual.partNumber);
+    TEST_ASSERT_ENUM_EQ(expected.fwLock, actual.fwLock, bool);
+
+    return true;
+}
+
+/* `info fwlock` was added in fwtype 104, v1.094. */
+TEST_LOGGER3(info_fwlock)
+{
+    RBRInstrumentInfo expected = {
+        .partNumber = "L3-M11-F14-BEC11-G1-SCT12-SP11",
+        .fwLock = true
+    };
+    RBRInstrumentInfo actual;
+
+    TestIOBuffers_init(buffers,
+                       "info pn = L3-M11-F14-BEC11-G1-SCT12-SP11, fwlock = on"
+                       COMMAND_TERMINATOR,
+                       0);
+    RBRInstrumentError err = RBRInstrument_getInfo(instrument,
+                                                   &actual);
+    TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
+    TEST_ASSERT_STR_EQ(expected.partNumber, actual.partNumber);
+    TEST_ASSERT_ENUM_EQ(expected.fwLock, actual.fwLock, bool);
 
     return true;
 }

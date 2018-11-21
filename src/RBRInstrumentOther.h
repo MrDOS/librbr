@@ -424,6 +424,8 @@ typedef struct RBRInstrumentInfo
 {
     /** The RBR part number of the instrument. */
     char partNumber[RBRINSTRUMENT_PART_NUMBER_MAX + 1];
+    /** Whether firmware upgrades are locked. */
+    bool fwLock;
 } RBRInstrumentInfo;
 
 /**
