@@ -71,17 +71,11 @@ RBRInstrumentError RBRInstrument_enable(
 /**
  * \brief If the instrument is logging, terminate the current deployment.
  *
- * A hardware error is returned if the instrument is not currently logging. As
- * the `disable` command reports a status even in the event of an error,
- * \a status will be set to a valid value regardless of whether or not an error
- * was reported.
- *
  * \param [in] instrument the instrument connection
  * \param [out] status the instrument's status after having disabled logging
  * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully read
  * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
  * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
- * \return #RBRINSTRUMENT_HARDWARE_ERROR if the instrument was not logging
  * \see https://docs.rbr-global.com/L3commandreference/commands/deployments/disable
  */
 RBRInstrumentError RBRInstrument_disable(
