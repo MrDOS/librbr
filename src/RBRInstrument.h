@@ -59,7 +59,9 @@ extern const char *RBRINSTRUMENT_LIB_BUILD_DATE;
  * allocation based on `sizeof(RBRInstrument)`, a buffer of this size is
  * included.
  */
+#ifndef RBRINSTRUMENT_COMMAND_BUFFER_MAX
 #define RBRINSTRUMENT_COMMAND_BUFFER_MAX 120
+#endif
 
 /**
  * \brief The size of the buffer storing instrument responses.
@@ -73,7 +75,9 @@ extern const char *RBRINSTRUMENT_LIB_BUILD_DATE;
  * allocation based on `sizeof(RBRInstrument)`, a buffer of this size is
  * included.
  */
+#ifndef RBRINSTRUMENT_RESPONSE_BUFFER_MAX
 #define RBRINSTRUMENT_RESPONSE_BUFFER_MAX 1024
+#endif
 
 /**
  * \brief The maximum number of channels present on an instrument.
@@ -85,7 +89,9 @@ extern const char *RBRINSTRUMENT_LIB_BUILD_DATE;
  * RBRInstrument_getChannels()) and RBRInstrumentChannelsList (used by
  * RBRInstrument_getChannelsList()).
  */
+#ifndef RBRINSTRUMENT_CHANNEL_MAX
 #define RBRINSTRUMENT_CHANNEL_MAX 32
+#endif
 
 /** \brief Stringize the result of macro expansion. */
 #define xstr(s) str(s)
