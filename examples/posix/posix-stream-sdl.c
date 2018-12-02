@@ -234,6 +234,26 @@ int main(int argc, char *argv[])
         goto instrumentCleanup;
     }
 
+    RBRInstrumentError err;
+    RBRInstrumentDeployment deployment;
+    RBRInstrument_getDeployment(instrument, &deployment);
+    if (deployment.status != RBRINSTRUMENT_STATUS_LOGGING)
+    {
+        printf("%s: Instrument is %s, not logging. I'm going to start it.\n",
+               programName,
+               RBRInstrumentDeploymentStatus_name(deployment.status));
+
+        if ((err = instrumentStart(instrument)) != RBRINSTRUMENT_SUCCESS)
+        {
+            fprintf(stderr,
+                    "%s: Failed to start instrument: %s!\n",
+                    programName,
+                    RBRInstrumentError_name(err));
+            status = EXIT_FAILURE;
+            goto instrumentCleanup;
+        }
+    }
+
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
         fprintf(stderr, "%s: Failed to initialize SDL!\n", programName);
@@ -264,7 +284,6 @@ int main(int argc, char *argv[])
 
     SDL_bool done = SDL_FALSE;
 
-    RBRInstrumentError err;
     while (!done)
     {
         if ((err = RBRInstrument_readSample(instrument)) != RBRINSTRUMENT_SUCCESS)

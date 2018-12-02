@@ -36,6 +36,8 @@ RBRInstrumentError instrumentWrite(const struct RBRInstrument *instrument,
                                    const void *const data,
                                    int32_t size);
 
+RBRInstrumentError instrumentStart(RBRInstrument *instrument);
+
 #ifdef __cplusplus
 }
 #endif

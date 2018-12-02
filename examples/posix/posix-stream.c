@@ -9,12 +9,17 @@
  * Licensed under the Apache License, Version 2.0.
  */
 
+/* Prerequisite for gmtime_r in time.h. */
+#define _POSIX_C_SOURCE 199309L
+
 /* Required for errno. */
 #include <errno.h>
 /* Required for fprintf, printf. */
 #include <stdio.h>
 /* Required for strerror. */
 #include <string.h>
+/* Required for gmtime_r, time_t, strftime. */
+#include <time.h>
 /* Required for close. */
 #include <unistd.h>
 
@@ -27,7 +32,13 @@ RBRInstrumentError instrumentSample(
     /* Unused. */
     (void) instrument;
 
-    printf("%" PRIi64, sample->timestamp);
+    char ftime[128];
+    time_t sampleSeconds = (time_t) (sample->timestamp / 1000);
+    struct tm sampleTime;
+    gmtime_r(&sampleSeconds, &sampleTime);
+    strftime(ftime, sizeof(ftime), "%F %T", &sampleTime);
+
+    printf("%s.%03" PRIi64, ftime, sample->timestamp % 1000);
     for (int32_t i = 0; i < sample->channels; i++)
     {
         printf(", %lf", sample->readings[i]);
@@ -124,6 +135,25 @@ int main(int argc, char *argv[])
     }
 
     RBRInstrumentError err;
+    RBRInstrumentDeployment deployment;
+    RBRInstrument_getDeployment(instrument, &deployment);
+    if (deployment.status != RBRINSTRUMENT_STATUS_LOGGING)
+    {
+        printf("%s: Instrument is %s, not logging. I'm going to start it.\n",
+               programName,
+               RBRInstrumentDeploymentStatus_name(deployment.status));
+
+        if ((err = instrumentStart(instrument)) != RBRINSTRUMENT_SUCCESS)
+        {
+            fprintf(stderr,
+                    "%s: Failed to start instrument: %s!\n",
+                    programName,
+                    RBRInstrumentError_name(err));
+            status = EXIT_FAILURE;
+            goto instrumentCleanup;
+        }
+    }
+
     while (true)
     {
         if ((err = RBRInstrument_readSample(instrument)) != RBRINSTRUMENT_SUCCESS)
