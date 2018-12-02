@@ -92,8 +92,8 @@ static RBRInstrumentDateTime localTimeOffset = OFFSET_UNINITIALIZED;
 /**
  * \brief Like strstr, but for memory.
  */
-void *memmem(void *ptr1, size_t num1,
-             void *ptr2, size_t num2)
+void *rbr_memmem(void *ptr1, size_t num1,
+                 void *ptr2, size_t num2)
 {
     if (num2 > num1)
     {
@@ -260,7 +260,7 @@ static RBRInstrumentError RBRInstrument_readSingleResponse(
 {
     int64_t now;
     int32_t readLength;
-    while ((*end = (char *) memmem(
+    while ((*end = (char *) rbr_memmem(
                 instrument->responseBuffer,
                 instrument->responseBufferLength,
                 RBRINSTRUMENT_COMMAND_TERMINATOR,
