@@ -29,6 +29,11 @@ API document compilation requires [Doxygen].
 
 TODO: Platform assumptions/porting considerations.
 
+Platform-specific instructions and advice
+are available:
+
+* [Cygwin](cygwin.md)
+
 You may prefer to integrate
 the entire library source
 into your codebase.
