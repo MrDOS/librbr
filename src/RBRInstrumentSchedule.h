@@ -210,7 +210,7 @@ typedef struct RBRInstrumentSampling
      * RBRInstrumentSampling.userPeriodLimit—86,400,000.
      *
      * - When < 1,000, must be in RBRInstrumentSampling.availableFastPeriods.
-     * - When ≥ 1,000, must be a multiple of 1,000.
+     * - When ≥ 1,000, must be an integer multiple of 1,000.
      */
     RBRInstrumentPeriod period;
     /**
@@ -240,12 +240,21 @@ typedef struct RBRInstrumentSampling
      * \readonly
      */
     RBRInstrumentPeriod userPeriodLimit;
-    /** \brief The number of measurements taken in each burst. */
+    /**
+     * \brief The number of measurements taken in each burst.
+     *
+     * Specified in numbers of samples. Must be in the range 2—65,535.
+     */
     int32_t burstLength;
     /**
      * \brief The time between the first measurement of two consecutive bursts.
      *
-     * Specified in milliseconds.
+     * Specified in milliseconds. Must be in the range 1,000—86,400,000 and
+     * must be an integer multiple of 1,000. The burst interval is additionally
+     * constrained by the sampling period (RBRInstrumentSampling.period) and
+     * burst length (RBRInstrumentSampling.burstLength):
+     *
+     *     burst interval > (burst length × sampling period)
      */
     RBRInstrumentPeriod burstInterval;
     /** \brief The sampling gating condition. */
@@ -267,7 +276,13 @@ RBRInstrumentError RBRInstrument_getSampling(
     RBRInstrumentSampling *sampling);
 
 /**
- * \brief Set the instrument sampling parameters.
+ * \brief Set the instrument sampling mode and period.
+ *
+ * This does _not_ set burst parameters (RBRInstrumentSampling.burstLength and
+ * RBRInstrumentSampling.burstInterval). On instruments which do not support
+ * bursting/averaging, attempting to set these parameters results in a hardware
+ * error; to avoid this, bursting parameters may be configured via
+ * RBRInstrument_setBurstSampling().
  *
  * The values of RBRInstrumentSampling.userPeriodLimit and
  * RBRInstrumentSampling.availableFastPeriods are not sent to the instrument,
@@ -277,8 +292,8 @@ RBRInstrumentError RBRInstrument_getSampling(
  * 1,000 and the RBRInstrumentSampling.availableFastPeriods are populated, then
  * the period must be one of those available fast periods.
  *
- * Periods greater than or equal to 1,000 (one second) must be a multiple of
- * 1,000 and must be less than or equal to 86,400,000 (24 hours).
+ * Periods greater than or equal to 1,000 (one second) must be an integer
+ * multiple of 1,000 and must be less than or equal to 86,400,000 (24 hours).
  *
  * The value RBRInstrumentSampling.gate is also ignored. The gating mode is
  * controlled via commands for the individual gating mechanisms: see
@@ -288,7 +303,8 @@ RBRInstrumentError RBRInstrument_getSampling(
  *
  * - the instrument is logging
  * - you set an out-of-bounds parameter the library fails to detect
- * - you attempt to use a feature not supported by the instrument
+ * - you attempt to set sampling parameters for an RBRcoda (where sampling is
+ *   not supported)
  *
  * \param [in] instrument the instrument connection
  * \param [in] sampling the sampling parameters
@@ -299,8 +315,43 @@ RBRInstrumentError RBRInstrument_getSampling(
  * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when parameter values are out
  *                                                of range
  * \see https://docs.rbr-global.com/L3commandreference/commands/time-and-schedule/sampling
+ * \see RBRInstrument_setBurstSampling()
  */
 RBRInstrumentError RBRInstrument_setSampling(
+    RBRInstrument *instrument,
+    const RBRInstrumentSampling *sampling);
+
+/**
+ * \brief Set the instrument burst sampling length and interval.
+ *
+ * This sets only burst parameters (RBRInstrumentSampling.burstLength and
+ * RBRInstrumentSampling.burstInterval). To configure the sampling mode and
+ * period, use RBRInstrument_setSampling().
+ *
+ * Only burst parameters are sent to the instrument. However, the sampling
+ * period (RBRInstrumentSampling.period) is used to validate the burst
+ * interval, which is itself validated by RBRInstrumentSampling.userPeriodLimit
+ * and RBRInstrumentSampling.availableFastPeriods. See
+ * RBRInstrumentSampling.burstInterval for details.
+ *
+ * Hardware errors may occur if:
+ *
+ * - the instrument is logging
+ * - you set an out-of-bounds parameter the library fails to detect
+ * - bursting/averaging is not supported by the instrument
+ *
+ * \param [in] instrument the instrument connection
+ * \param [in] sampling the sampling parameters
+ * \return #RBRINSTRUMENT_SUCCESS when the settings are successfully written
+ * \return #RBRINSTRUMENT_TIMEOUT when a timeout occurs
+ * \return #RBRINSTRUMENT_CALLBACK_ERROR returned by a callback
+ * \return #RBRINSTRUMENT_HARDWARE_ERROR when the settings cannot be changed
+ * \return #RBRINSTRUMENT_INVALID_PARAMETER_VALUE when parameter values are out
+ *                                                of range
+ * \see https://docs.rbr-global.com/L3commandreference/commands/time-and-schedule/sampling
+ * \see RBRInstrument_setSampling()
+ */
+RBRInstrumentError RBRInstrument_setBurstSampling(
     RBRInstrument *instrument,
     const RBRInstrumentSampling *sampling);
 

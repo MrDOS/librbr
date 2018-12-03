@@ -406,13 +406,10 @@ RBRInstrumentError RBRInstrument_getSampling(
     return RBRINSTRUMENT_SUCCESS;
 }
 
-RBRInstrumentError RBRInstrument_setSampling(
-    RBRInstrument *instrument,
+RBRInstrumentError RBRInstrumentSampling_validateSamplingPeriod(
     const RBRInstrumentSampling *sampling)
 {
-    if (sampling->mode < 0
-        || sampling->mode >= RBRINSTRUMENT_SAMPLING_COUNT
-        || sampling->period <= 0
+    if (sampling->period <= 0
         || sampling->period > RBRINSTRUMENT_SAMPLING_PERIOD_MAX
         || (sampling->period >= 1000
             && sampling->period % 1000 != 0)
@@ -446,15 +443,48 @@ RBRInstrumentError RBRInstrument_setSampling(
         }
     }
 
+    return RBRINSTRUMENT_SUCCESS;
+}
+
+RBRInstrumentError RBRInstrument_setSampling(
+    RBRInstrument *instrument,
+    const RBRInstrumentSampling *sampling)
+{
+    RBR_TRY(RBRInstrumentSampling_validateSamplingPeriod(sampling));
+
+    if (sampling->mode < 0 || sampling->mode >= RBRINSTRUMENT_SAMPLING_COUNT)
+    {
+        return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
+    }
+
     return RBRInstrument_converse(
         instrument,
-        "sampling"
-        " mode = %s,"
-        " period = %d,"
-        " burstlength = %d,"
-        " burstinterval = %d",
+        "sampling mode = %s, period = %d",
         RBRInstrumentSamplingMode_name(sampling->mode),
-        sampling->period,
+        sampling->period);
+}
+
+RBRInstrumentError RBRInstrument_setBurstSampling(
+    RBRInstrument *instrument,
+    const RBRInstrumentSampling *sampling)
+{
+    RBR_TRY(RBRInstrumentSampling_validateSamplingPeriod(sampling));
+
+    int32_t minBurstInterval = sampling->burstLength * sampling->period;
+
+    if (sampling->burstLength < 2
+        || sampling->burstLength > 65535
+        || sampling->burstInterval < 1000
+        || sampling->burstInterval > RBRINSTRUMENT_SAMPLING_PERIOD_MAX
+        || sampling->burstInterval % 1000 != 0
+        || sampling->burstInterval <= minBurstInterval)
+    {
+        return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
+    }
+
+    return RBRInstrument_converse(
+        instrument,
+        "sampling burstlength = %d, burstinterval = %d",
         sampling->burstLength,
         sampling->burstInterval);
 }

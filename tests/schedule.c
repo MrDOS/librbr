@@ -299,7 +299,9 @@ typedef struct SamplingSetTest
 {
     RBRInstrumentSampling sampling;
     const char *command;
+    const char *burstCommand;
     RBRInstrumentError expectedError;
+    RBRInstrumentError expectedBurstError;
 } SamplingSetTest;
 
 TEST_LOGGER3(sampling_set)
@@ -315,8 +317,10 @@ TEST_LOGGER3(sampling_set)
                 .burstInterval = 300000,
                 .gate = RBRINSTRUMENT_GATE_NONE
             },
-            "sampling mode = continuous, period = 1000, burstlength = 240, "
-            "burstinterval = 300000" COMMAND_TERMINATOR,
+            "sampling mode = continuous, period = 1000" COMMAND_TERMINATOR,
+            "sampling burstlength = 240, burstinterval = 300000"
+            COMMAND_TERMINATOR,
+            RBRINSTRUMENT_SUCCESS,
             RBRINSTRUMENT_SUCCESS
         },
         {
@@ -330,7 +334,9 @@ TEST_LOGGER3(sampling_set)
                 .gate = RBRINSTRUMENT_GATE_THRESHOLDING
             },
             "",
+            "",
             /* Failure because the period isn't in availableFastPeriods. */
+            RBRINSTRUMENT_INVALID_PARAMETER_VALUE,
             RBRINSTRUMENT_INVALID_PARAMETER_VALUE
         },
         {
@@ -344,10 +350,28 @@ TEST_LOGGER3(sampling_set)
                 .gate = RBRINSTRUMENT_GATE_THRESHOLDING
             },
             "",
+            "",
             /* Failure because the period is less than userPeriodLimit. */
+            RBRINSTRUMENT_INVALID_PARAMETER_VALUE,
             RBRINSTRUMENT_INVALID_PARAMETER_VALUE
         },
-        {{0}, 0, 0}
+        {
+            {
+                .mode = RBRINSTRUMENT_SAMPLING_CONTINUOUS,
+                .period = 1000,
+                .availableFastPeriods = {500, 250, 125, 63, 32, 0},
+                .userPeriodLimit = 32,
+                .burstLength = 240,
+                .burstInterval = 1000 * 240,
+                .gate = RBRINSTRUMENT_GATE_NONE
+            },
+            "sampling mode = continuous, period = 1000" COMMAND_TERMINATOR,
+            "",
+            RBRINSTRUMENT_SUCCESS,
+            /* Failure because the burst interval is inconsistent. */
+            RBRINSTRUMENT_INVALID_PARAMETER_VALUE
+        },
+        {{0}, 0, 0, 0, 0}
     };
 
     RBRInstrumentError err;
@@ -358,6 +382,13 @@ TEST_LOGGER3(sampling_set)
         err = RBRInstrument_setSampling(instrument, &tests[i].sampling);
         TEST_ASSERT_ENUM_EQ(tests[i].expectedError, err, RBRInstrumentError);
         TEST_ASSERT_STR_EQ(tests[i].command, buffers->writeBuffer);
+
+        TestIOBuffers_init(buffers, tests[i].burstCommand, 0);
+        err = RBRInstrument_setBurstSampling(instrument, &tests[i].sampling);
+        TEST_ASSERT_ENUM_EQ(tests[i].expectedBurstError,
+                            err,
+                            RBRInstrumentError);
+        TEST_ASSERT_STR_EQ(tests[i].burstCommand, buffers->writeBuffer);
     }
 
     return true;
