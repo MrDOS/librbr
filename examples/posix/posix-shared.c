@@ -9,7 +9,7 @@
  */
 
 /* Prerequisite for clock_gettime, struct timespec in time.h. */
-#define _POSIX_C_SOURCE 199309L
+#define _POSIX_C_SOURCE 200112L
 
 /* Required for open. */
 #include <fcntl.h>
@@ -40,10 +40,18 @@ int openSerialFd(char *devicePath)
     memset(&portSettings, 0, sizeof(struct termios));
     portSettings.c_iflag = 0;
     portSettings.c_oflag = 0;
-    portSettings.c_cflag = B115200 | CS8 | CLOCAL | CREAD;
+    portSettings.c_cflag = CS8 | CLOCAL | CREAD;
     portSettings.c_lflag = 0;
     portSettings.c_cc[VMIN] = 0;
     portSettings.c_cc[VTIME] = INSTRUMENT_CHARACTER_TIMEOUT_MSEC / 100;
+
+#ifdef B115200
+    portSettings.c_cflag |= B115200;
+#else
+    cfsetispeed(&portSettings, 115200);
+    cfsetospeed(&portSettings, 115200);
+#endif
+
     if (tcsetattr(instrumentFd, TCSANOW, &portSettings) < 0)
     {
         close(instrumentFd);

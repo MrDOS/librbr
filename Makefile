@@ -44,11 +44,24 @@ export LIB_VERSION ?= $(shell \
 ## - `c`: create the archive if necessary
 ## - `r`: replace existing contents of archive
 ## - `s`: create/update archive index
+##
+## In pursuit of reproducible builds, recent versions of Debian (and therefore
+## derivatives, including Ubuntu) ship a version of ar(1) which produces
+## “deterministic” archives; i.e., the UID/GID/timestamp/mode file attributes
+## are 0'd out. Unfortunately, because make(1) decides whether or not a target
+## needs to be built by comparing target and dependency modification times,
+## this completely breaks incremental builds: with deterministic archives left
+## enabled, every invocation of `make lib` causes the entire library to be
+## rebuilt. As a workaround, we'll explicitly disable deterministic mode on
+## systems using Gnu ar(1):
+##
 ## - `U`: maintain original UID/GID/timestamp/mode of archive contents
 ##
-## `U` is the default behaviour of the utility except on recent Debian (and
-## therefore, Ubuntu) systems, so we specify it for safety.
-ARFLAGS := crsU
+## The build is nondeterministic anyway because of the embedded build date, so
+## we gain nothing from leaving deterministic mode on, and we save a lot of
+## developer time on the edit/compile/test loop by turning it off.
+ARFLAGS := -c -r -s
+ARFLAGS += $(shell ar --version 2>&1 | grep -q GNU && echo -U)
 
 ## \brief C compilation flags.
 ##

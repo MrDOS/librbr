@@ -10,7 +10,7 @@
  */
 
 /* Prerequisite for gmtime_r in time.h. */
-#define _POSIX_C_SOURCE 199309L
+#define _POSIX_C_SOURCE 200112L
 
 /* Required for errno. */
 #include <errno.h>

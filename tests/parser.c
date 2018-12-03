@@ -39,7 +39,7 @@ TEST_PARSER(event, two_channels)
     TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_EVENT_WIFI_MODULE_DETECTED_AND_ACTIVATED,
                         buffers->events[0].type,
                         RBRInstrumentEventType);
-    TEST_ASSERT_EQ(1541619802000L,
+    TEST_ASSERT_EQ((int64_t) 1541619802000LL,
                    buffers->events[0].timestamp,
                    "%" PRIi64);
     TEST_ASSERT_EQ(0,
@@ -66,7 +66,7 @@ TEST_PARSER(event_with_auxiliary_data, two_channels)
     TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_EVENT_BEGIN_PROFILING_UP_CAST,
                         buffers->events[0].type,
                         RBRInstrumentEventType);
-    TEST_ASSERT_EQ(1541619138000L,
+    TEST_ASSERT_EQ((int64_t) 1541619138000LL,
                    buffers->events[0].timestamp,
                    "%" PRIi64);
     TEST_ASSERT_EQ(1,
@@ -99,7 +99,7 @@ TEST_PARSER(events, two_channels)
         RBRINSTRUMENT_EVENT_STREAMING_ON_FOR_USB_OFF_FOR_SERIAL,
         buffers->events[0].type,
         RBRInstrumentEventType);
-    TEST_ASSERT_EQ(1541620083000L,
+    TEST_ASSERT_EQ((int64_t) 1541620083000LL,
                    buffers->events[0].timestamp,
                    "%" PRIi64);
     TEST_ASSERT_EQ(0,
@@ -110,7 +110,7 @@ TEST_PARSER(events, two_channels)
         RBRINSTRUMENT_EVENT_STREAMING_NOW_OFF_FOR_BOTH_PORTS,
         buffers->events[1].type,
         RBRInstrumentEventType);
-    TEST_ASSERT_EQ(1541620084000L,
+    TEST_ASSERT_EQ((int64_t) 1541620084000LL,
                    buffers->events[1].timestamp,
                    "%" PRIi64);
     TEST_ASSERT_EQ(0,
@@ -132,27 +132,27 @@ TEST_PARSER(samples, two_channels)
 
     RBRInstrumentSample expected[] = {
         {
-            .timestamp = 1541620083000L,
+            .timestamp = 1541620083000LL,
             .channels = 2,
             .readings = {1.0f, 2.0f}
         },
         {
-            .timestamp = 1541620084000L,
+            .timestamp = 1541620084000LL,
             .channels = 2,
             .readings = {3.0f, 4.0f}
         },
         {
-            .timestamp = 1541620085000L,
+            .timestamp = 1541620085000LL,
             .channels = 2,
             .readings = {5.0f, 6.0f}
         },
         {
-            .timestamp = 1541620086000L,
+            .timestamp = 1541620086000LL,
             .channels = 2,
             .readings = {7.0f, 8.0f}
         },
         {
-            .timestamp = 1541620087000L,
+            .timestamp = 1541620087000LL,
             .channels = 2,
             .readings = {9.0f, 10.0f}
         }
