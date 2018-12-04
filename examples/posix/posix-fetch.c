@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     int status = EXIT_SUCCESS;
     int instrumentFd;
 
-    RBRInstrumentError error;
+    RBRInstrumentError err;
     RBRInstrument *instrument = NULL;
 
     if (argc < 2)
@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
         .write = instrumentWrite
     };
 
-    if ((error = RBRInstrument_open(
+    if ((err = RBRInstrument_open(
              &instrument,
              &callbacks,
              INSTRUMENT_COMMAND_TIMEOUT_MSEC,
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
     {
         fprintf(stderr, "%s: Failed to establish instrument connection: %s!\n",
                 programName,
-                RBRInstrumentError_name(error));
+                RBRInstrumentError_name(err));
         status = EXIT_FAILURE;
         goto fileCleanup;
     }
@@ -106,7 +106,6 @@ int main(int argc, char *argv[])
     }
 
     RBRInstrumentSample sample;
-    RBRInstrumentError err;
     while (true)
     {
         err = RBRInstrument_fetch(instrument, NULL, false, &sample);
