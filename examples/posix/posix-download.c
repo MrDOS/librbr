@@ -31,6 +31,8 @@
 
 #include "posix-shared.h"
 
+#define CHUNK_SIZE 4096
+
 int main(int argc, char *argv[])
 {
     char *programName = argv[0];
@@ -110,7 +112,7 @@ int main(int argc, char *argv[])
     RBRInstrument_getMemoryInfo(instrument, &meminfo);
     printf("Dataset %s is %0.2f%% full (%" PRIi32 "B used).\n",
            RBRInstrumentDataset_name(meminfo.dataset),
-           ((float) meminfo.used) / meminfo.size,
+           ((float) meminfo.used) / meminfo.size * 100,
            meminfo.used);
 
     RBRInstrumentMemoryFormat memformat;
@@ -132,26 +134,41 @@ int main(int argc, char *argv[])
 
     char filename[PATH_MAX + 1];
     snprintf(filename, sizeof(filename), "%06d.bin", id.serial);
-    int downloadFd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    int downloadFd;
+    if ((downloadFd = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644)) < 0)
+    {
+        fprintf(stderr, "%s: Failed to open output file: %s!\n",
+                programName,
+                strerror(errno));
+        return EXIT_FAILURE;
+    }
 
-    uint8_t buf[1024];
+    struct stat stat;
+    if (fstat(downloadFd, &stat) < 0)
+    {
+        fprintf(stderr, "%s: Failed to stat output file: %s!\n",
+                programName,
+                strerror(errno));
+        return EXIT_FAILURE;
+    }
+    int32_t initialOffset = stat.st_size;
+
+    uint8_t buf[CHUNK_SIZE];
     RBRInstrumentData data = {
         .dataset = RBRINSTRUMENT_DATASET_STANDARD,
-        .offset  = 0,
+        .offset  = initialOffset,
         .data    = buf
     };
 
     printf("Downloading:\n");
 
     struct timespec start;
-    struct timespec finish;
+    struct timespec now;
+    double elapsed = 0.0;
+    double rate = 0.0;
     clock_gettime(CLOCK_MONOTONIC, &start);
     while (data.offset < meminfo.used)
     {
-        printf("\r%0.2f%% (%" PRIi32 "B/%" PRIi32 "B)",
-               (((float) data.offset) / meminfo.used) * 100,
-               data.offset,
-               meminfo.used);
         data.size = sizeof(buf);
         err = RBRInstrument_readData(instrument, &data);
         if (err == RBRINSTRUMENT_SUCCESS)
@@ -168,19 +185,29 @@ int main(int argc, char *argv[])
             printf("\nError: %s", RBRInstrumentError_name(err));
             break;
         }
-    }
-    clock_gettime(CLOCK_MONOTONIC, &finish);
 
-    double elapsed;
-    elapsed  = finish.tv_sec - start.tv_sec;
-    elapsed *= 1000000000L;
-    elapsed += finish.tv_nsec - start.tv_nsec;
-    elapsed /= 1000000000L;
+        clock_gettime(CLOCK_MONOTONIC, &now);
+
+        elapsed  = now.tv_sec - start.tv_sec;
+        elapsed *= 1000000000L;
+        elapsed += now.tv_nsec - start.tv_nsec;
+        elapsed /= 1000000000L;
+
+        rate = elapsed > 0.0 ? (data.offset - initialOffset) / elapsed : 0.0;
+
+        printf("\r%0.2f%% (%" PRIi32 "B/%" PRIi32 "B; %0.3fs elapsed; "
+               "%0.3fB/s)",
+               (((float) data.offset) / meminfo.used) * 100,
+               data.offset,
+               meminfo.used,
+               elapsed,
+               rate);
+    }
 
     printf("\nDone. Downloaded %" PRIi32 "B in %0.3fs (%0.3fB/s).\n",
            data.offset,
            elapsed,
-           data.offset / elapsed);
+           rate);
     close(downloadFd);
 
     RBRInstrument_close(instrument);
