@@ -23,10 +23,10 @@ extern "C" {
 int openSerialFd(char *devicePath);
 
 RBRInstrumentError instrumentTime(const struct RBRInstrument *instrument,
-                                  int64_t *time);
+                                  RBRInstrumentDateTime *time);
 
 RBRInstrumentError instrumentSleep(const struct RBRInstrument *instrument,
-                                   int64_t time);
+                                   RBRInstrumentDateTime time);
 
 RBRInstrumentError instrumentRead(const struct RBRInstrument *instrument,
                                   void *data,

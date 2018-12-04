@@ -333,7 +333,7 @@ struct RBRInstrument;
  */
 typedef RBRInstrumentError (*RBRInstrumentTimeCallback)(
     const struct RBRInstrument *instrument,
-    int64_t *time);
+    RBRInstrumentDateTime *time);
 
 /**
  * \brief Callback to suspend instrument activity for a fixed amount of time.
@@ -359,7 +359,7 @@ typedef RBRInstrumentError (*RBRInstrumentTimeCallback)(
  */
 typedef RBRInstrumentError (*RBRInstrumentSleepCallback)(
     const struct RBRInstrument *instrument,
-    int64_t time);
+    RBRInstrumentDateTime time);
 
 /**
  * \brief Callback to read data from the physical instrument.
@@ -608,7 +608,7 @@ typedef struct RBRInstrument
      * See [Timeouts](timeouts.md) for details on how the library handles
      * timeouts.
      */
-    int64_t commandTimeout;
+    RBRInstrumentDateTime commandTimeout;
 
     /** \brief Arbitrary user data; useful in callbacks. */
     void *userData;
@@ -625,7 +625,7 @@ typedef struct RBRInstrument
      * Used to determine whether the instrument needs to be woken before
      * further commands are sent.
      */
-    int64_t lastActivityTime;
+    RBRInstrumentDateTime lastActivityTime;
 
     /**
      * \brief The length in bytes of the most recent response.
@@ -752,7 +752,7 @@ typedef struct RBRInstrument
  */
 RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
                                       const RBRInstrumentCallbacks *callbacks,
-                                      int64_t commandTimeout,
+                                      RBRInstrumentDateTime commandTimeout,
                                       void *userData);
 
 /**
@@ -783,7 +783,8 @@ RBRInstrumentGeneration RBRInstrument_getGeneration(
  * \return the command timeout
  * \see RBRInstrument_setCommandTimeout()
  */
-int64_t RBRInstrument_getCommandTimeout(const RBRInstrument *instrument);
+RBRInstrumentDateTime RBRInstrument_getCommandTimeout(
+    const RBRInstrument *instrument);
 
 /**
  * \brief Set the command timeout.
@@ -793,7 +794,7 @@ int64_t RBRInstrument_getCommandTimeout(const RBRInstrument *instrument);
  * \see RBRInstrument_getCommandTimeout()
  */
 void RBRInstrument_setCommandTimeout(RBRInstrument *instrument,
-                                     int64_t commandTimeout);
+                                     RBRInstrumentDateTime commandTimeout);
 
 /**
  * \brief Get the pointer to arbitrary user data.

@@ -73,7 +73,7 @@ int openSerialFd(char *devicePath)
 }
 
 RBRInstrumentError instrumentTime(const struct RBRInstrument *instrument,
-                                  int64_t *time)
+                                  RBRInstrumentDateTime *time)
 {
     /* Unused. */
     (void) instrument;
@@ -85,7 +85,7 @@ RBRInstrumentError instrumentTime(const struct RBRInstrument *instrument,
 }
 
 RBRInstrumentError instrumentSleep(const struct RBRInstrument *instrument,
-                                   int64_t time)
+                                   RBRInstrumentDateTime time)
 {
     /* Unused. */
     (void) instrument;

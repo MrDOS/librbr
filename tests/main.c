@@ -29,7 +29,7 @@ void TestIOBuffers_init(TestIOBuffers *buffers,
 
 RBRInstrumentError TestIOBuffers_time(
     const struct RBRInstrument *instrument,
-    int64_t *time)
+    RBRInstrumentDateTime *time)
 {
     /* No-op. */
     *time = 0;
@@ -38,7 +38,7 @@ RBRInstrumentError TestIOBuffers_time(
 
 RBRInstrumentError TestIOBuffers_sleep(
     const struct RBRInstrument *instrument,
-    int64_t time)
+    RBRInstrumentDateTime time)
 {
     /* No-op. */
     return RBRINSTRUMENT_SUCCESS;

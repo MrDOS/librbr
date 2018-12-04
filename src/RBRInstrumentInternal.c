@@ -121,7 +121,7 @@ void *rbr_memmem(void *ptr1, size_t num1,
  */
 static RBRInstrumentError RBRInstrument_wake(const RBRInstrument *instrument)
 {
-    int64_t now;
+    RBRInstrumentDateTime now;
     RBR_TRY(instrument->callbacks.time(instrument, &now));
 
     if (instrument->lastActivityTime >= 0
@@ -255,10 +255,10 @@ static void RBRInstrument_removeLastResponse(RBRInstrument *instrument)
  */
 static RBRInstrumentError RBRInstrument_readSingleResponse(
     RBRInstrument *instrument,
-    int64_t startTime,
+    RBRInstrumentDateTime startTime,
     char **end)
 {
-    int64_t now;
+    RBRInstrumentDateTime now;
     int32_t readLength;
     while ((*end = (char *) rbr_memmem(
                 instrument->responseBuffer,
@@ -578,7 +578,7 @@ RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument,
 
     /* Skip over streaming samples until we find a real command response, or
      * until we exceed the command timeout. */
-    int64_t startTime;
+    RBRInstrumentDateTime startTime;
     RBR_TRY(instrument->callbacks.time(instrument, &startTime));
     while (true)
     {

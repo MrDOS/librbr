@@ -144,7 +144,7 @@ static RBRInstrumentError RBRInstrument_populateGeneration(
 
 RBRInstrumentError RBRInstrument_open(RBRInstrument **instrument,
                                       const RBRInstrumentCallbacks *callbacks,
-                                      int64_t commandTimeout,
+                                      RBRInstrumentDateTime commandTimeout,
                                       void *userData)
 {
     if (callbacks == NULL
@@ -224,13 +224,14 @@ RBRInstrumentGeneration RBRInstrument_getGeneration(
     return instrument->generation;
 }
 
-int64_t RBRInstrument_getCommandTimeout(const RBRInstrument *instrument)
+RBRInstrumentDateTime RBRInstrument_getCommandTimeout(
+    const RBRInstrument *instrument)
 {
     return instrument->commandTimeout;
 }
 
 void RBRInstrument_setCommandTimeout(RBRInstrument *instrument,
-                                     int64_t commandTimeout)
+                                     RBRInstrumentDateTime commandTimeout)
 {
     instrument->commandTimeout = commandTimeout;
 }
