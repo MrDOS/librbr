@@ -32,7 +32,13 @@ export LIB_NAME ?= librbr
 ##
 ## Embedded into the library and documentation. Determined from the contents of
 ## the VERSION file.
-export LIB_VERSION ?= $(shell cat VERSION)
+export LIB_VERSION ?= $(shell head -n 1 VERSION)
+
+## \brief The project build date.
+##
+## Embedded into the library. Probably shouldn't be overridden, unless you want
+## to match the build date or timestamp format of a containing project.
+export LIB_BUILD_DATE ?= $(shell date '+%FT%T%z')
 
 ## \brief Archiver flags.
 ##
@@ -82,9 +88,9 @@ CFLAGS := -Werror \
           -std=c99 \
           -g
 
-CFLAGS += -DLIB_NAME=\""$(LIB_NAME)"\" \
-          -DLIB_VERSION=\""$(LIB_VERSION)"\" \
-          -DLIB_BUILD_DATE=\"$(shell date '+%FT%T%z')\"
+CFLAGS += -DRBR_LIB_NAME=\""$(LIB_NAME)"\" \
+          -DRBR_LIB_VERSION=\""$(LIB_VERSION)"\" \
+          -DRBR_LIB_BUILD_DATE=\"$(LIB_BUILD_DATE)\"
 
 all: lib docs tests
 

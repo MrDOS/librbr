@@ -18,9 +18,29 @@
 
 #define RBRINSTRUMENT_NO_ACTIVITY -1
 
-const char *RBRINSTRUMENT_LIB_NAME = LIB_NAME;
-const char *RBRINSTRUMENT_LIB_VERSION = LIB_VERSION;
-const char *RBRINSTRUMENT_LIB_BUILD_DATE = LIB_BUILD_DATE;
+const char *RBRINSTRUMENT_LIB_NAME =
+#ifdef RBR_LIB_NAME
+    RBR_LIB_NAME
+#else
+    "librbr"
+#endif
+;
+
+const char *RBRINSTRUMENT_LIB_VERSION =
+#ifdef RBR_LIB_VERSION
+    RBR_LIB_VERSION
+#else
+    "unknown"
+#endif
+;
+
+const char *RBRINSTRUMENT_LIB_BUILD_DATE =
+#ifdef RBR_LIB_BUILD_DATE
+    RBR_LIB_BUILD_DATE
+#else
+    "unknown"
+#endif
+;
 
 const char *RBRInstrumentError_name(RBRInstrumentError error)
 {
