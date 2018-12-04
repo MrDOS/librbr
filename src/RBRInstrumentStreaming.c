@@ -36,15 +36,19 @@ RBRInstrumentError RBRInstrument_getChannelsList(
 
     RBR_TRY(RBRInstrument_converse(instrument, "outputformat channelslist"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "channelslist") != 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "channelslist") != 0)
         {
             continue;
         }
@@ -78,7 +82,7 @@ RBRInstrumentError RBRInstrument_getChannelsList(
         channelsList->count = channel;
 
         break;
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -96,15 +100,19 @@ RBRInstrumentError RBRInstrument_getLabelsList(
 
     RBR_TRY(RBRInstrument_converse(instrument, "outputformat labelslist"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "labelslist") != 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "labelslist") != 0)
         {
             continue;
         }
@@ -123,7 +131,7 @@ RBRInstrumentError RBRInstrument_getLabelsList(
         labelsList->count = label;
 
         break;
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -175,15 +183,19 @@ RBRInstrumentError RBRInstrument_getAvailableOutputFormats(
 
     RBR_TRY(RBRInstrument_converse(instrument, command));
 
-    bool more = false;
     command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, searchKey) != 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, searchKey) != 0)
         {
             continue;
         }
@@ -212,7 +224,7 @@ RBRInstrumentError RBRInstrument_getAvailableOutputFormats(
         } while (nextValue != NULL);
 
         break;
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -225,15 +237,19 @@ RBRInstrumentError RBRInstrument_getOutputFormat(
 
     RBR_TRY(RBRInstrument_converse(instrument, "outputformat type"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "type") != 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "type") != 0)
         {
             continue;
         }
@@ -251,7 +267,7 @@ RBRInstrumentError RBRInstrument_getOutputFormat(
         }
 
         break;
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -360,15 +376,19 @@ RBRInstrumentError RBRInstrument_getAuxOutput(
                                    "streamserial aux%" PRIi8 "_all",
                                    aux));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "aux1_state") == 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "aux1_state") == 0)
         {
             auxOutput->enabled = (strcmp(parameter.value, "on") == 0);
         }
@@ -408,7 +428,7 @@ RBRInstrumentError RBRInstrument_getAuxOutput(
                 }
             }
         }
-    } while (more);
+    }
     auxOutput->aux = aux;
 
     return RBRINSTRUMENT_SUCCESS;

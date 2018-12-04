@@ -19,16 +19,20 @@ static RBRInstrumentError RBRInstrument_parseDeploymentResponse(
     const char *deploymentCommand,
     RBRInstrumentDeploymentStatus *status)
 {
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "status") != 0
-            && strcmp(parameter.key, deploymentCommand) != 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "status") != 0
+                 && strcmp(parameter.key, deploymentCommand) != 0)
         {
             continue;
         }
@@ -44,7 +48,7 @@ static RBRInstrumentError RBRInstrument_parseDeploymentResponse(
         }
 
         break;
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -112,15 +116,19 @@ RBRInstrumentError RBRInstrument_getSimulation(
 
     RBR_TRY(RBRInstrument_converse(instrument, "simulation"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "state") == 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "state") == 0)
         {
             simulation->state = (strcmp(parameter.value, "on") == 0);
         }
@@ -128,7 +136,7 @@ RBRInstrumentError RBRInstrument_getSimulation(
         {
             simulation->period = strtol(parameter.value, NULL, 10);
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }

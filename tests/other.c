@@ -86,6 +86,28 @@ TEST_LOGGER3(id)
     return true;
 }
 
+TEST_LOGGER3(id_short)
+{
+    RBRInstrumentId expected = {
+        .model = "",
+        .version = "",
+        .serial = 0,
+        .fwtype = 0
+    };
+    RBRInstrumentId actual;
+
+    TestIOBuffers_init(buffers, "id" COMMAND_TERMINATOR, 0);
+    RBRInstrumentError err = RBRInstrument_getId(instrument, &actual);
+    TEST_ASSERT_STR_EQ("id" COMMAND_TERMINATOR, buffers->writeBuffer);
+    TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
+    TEST_ASSERT_STR_EQ(expected.model, actual.model);
+    TEST_ASSERT_STR_EQ(expected.version, actual.version);
+    TEST_ASSERT_EQ(expected.serial, actual.serial, "%" PRIi32);
+    TEST_ASSERT_EQ(expected.fwtype, actual.fwtype, "%" PRIi32);
+
+    return true;
+}
+
 TEST_LOGGER2(hwrev)
 {
     RBRInstrumentHardwareRevision expected = {

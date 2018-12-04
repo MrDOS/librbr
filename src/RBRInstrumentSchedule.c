@@ -19,7 +19,6 @@
 static RBRInstrumentError RBRInstrument_getClockL2(RBRInstrument *instrument,
                                                    RBRInstrumentClock *clock)
 {
-    bool more;
     char *command;
     RBRInstrumentResponseParameter parameter;
 
@@ -39,12 +38,17 @@ static RBRInstrumentError RBRInstrument_getClockL2(RBRInstrument *instrument,
     else
     {
         command = NULL;
-        do
+        while (true)
         {
-            more = RBRInstrument_parseResponse(instrument,
-                                               &command,
-                                               &parameter);
-            if (strcmp(parameter.key, "offsetfromutc") != 0)
+            RBRInstrument_parseResponse(instrument,
+                                        &command,
+                                        &parameter);
+
+            if (parameter.key == NULL || parameter.value == NULL)
+            {
+                break;
+            }
+            else if (strcmp(parameter.key, "offsetfromutc") != 0)
             {
                 continue;
             }
@@ -53,7 +57,7 @@ static RBRInstrumentError RBRInstrument_getClockL2(RBRInstrument *instrument,
             {
                 clock->offsetFromUtc = strtod(parameter.value, NULL);
             }
-        } while (more);
+        }
     }
 
     /* Retrieve the time after the UTC offset so our return value is as close
@@ -61,12 +65,17 @@ static RBRInstrumentError RBRInstrument_getClockL2(RBRInstrument *instrument,
     RBR_TRY(RBRInstrument_converse(instrument, "now"));
 
     command = NULL;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "now") != 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "now") != 0)
         {
             continue;
         }
@@ -74,7 +83,7 @@ static RBRInstrumentError RBRInstrument_getClockL2(RBRInstrument *instrument,
         RBR_TRY(RBRInstrumentDateTime_parseScheduleTime(parameter.value,
                                                         &clock->dateTime,
                                                         NULL));
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -84,15 +93,19 @@ static RBRInstrumentError RBRInstrument_getClockL3(RBRInstrument *instrument,
 {
     RBR_TRY(RBRInstrument_converse(instrument, "clock"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "datetime") == 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "datetime") == 0)
         {
             RBR_TRY(RBRInstrumentDateTime_parseScheduleTime(parameter.value,
                                                             &clock->dateTime,
@@ -103,7 +116,7 @@ static RBRInstrumentError RBRInstrument_getClockL3(RBRInstrument *instrument,
         {
             clock->offsetFromUtc = strtod(parameter.value, NULL);
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -288,15 +301,19 @@ RBRInstrumentError RBRInstrument_getSampling(
 
     RBR_TRY(RBRInstrument_converse(instrument, generationCommand));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "mode") == 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "mode") == 0)
         {
             for (int i = 0; i < RBRINSTRUMENT_SAMPLING_COUNT; ++i)
             {
@@ -401,7 +418,7 @@ RBRInstrumentError RBRInstrument_getSampling(
                      && periodCount
                      < RBRINSTRUMENT_AVAILABLE_FAST_PERIODS_MAX);
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -528,7 +545,6 @@ static RBRInstrumentError RBRInstrument_getDeploymentL2(
     RBRInstrument *instrument,
     RBRInstrumentDeployment *deployment)
 {
-    bool more;
     char *command;
     RBRInstrumentResponseParameter parameter;
 
@@ -537,12 +553,17 @@ static RBRInstrumentError RBRInstrument_getDeploymentL2(
 
     RBR_TRY(RBRInstrument_converse(instrument, "starttime"));
     command = NULL;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "starttime") != 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "starttime") != 0)
         {
             continue;
         }
@@ -551,16 +572,21 @@ static RBRInstrumentError RBRInstrument_getDeploymentL2(
                     parameter.value,
                     &deployment->startTime,
                     NULL));
-    } while (more);
+    }
 
     RBR_TRY(RBRInstrument_converse(instrument, "endtime"));
     command = NULL;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "endtime") != 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "endtime") != 0)
         {
             continue;
         }
@@ -569,16 +595,21 @@ static RBRInstrumentError RBRInstrument_getDeploymentL2(
                     parameter.value,
                     &deployment->endTime,
                     NULL));
-    } while (more);
+    }
 
     RBR_TRY(RBRInstrument_converse(instrument, "status"));
     command = NULL;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "status") != 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "status") != 0)
         {
             continue;
         }
@@ -592,7 +623,7 @@ static RBRInstrumentError RBRInstrument_getDeploymentL2(
                 break;
             }
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -603,15 +634,19 @@ static RBRInstrumentError RBRInstrument_getDeploymentL3(
 {
     RBR_TRY(RBRInstrument_converse(instrument, "deployment"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "starttime") == 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "starttime") == 0)
         {
             RBR_TRY(RBRInstrumentDateTime_parseScheduleTime(
                         parameter.value,
@@ -637,7 +672,7 @@ static RBRInstrumentError RBRInstrument_getDeploymentL3(
                 }
             }
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }

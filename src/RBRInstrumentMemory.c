@@ -51,15 +51,19 @@ RBRInstrumentError RBRInstrument_getMemoryInfo(
                                    "meminfo dataset = %d",
                                    dataset));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "dataset") == 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "dataset") == 0)
         {
             memoryInfo->dataset = strtol(parameter.value, NULL, 10);
         }
@@ -75,7 +79,7 @@ RBRInstrumentError RBRInstrument_getMemoryInfo(
         {
             memoryInfo->size = strtol(parameter.value, NULL, 10);
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -96,15 +100,19 @@ static RBRInstrumentError RBRInstrumentL3_parseDataResponse(
     RBRInstrument *instrument,
     RBRInstrumentData *data)
 {
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "dataset") == 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "dataset") == 0)
         {
             data->dataset = strtol(parameter.value, NULL, 10);
         }
@@ -116,7 +124,8 @@ static RBRInstrumentError RBRInstrumentL3_parseDataResponse(
         {
             data->offset = strtol(parameter.value, NULL, 10);
         }
-    } while (more);
+    }
+
     return RBRINSTRUMENT_SUCCESS;
 }
 
@@ -340,16 +349,20 @@ RBRInstrumentError RBRInstrument_getAvailableMemoryFormats(
     }
     RBR_TRY(RBRInstrument_converse(instrument, generationCommand));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "availabletypes") != 0
-            && strcmp(parameter.key, "support") != 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "availabletypes") != 0
+                 && strcmp(parameter.key, "support") != 0)
         {
             continue;
         }
@@ -378,7 +391,7 @@ RBRInstrumentError RBRInstrument_getAvailableMemoryFormats(
         } while (nextValue != NULL);
 
         break;
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -391,15 +404,19 @@ RBRInstrumentError RBRInstrument_getCurrentMemoryFormat(
 
     RBR_TRY(RBRInstrument_converse(instrument, "memformat type"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "type") != 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "type") != 0)
         {
             continue;
         }
@@ -417,7 +434,7 @@ RBRInstrumentError RBRInstrument_getCurrentMemoryFormat(
         }
 
         break;
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -430,15 +447,19 @@ RBRInstrumentError RBRInstrument_getNewMemoryFormat(
 
     RBR_TRY(RBRInstrument_converse(instrument, "memformat newtype"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "newtype") != 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "newtype") != 0)
         {
             continue;
         }
@@ -456,7 +477,7 @@ RBRInstrumentError RBRInstrument_getNewMemoryFormat(
         }
 
         break;
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }

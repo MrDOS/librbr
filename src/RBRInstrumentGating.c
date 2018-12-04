@@ -75,15 +75,19 @@ RBRInstrumentError RBRInstrument_getThresholding(
 
     RBR_TRY(RBRInstrument_converse(instrument, "thresholding"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "enabled") == 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "enabled") == 0)
         {
             threshold->enabled = (strcmp(parameter.value, "true") == 0);
         }
@@ -142,7 +146,7 @@ RBRInstrumentError RBRInstrument_getThresholding(
         {
             threshold->interval = strtol(parameter.value, NULL, 10);
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -228,15 +232,19 @@ RBRInstrumentError RBRInstrument_getTwistActivation(
 
     RBR_TRY(RBRInstrument_converse(instrument, "twistactivation"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "enabled") == 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "enabled") == 0)
         {
             twistActivation->enabled = (strcmp(parameter.value, "true") == 0);
         }
@@ -262,7 +270,7 @@ RBRInstrumentError RBRInstrument_getTwistActivation(
                 }
             }
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }

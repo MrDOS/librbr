@@ -128,14 +128,18 @@ RBRInstrumentError RBRInstrument_getId(RBRInstrument *instrument,
 
     RBR_TRY(RBRInstrument_converse(instrument, "id"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
         if (strcmp(parameter.key, "model") == 0)
         {
             snprintf(id->model,
@@ -158,7 +162,7 @@ RBRInstrumentError RBRInstrument_getId(RBRInstrument *instrument,
         {
             id->fwtype = strtol(parameter.value, NULL, 10);
         }
-    } while (more);
+    } while (true);
 
     if (id != &instrument->id)
     {
@@ -176,15 +180,19 @@ RBRInstrumentError RBRInstrument_getHardwareRevision(
 
     RBR_TRY(RBRInstrument_converse(instrument, "hwrev"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "pcb") == 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "pcb") == 0)
         {
             hwrev->pcb = *parameter.value;
         }
@@ -199,7 +207,7 @@ RBRInstrumentError RBRInstrument_getHardwareRevision(
         {
             hwrev->bsl = *parameter.value;
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -239,16 +247,19 @@ RBRInstrumentError RBRInstrument_getPower(RBRInstrument *instrument,
         RBR_TRY(RBRInstrument_converse(instrument, "power"));
     }
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
 
-        if (strcmp(parameter.key, "source") == 0)
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "source") == 0)
         {
             for (int i = 0; i < RBRINSTRUMENT_POWER_SOURCE_COUNT; i++)
             {
@@ -281,7 +292,7 @@ RBRInstrumentError RBRInstrument_getPower(RBRInstrument *instrument,
                 power->regulator = strtod(parameter.value, NULL);
             }
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -350,16 +361,19 @@ RBRInstrumentError RBRInstrument_getPowerInternal(
 
     RBR_TRY(RBRInstrument_converse(instrument, "powerinternal"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
 
-        if (strcmp(parameter.key, "batterytype") == 0)
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "batterytype") == 0)
         {
             for (int i = 0; i < RBRINSTRUMENT_INTERNAL_BATTERY_COUNT; i++)
             {
@@ -379,7 +393,7 @@ RBRInstrumentError RBRInstrument_getPowerInternal(
         {
             power->used = strtod(parameter.value, NULL);
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -481,16 +495,19 @@ RBRInstrumentError RBRInstrument_getPowerExternal(
 
     RBR_TRY(RBRInstrument_converse(instrument, "powerexternal"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
 
-        if (strcmp(parameter.key, "batterytype") == 0)
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "batterytype") == 0)
         {
             for (int i = 0; i < RBRINSTRUMENT_EXTERNAL_BATTERY_COUNT; i++)
             {
@@ -510,7 +527,7 @@ RBRInstrumentError RBRInstrument_getPowerExternal(
         {
             power->used = strtod(parameter.value, NULL);
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -549,16 +566,19 @@ RBRInstrumentError RBRInstrument_getInfo(
 
     RBR_TRY(RBRInstrument_converse(instrument, "info"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
 
-        if (strcmp(parameter.key, "pn") == 0)
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "pn") == 0)
         {
             snprintf(info->partNumber,
                      sizeof(info->partNumber),
@@ -569,7 +589,7 @@ RBRInstrumentError RBRInstrument_getInfo(
         {
             info->fwLock = (strcmp(parameter.value, "on") == 0);
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }

@@ -278,9 +278,8 @@ typedef struct RBRInstrumentResponseParameter
  * \param [in] instrument the instrument connection
  * \param [in,out] command the name of the command as indicated by the response
  * \param [in,out] parameter the most-recently-parsed response parameter
- * \return whether there are any more parameters to parse
  */
-bool RBRInstrument_parseResponse(RBRInstrument *instrument,
+void RBRInstrument_parseResponse(RBRInstrument *instrument,
                                  char **command,
                                  RBRInstrumentResponseParameter *parameter);
 

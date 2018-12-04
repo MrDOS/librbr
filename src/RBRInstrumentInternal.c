@@ -613,7 +613,7 @@ RBRInstrumentError RBRInstrument_readResponse(RBRInstrument *instrument,
     }
 }
 
-bool RBRInstrument_parseResponse(RBRInstrument *instrument,
+void RBRInstrument_parseResponse(RBRInstrument *instrument,
                                  char **command,
                                  RBRInstrumentResponseParameter *parameter)
 {
@@ -670,7 +670,10 @@ foundCommandEnd:
 
     if (!hasParameters || parameter->nextKey == NULL)
     {
-        return false;
+        parameter->key = NULL;
+        parameter->value = NULL;
+        parameter->nextKey = NULL;
+        return;
     }
 
     /*
@@ -694,7 +697,7 @@ foundCommandEnd:
         if (*parameter->value == '\0')
         {
             parameter->nextKey = NULL;
-            return false;
+            return;
         }
         else if (memcmp(parameter->value,
                         PARAMETER_VALUE_SEPARATOR,
@@ -748,7 +751,7 @@ foundCommandEnd:
     parameter->nextKey = strstr(parameter->value, PARAMETER_VALUE_SEPARATOR);
     if (parameter->nextKey == NULL)
     {
-        return false;
+        return;
     }
 
     int32_t separatorLength = -1;
@@ -786,7 +789,6 @@ foundCommandEnd:
         /* Null-terminate the value. */
         *parameter->nextKey = '\0';
         parameter->nextKey += separatorLength;
-        return true;
     }
     else
     {
@@ -794,7 +796,6 @@ foundCommandEnd:
          * start of the next key, but then didn't find any separators between
          * it and the start of the value. Give up. */
         parameter->nextKey = NULL;
-        return false;
     }
 }
 
@@ -956,22 +957,25 @@ RBRInstrumentError RBRInstrument_getBool(RBRInstrument *instrument,
 
     RBR_TRY(RBRInstrument_converse(instrument, "%s %s", command, parameter));
 
-    bool more = false;
     char *responseCommand = NULL;
     RBRInstrumentResponseParameter responseParameter;
     do
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &responseCommand,
-                                           &responseParameter);
+        RBRInstrument_parseResponse(instrument,
+                                    &responseCommand,
+                                    &responseParameter);
 
-        if (strcmp(responseParameter.key, parameter) != 0)
+        if (responseParameter.key == NULL)
+        {
+            break;
+        }
+        else if (strcmp(responseParameter.key, parameter) != 0)
         {
             continue;
         }
 
         *value = (strcmp(responseParameter.value, "on") == 0);
-    } while (more);
+    } while (true);
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -985,22 +989,25 @@ RBRInstrumentError RBRInstrument_getFloat(RBRInstrument *instrument,
 
     RBR_TRY(RBRInstrument_converse(instrument, "%s %s", command, parameter));
 
-    bool more = false;
     char *responseCommand = NULL;
     RBRInstrumentResponseParameter responseParameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &responseCommand,
-                                           &responseParameter);
+        RBRInstrument_parseResponse(instrument,
+                                    &responseCommand,
+                                    &responseParameter);
 
-        if (strcmp(responseParameter.key, parameter) != 0)
+        if (responseParameter.key == NULL)
+        {
+            break;
+        }
+        else if (strcmp(responseParameter.key, parameter) != 0)
         {
             continue;
         }
 
         *value = strtod(responseParameter.value, NULL);
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -1014,22 +1021,25 @@ RBRInstrumentError RBRInstrument_getInt(RBRInstrument *instrument,
 
     RBR_TRY(RBRInstrument_converse(instrument, "%s %s", command, parameter));
 
-    bool more = false;
     char *responseCommand = NULL;
     RBRInstrumentResponseParameter responseParameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &responseCommand,
-                                           &responseParameter);
+        RBRInstrument_parseResponse(instrument,
+                                    &responseCommand,
+                                    &responseParameter);
 
-        if (strcmp(responseParameter.key, parameter) != 0)
+        if (responseParameter.key == NULL)
+        {
+            break;
+        }
+        else if (strcmp(responseParameter.key, parameter) != 0)
         {
             continue;
         }
 
         *value = strtol(responseParameter.value, NULL, 10);
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }

@@ -66,16 +66,20 @@ static RBRInstrumentError RBRInstrument_getCalibrations(
         RBR_TRY(RBRInstrument_converse(instrument, "calibration allindices"));
     }
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
     int32_t channelIndex;
     RBRInstrumentChannel *channel;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
 
         channelIndex = parameter.index - 1;
         if (channelIndex < 0)
@@ -132,7 +136,7 @@ static RBRInstrumentError RBRInstrument_getCalibrations(
 
             channel->calibration.n[index] = coefficient;
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -167,16 +171,20 @@ static RBRInstrumentError RBRInstrument_getChannelAll(
         RBR_TRY(RBRInstrument_converse(instrument, "channel allindices all"));
     }
 
-    bool more = false;
     char *command = NULL;
     int32_t channelIndex;
     RBRInstrumentChannel *channel;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
 
         channelIndex = parameter.index - 1;
         if (channelIndex < 0)
@@ -275,7 +283,7 @@ static RBRInstrumentError RBRInstrument_getChannelAll(
                      "%s",
                      parameter.value);
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -287,14 +295,18 @@ RBRInstrumentError RBRInstrument_getChannels(RBRInstrument *instrument,
 
     RBR_TRY(RBRInstrument_converse(instrument, "channels"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
 
         if (strcmp(parameter.key, "count") == 0)
         {
@@ -317,7 +329,7 @@ RBRInstrumentError RBRInstrument_getChannels(RBRInstrument *instrument,
         {
             channels->minimumPeriod = strtol(parameter.value, NULL, 10);
         }
-    } while (more);
+    }
 
     RBR_TRY(RBRInstrument_getChannelAll(instrument, channels));
     RBR_TRY(RBRInstrument_getCalibrations(instrument, channels));
@@ -604,14 +616,18 @@ RBRInstrumentError RBRInstrument_getSensorParameter(
         return err;
     }
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter responseParameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &responseParameter);
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &responseParameter);
+
+        if (responseParameter.key == NULL)
+        {
+            break;
+        }
 
         snprintf(parameter->key,
                  sizeof(parameter->key),
@@ -622,7 +638,7 @@ RBRInstrumentError RBRInstrument_getSensorParameter(
                  sizeof(parameter->value),
                  "%s",
                  responseParameter.value);
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -665,14 +681,18 @@ RBRInstrumentError RBRInstrument_getSensorParameters(
     char channelStr[RBRINSTRUMENT_CHANNEL_MAX_LEN];
     snprintf(channelStr, sizeof(channelStr), "%i", channel);
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
 
         /*
          * Logger3 returns the exact command when there are no sensor
@@ -706,7 +726,7 @@ RBRInstrumentError RBRInstrument_getSensorParameters(
         {
             break;
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }

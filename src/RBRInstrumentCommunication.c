@@ -41,16 +41,20 @@ RBRInstrumentError RBRInstrument_getLink(RBRInstrument *instrument,
 
     RBR_TRY(RBRInstrument_converse(instrument, "link"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "link") == 0
-            || strcmp(parameter.key, "type") == 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "link") == 0
+                 || strcmp(parameter.key, "type") == 0)
         {
             for (int i = 0; i < RBRINSTRUMENT_LINK_COUNT; i++)
             {
@@ -62,7 +66,7 @@ RBRInstrumentError RBRInstrument_getLink(RBRInstrument *instrument,
                 }
             }
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -155,15 +159,19 @@ RBRInstrumentError RBRInstrument_getSerial(RBRInstrument *instrument,
         RBR_TRY(RBRInstrument_converse(instrument, "serial all"));
     }
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "baudrate") == 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "baudrate") == 0)
         {
             for (int i = RBRINSTRUMENT_SERIAL_BAUD_NONE + 1;
                  i <= RBRINSTRUMENT_SERIAL_BAUD_MAX;
@@ -241,7 +249,7 @@ RBRInstrumentError RBRInstrument_getSerial(RBRInstrument *instrument,
                 parameter.value = nextValue;
             } while (nextValue != NULL);
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -298,15 +306,19 @@ RBRInstrumentError RBRInstrument_getWiFi(RBRInstrument *instrument,
 
     RBR_TRY(RBRInstrument_converse(instrument, "wifi"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "enabled") == 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "enabled") == 0)
         {
             wifi->enabled = (strcmp(parameter.value, "true") == 0);
         }
@@ -346,7 +358,7 @@ RBRInstrumentError RBRInstrument_getWiFi(RBRInstrument *instrument,
                 }
             }
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }

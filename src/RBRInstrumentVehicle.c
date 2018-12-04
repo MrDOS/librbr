@@ -57,15 +57,19 @@ RBRInstrumentError RBRInstrument_getRegimes(
 
     RBR_TRY(RBRInstrument_converse(instrument, "regimes"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "direction") == 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "direction") == 0)
         {
             for (int i = 0; i < RBRINSTRUMENT_DIRECTION_COUNT; i++)
             {
@@ -93,7 +97,7 @@ RBRInstrumentError RBRInstrument_getRegimes(
                 }
             }
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -135,17 +139,20 @@ RBRInstrumentError RBRInstrument_getRegime(
 
     RBR_TRY(RBRInstrument_converse(instrument, "regime %i", index));
 
-    bool more = false;
     char *command = NULL;
     int32_t previousIndex = 0;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
 
-        if (parameter.index != previousIndex)
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (parameter.index != previousIndex)
         {
             previousIndex = parameter.index;
             regime->index = strtol(parameter.indexValue, NULL, 10);
@@ -163,7 +170,7 @@ RBRInstrumentError RBRInstrument_getRegime(
         {
             regime->samplingPeriod = strtol(parameter.value, NULL, 10);
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
@@ -204,15 +211,19 @@ RBRInstrumentError RBRInstrument_getDirectionDependentSampling(
 
     RBR_TRY(RBRInstrument_converse(instrument, "ddsampling"));
 
-    bool more = false;
     char *command = NULL;
     RBRInstrumentResponseParameter parameter;
-    do
+    while (true)
     {
-        more = RBRInstrument_parseResponse(instrument,
-                                           &command,
-                                           &parameter);
-        if (strcmp(parameter.key, "direction") == 0)
+        RBRInstrument_parseResponse(instrument,
+                                    &command,
+                                    &parameter);
+
+        if (parameter.key == NULL || parameter.value == NULL)
+        {
+            break;
+        }
+        else if (strcmp(parameter.key, "direction") == 0)
         {
             for (int i = 0; i < RBRINSTRUMENT_DIRECTION_COUNT; i++)
             {
@@ -240,7 +251,7 @@ RBRInstrumentError RBRInstrument_getDirectionDependentSampling(
         {
             ddsampling->slowThreshold = strtod(parameter.value, NULL);
         }
-    } while (more);
+    }
 
     return RBRINSTRUMENT_SUCCESS;
 }
