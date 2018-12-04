@@ -30,11 +30,9 @@ export LIB_NAME ?= librbr
 
 ## \brief The project version.
 ##
-## Embedded into the library and documentation. Determined automatically from
-## the Git tag.
-export LIB_VERSION ?= $(shell \
-  git describe --tags --dirty --always \
-  | sed -e 's|^v||')
+## Embedded into the library and documentation. Determined from the contents of
+## the VERSION file.
+export LIB_VERSION ?= $(shell cat VERSION)
 
 ## \brief Archiver flags.
 ##

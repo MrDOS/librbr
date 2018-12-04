@@ -37,8 +37,8 @@ extern const char *RBRINSTRUMENT_LIB_NAME;
 /**
  * \brief The library version.
  *
- * As shipped by RBR, this builds with a value based on the closest Git tag.
- * Project forks might also like to override this at build time.
+ * As shipped by RBR, this builds with a value based on the contents of the
+ * VERSION file. Project forks might also like to override this at build time.
  */
 extern const char *RBRINSTRUMENT_LIB_VERSION;
 /**
