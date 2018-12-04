@@ -1,0 +1,11 @@
+# Generated artifacts.
+posix-download
+posix-fetch
+posix-parse-download
+posix-parse-file
+posix-stream
+posix-stream-sdl
+*.exe
+
+# Temporary/output files.
+*.bin

@@ -1,17 +1,9 @@
 # Generated artifacts.
 bin/
 docs/
-examples/posix/posix-download
-examples/posix/posix-fetch
-examples/posix/posix-parse-download
-examples/posix/posix-parse-file
-examples/posix/posix-stream
-examples/posix/posix-stream-sdl
-examples/*/*.bin
-examples/*/*.log
-examples/*/*.o
 tests/tests.c
-tests/*.o
+*.o
 
-# Temporary files.
+# Temporary/output files.
 *~
+*.log
