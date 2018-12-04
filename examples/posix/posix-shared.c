@@ -45,12 +45,24 @@ int openSerialFd(char *devicePath)
     portSettings.c_cc[VMIN] = 0;
     portSettings.c_cc[VTIME] = INSTRUMENT_CHARACTER_TIMEOUT_MSEC / 100;
 
-#ifdef B115200
-    portSettings.c_cflag |= B115200;
-#else
-    cfsetispeed(&portSettings, 115200);
-    cfsetospeed(&portSettings, 115200);
+#ifndef B115200
+/* POSIX technically only defines termios baud rates up to 38,400 baud. On most
+ * platforms (Linux/Cygwin), higher baud rates are defined regardless (and on
+ * Cygwin, the baud rate constants are not the literal baud rates). However,
+ * the macOS termios headers guard the extended baud rate definitions with a
+ * check for whether _POSIX_C_SOURCE has been left undefined. Technically, we
+ * should use the IOSSIOSPEED ioctl to use arbitrary baud rates higher than
+ * 38,400 baud on macOS, but defining the constant ourselves should be safe
+ * enough: the constant definition _can_ be found in the termios headers (just
+ * for different preconditions) and is nearly guaranteed not to change (as
+ * doing so would break a vast number of existing applications). And this
+ * approach is more platform-generic than an ioctl. */
+#define B115200 115200
 #endif
+
+    cfsetospeed(&portSettings, B115200);
+    /* Input baud rate of 0 causes the output baud rate to be used. */
+    cfsetispeed(&portSettings, B0);
 
     if (tcsetattr(instrumentFd, TCSANOW, &portSettings) < 0)
     {
