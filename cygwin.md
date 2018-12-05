@@ -8,11 +8,16 @@ In addition to the base Cygwin install,
 you'll need to install these additional packages
 (and their dependencies):
 
-* `doxygen`
-* `gcc-core` or `clang`
-* `git`
-* `make`
+* `make` to build the project.
+* `gcc-core` or `clang` to compile the library.
 
-`libSDL2-devel` is optionally required
-to successfully compile the `posix-stream-sdl` example,
-but that example does not launch under Cygwin.
+Optionally, you can install:
+
+* `doxygen` to compile the library documentation.
+* `git`, to retrieve the project source.
+* `libSDL2-devel` to successfully compile
+  the `posix-stream-sdl` example.
+  Note that the example does not launch under Cygwin;
+  installing the library and development headers
+  serves only to avoid compilation failures
+  when building all of the examples.

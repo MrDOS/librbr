@@ -57,7 +57,7 @@ export LIB_BUILD_DATE ?= $(shell date '+%FT%T%z')
 ## this completely breaks incremental builds: with deterministic archives left
 ## enabled, every invocation of `make lib` causes the entire library to be
 ## rebuilt. As a workaround, we'll explicitly disable deterministic mode on
-## systems using Gnu ar(1):
+## systems using GNU ar(1):
 ##
 ## - `U`: maintain original UID/GID/timestamp/mode of archive contents
 ##

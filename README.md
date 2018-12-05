@@ -24,41 +24,71 @@ that this project is maintained
 The library can be built with GNU Make.
 For documentation on Make targets,
 see the [Makefile].
+
 Library compilation requires a C99-compliant C compiler;
+The library makes a few assumptions
+about its host platform.
+For details, see [the documentation on porting][porting].
+
 API document compilation requires [Doxygen].
 
-TODO: Platform assumptions/porting considerations.
+In most cases,
+the library can be built
+in a few steps.
+First, check out the code with Git:
+
+~~~{.sh}
+git clone https://bitbucket.org/rbr/librbr.git
+cd librbr
+~~~
+
+Then use `make(1)` to build the library:
+
+~~~{.sh}
+# Build just the library.
+make lib
+# Build and execute tests. Also builds the library if necessary.
+make tests
+# Build Doxygen documentation.
+make docs
+# Does all of the above.
+make
+~~~
 
 Platform-specific instructions and advice
 are available:
 
-* [Cygwin](cygwin.md)
+* [Cygwin]
+
+[Makefile]: Makefile.html
+[porting]: porting.md
+[Doxygen]: http://doxygen.org/
+[Cygwin]: cygwin.md
+
+## Using
+
+See [the introduction]
+for an overview of library conventions.
+
+API documentation is built into the `docs/` subdirectory.
+Prebuilt API documentation corresponding to the latest release
+is available at https://docs.rbr-global.com/librbr/.
+
+For examples,
+please see the `examples/` subdirectory.
 
 You may prefer to integrate
 the entire library source
-into your codebase.
+into your codebase
+rather than link against the library.
 In that case,
 we strongly suggest doing so
 via a [Git submodule]
 where possible
 to make updating easier.
 
-[Makefile]: Makefile.html
-[Doxygen]: http://doxygen.org/
+[the introduction]: introduction.md
 [Git submodule]: https://git-scm.com/docs/git-submodule
-
-## Using
-
-API documentation is built into the `docs/` subdirectory.
-Prebuilt API documentation corresponding to the latest release
-is available at https://docs.rbr-global.com/librbr/.
-
-* TODO: API introduction.
-* TODO: Streaming data introduction.
-* TODO: Data parsing introduction.
-
-For examples,
-please see the `examples/` subdirectory.
 
 ## Contributing
 

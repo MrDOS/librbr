@@ -3,13 +3,15 @@
 Unit tests are found
 in the `tests/` subdirectory.
 
-## Adding a Test
+## Adding an Instrument Test
 
 You can use the `TEST_LOGGER2` and `TEST_LOGGER3` macros
-to define test functions within any of the test modules
+to declare instrument test functions
+within any of the test modules
 found within `tests/`.
 The macros take a single argument:
 the name of the test.
+
 Tests are usually named after (or are prefixed with)
 the instrument command being tested.
 Test names collide only within a generation;
@@ -66,6 +68,55 @@ TEST_LOGGER3(id)
     return true;
 }
 ~~~
+
+## Adding a Parser Test
+
+Parser tests are similar to instrument tests:
+use the `TEST_PARSER_CONFIG` macro
+to declare a parser configuration,
+then use the `TEST_PARSER` macro
+to declare the test function.
+
+The `TEST_PARSER_CONFIG` macro takes one argument,
+the name of the config,
+and takes the place of type declaration.
+The same config can be reused
+for multiple tests.
+
+The `TEST_PARSER` macro takes two arguments:
+the name of the test, and the name of the config.
+As with instrument tests,
+functions declared with these macros
+receive two arguments:
+`parser`, the test parser instance;
+and `buffers`, the output buffers for the parser.
+Test functions return a boolean indicating pass/fail.
+
+For example,
+
+~~~{.c}
+TEST_PARSER_CONFIG(two_channels) = {
+    .format = RBRINSTRUMENT_MEMFORMAT_CALBIN00,
+    .formatConfig = {
+        .easyParse = {
+            .channels = 2
+        }
+    }
+};
+
+TEST_PARSER(test_a, two_channels)
+{
+    /* ... */
+    return true;
+}
+
+TEST_PARSER(test_b, two_channels)
+{
+    /* ... */
+    return true;
+}
+~~~
+
 
 ## Adding a Test Module
 
