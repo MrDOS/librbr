@@ -1,4 +1,4 @@
-1.0.0
+1.0.1
 
 The first line of this file indicates the library version number. This is used
 automatically by the build process for both the library and the documentation.
@@ -8,4 +8,11 @@ released by RBR will follow [Semantic Versioning].
 A leading “v” is omitted as it is not considered to be part of the version
 number; it is part of the display formatting of the version number.
 
+When incrementing the version number, remember to also:
+
+* Update [the changelog].
+* After committing the version bump, create an annotated Git tag
+  (`git tag -a v0.0.0`) for the release.
+
 [Semantic Versioning]: https://semver.org/
+[the changelog]: CHANGES.md

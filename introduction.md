@@ -11,7 +11,9 @@ is RBRInstrument,
 and RBRParser for dataset parsing.
 The names of method functions
 are prefixed with the name of the type
-to which they apply.
+to which they apply,
+and generally take an instance of that type
+as their first argument.
 This extends to many types
 beyond just the core context objects;
 for example,

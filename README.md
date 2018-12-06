@@ -5,6 +5,31 @@
 librbr provides an interface
 for simplified communication
 with RBR instruments.
+The library isolates the user
+from the low-level details
+of instrument communication
+by wrapping each instrument command
+in a function with fully typed arguments.
+Familiarity with the [instrument command set]
+is still required
+in order to know which commands to send,
+but the library handles the intricacies
+of waking the instrument,
+response parsing,
+etc.
+
+For example:
+
+~~~{.c}
+RBRInstrumentSampling sampling;
+RBRInstrument_getSampling(instrument, &sampling);
+printf("The instrument is performing %s sampling every %" PRIi32 "ms.\n",
+       RBRInstrumentSamplingMode_name(sampling.mode),
+       sampling.period);
+~~~
+
+The library also offers basic parsing
+for [EasyParse] sample data and events.
 
 The library tries to be platform-agnostic.
 It targets C99
@@ -17,7 +42,22 @@ you might be interested to know
 that this project is maintained
 [on Bitbucket].
 
+[instrument command set]: https://docs.rbr-global.com/L3commandreference
+[EasyParse]: https://docs.rbr-global.com/L3commandreference/format-of-stored-data/overview/easyparse-format
 [on Bitbucket]: https://bitbucket.org/rbr/librbr
+
+## Support
+
+The library is intended to support
+the following firmware types and versions.
+The library should have good forwards compatibility
+as breaking changes between firmware versions
+are rare and made only when absolutely necessary.
+
+| Firmware Type           | Generation | Version |
+| ----------------------- | ---------- | ------- |
+| 103 (Logger2, standard) | Early 2015 |  v1.440 |
+| 104 (Logger3, standard) |  Late 2017 |  v1.094 |
 
 ## Building
 
