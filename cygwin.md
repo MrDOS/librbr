@@ -1,6 +1,6 @@
 # Cygwin
 
-librbr can be built and run on Windows under Cygwin.
+libRBR can be built and run on Windows under Cygwin.
 
 ## Prerequisites
 

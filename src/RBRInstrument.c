@@ -22,7 +22,7 @@ const char *RBRINSTRUMENT_LIB_NAME =
 #ifdef RBR_LIB_NAME
     RBR_LIB_NAME
 #else
-    "librbr"
+    "libRBR"
 #endif
 ;
 

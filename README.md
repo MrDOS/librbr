@@ -1,8 +1,8 @@
-# librbr
+# libRBR
 
 ## Introduction
 
-librbr provides an interface
+libRBR provides an interface
 for simplified communication
 with RBR instruments.
 The library isolates the user

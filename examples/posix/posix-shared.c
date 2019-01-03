@@ -1,7 +1,7 @@
 /**
  * \file posix-shared.c
  *
- * \brief Shared functions used by the librbr POSIX examples.
+ * \brief Shared functions used by the libRBR POSIX examples.
  *
  * \copyright
  * Copyright (c) 2018 RBR Ltd.

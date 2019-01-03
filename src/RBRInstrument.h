@@ -29,7 +29,7 @@ extern "C" {
 /**
  * \brief The library name.
  *
- * As shipped by RBR, this builds with the value “librbr”. Project forks might
+ * As shipped by RBR, this builds with the value “libRBR”. Project forks might
  * like to change this at build time to easily identify which library variant
  * is in use. See the Makefile for details.
  */

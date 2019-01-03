@@ -1,5 +1,21 @@
 # Changes
 
+## v1.0.2
+
+Released 2019-01-03.
+
+### Changed
+
+* Rebrand slightly from librbr to libRBR.
+  This is reflected
+  by the name of the library archive,
+  which has changed
+  from `librbr.a`
+  to `libRBR.a`
+  (and subsequently,
+  must now be linked with `-lRBR`
+  instead of `-lrbr`).
+
 ## v1.0.1
 
 Released 2018-12-06.

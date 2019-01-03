@@ -4,7 +4,7 @@
 ##
 ## This makefile provides three different targets of interest to the end user:
 ##
-## - `lib` will build the library (`bin/librbr.a`)
+## - `lib` will build the library (`bin/libRBR.a`)
 ## - `docs` will generate the documentation via Doxygen (in `docs/`)
 ## - `tests` will run library tests (from `tests/`)
 ##
@@ -26,7 +26,7 @@
 ## Project forks might like to override this by setting the `LIB_NAME`
 ## environment variable before invoking `make(1)` to easily identify which
 ## library variant is in use.
-export LIB_NAME ?= librbr
+export LIB_NAME ?= libRBR
 
 ## \brief The project version.
 ##
@@ -94,9 +94,9 @@ CFLAGS += -DRBR_LIB_NAME=\""$(LIB_NAME)"\" \
 
 all: lib docs tests
 
-lib: bin/librbr.a
+lib: bin/libRBR.a
 
-bin/librbr.a: bin bin/librbr.a(src/RBRInstrument.o \
+bin/libRBR.a: bin bin/libRBR.a(src/RBRInstrument.o \
                                src/RBRInstrumentCommunication.o \
                                src/RBRInstrumentConfiguration.o \
                                src/RBRInstrumentDeployment.o \
@@ -122,7 +122,7 @@ devdocs:
 
 tests: CFLAGS += -Isrc -Wno-error=unused-parameter -Wno-unused-parameter
 tests: LDFLAGS += -Lbin
-tests: LDLIBS += -lrbr
+tests: LDLIBS += -lRBR
 .PHONY: tests
 tests: bin bin/tests
 	./bin/tests
@@ -151,7 +151,7 @@ bin/tests: tests/main.o \
            $(foreach module,$(TEST_MODULES),tests/$(module).o)
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
-tests/%.o: tests/%.c bin/librbr.a
+tests/%.o: tests/%.c bin/libRBR.a
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 tests/tests.c: $(foreach module,$(TEST_MODULES),tests/$(module).c)
