@@ -1,5 +1,12 @@
-CFLAGS := -I../../src -Werror -Wall -Wextra -pedantic -pedantic-errors \
-          -std=c99 -g
+CFLAGS := -I../../src \
+          -Werror \
+          -Wall \
+          -Wextra \
+          -pedantic \
+          -pedantic-errors \
+          -Wwrite-strings \
+          -std=c99 \
+          -g
 LDFLAGS := -L../../bin
 LDLIBS := -lRBR
 

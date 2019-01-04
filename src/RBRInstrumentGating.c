@@ -175,9 +175,9 @@ RBRInstrumentError RBRInstrument_setThresholding(
         return RBRINSTRUMENT_INVALID_PARAMETER_VALUE;
     }
 
-    char *enabledParameter;
-    char *enabledValue;
-    char *channelParameter;
+    const char *enabledParameter;
+    const char *enabledValue;
+    const char *channelParameter;
     char channelValue[RBRINSTRUMENT_CHANNEL_LABEL_MAX + 1];
 
     if (instrument->generation == RBRINSTRUMENT_LOGGER2)
@@ -279,8 +279,8 @@ RBRInstrumentError RBRInstrument_setTwistActivation(
     RBRInstrument *instrument,
     const RBRInstrumentTwistActivation *twistActivation)
 {
-    char *enabledParameter;
-    char *enabledValue;
+    const char *enabledParameter;
+    const char *enabledValue;
 
     if (instrument->generation == RBRINSTRUMENT_LOGGER2)
     {

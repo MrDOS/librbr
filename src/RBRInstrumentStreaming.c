@@ -161,9 +161,9 @@ RBRInstrumentError RBRInstrument_getAvailableOutputFormats(
 {
     *outputFormats = RBRINSTRUMENT_OUTFORMAT_NONE;
 
-    char *command;
-    char *searchKey;
-    char *separator;
+    const char *command;
+    const char *searchKey;
+    const char *separator;
     int32_t separatorLength;
 
     if (instrument->generation == RBRINSTRUMENT_LOGGER2)
@@ -183,12 +183,12 @@ RBRInstrumentError RBRInstrument_getAvailableOutputFormats(
 
     RBR_TRY(RBRInstrument_converse(instrument, command));
 
-    command = NULL;
+    char *responseCommand = NULL;
     RBRInstrumentResponseParameter parameter;
     while (true)
     {
         RBRInstrument_parseResponse(instrument,
-                                    &command,
+                                    &responseCommand,
                                     &parameter);
 
         if (parameter.key == NULL || parameter.value == NULL)
@@ -438,8 +438,8 @@ RBRInstrumentError RBRInstrument_setAuxOutput(
     RBRInstrument *instrument,
     const RBRInstrumentAuxOutput *auxOutput)
 {
-    char *enabledParameter;
-    char *enabledValue;
+    const char *enabledParameter;
+    const char *enabledValue;
     if (instrument->generation == RBRINSTRUMENT_LOGGER2)
     {
         enabledParameter = "state";

@@ -712,8 +712,9 @@ TEST_LOGGER3(settings_fetchpoweroffdelay)
 TEST_LOGGER3(settings_fetchpoweroffdelay_set)
 {
     RBRInstrumentPeriod fetchPowerOffDelay = 8000;
-    char *command = "permit command = settings" COMMAND_TERMINATOR
-                    "settings fetchpoweroffdelay = 8000" COMMAND_TERMINATOR;
+    const char *command = "permit command = settings" COMMAND_TERMINATOR
+                          "settings fetchpoweroffdelay = 8000"
+                          COMMAND_TERMINATOR;
 
     TestIOBuffers_init(buffers, command, 0);
     RBRInstrumentError err = RBRInstrument_setFetchPowerOffDelay(
@@ -744,8 +745,9 @@ TEST_LOGGER3(settings_sensorpoweralwayson)
 TEST_LOGGER3(settings_sensorpoweralwayson_set)
 {
     RBRInstrumentPeriod sensorPowerAlwaysOn = true;
-    char *command = "permit command = settings" COMMAND_TERMINATOR
-                    "settings sensorpoweralwayson = on" COMMAND_TERMINATOR;
+    const char *command = "permit command = settings" COMMAND_TERMINATOR
+                          "settings sensorpoweralwayson = on"
+                          COMMAND_TERMINATOR;
 
     TestIOBuffers_init(buffers, command, 0);
     RBRInstrumentError err = RBRInstrument_setSensorPowerAlwaysOn(
@@ -776,8 +778,8 @@ TEST_LOGGER3(settings_castdetection)
 TEST_LOGGER3(settings_castdetection_set)
 {
     RBRInstrumentPeriod castDetection = true;
-    char *command = "permit command = settings" COMMAND_TERMINATOR
-                    "settings castdetection = on" COMMAND_TERMINATOR;
+    const char *command = "permit command = settings" COMMAND_TERMINATOR
+                          "settings castdetection = on" COMMAND_TERMINATOR;
 
     TestIOBuffers_init(buffers, command, 0);
     RBRInstrumentError err = RBRInstrument_setCastDetection(
@@ -808,8 +810,8 @@ TEST_LOGGER3(settings_inputtimeout)
 TEST_LOGGER3(settings_inputtimeout_set)
 {
     RBRInstrumentPeriod inputTimeout = 15000;
-    char *command = "permit command = settings" COMMAND_TERMINATOR
-                    "settings inputtimeout = 15000" COMMAND_TERMINATOR;
+    const char *command = "permit command = settings" COMMAND_TERMINATOR
+                          "settings inputtimeout = 15000" COMMAND_TERMINATOR;
 
     TestIOBuffers_init(buffers, command, 0);
     RBRInstrumentError err = RBRInstrument_setInputTimeout(
@@ -841,8 +843,8 @@ TEST_LOGGER3(settings_atmosphere)
 TEST_LOGGER3(settings_atmosphere_set)
 {
     float atmosphere = 10.132501;
-    char *command = "permit command = settings" COMMAND_TERMINATOR
-                    "settings atmosphere = 10.132501" COMMAND_TERMINATOR;
+    const char *command = "permit command = settings" COMMAND_TERMINATOR
+                          "settings atmosphere = 10.132501" COMMAND_TERMINATOR;
 
     TestIOBuffers_init(buffers, command, 0);
     RBRInstrumentError err = RBRInstrument_setValueSetting(

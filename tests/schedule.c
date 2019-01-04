@@ -14,8 +14,8 @@
 
 typedef struct ClockTest
 {
-    char *command;
-    char *response;
+    const char *command;
+    const char *response;
     RBRInstrumentClock expected;
 } ClockTest;
 
@@ -164,8 +164,8 @@ TEST_LOGGER3(clock)
 
 typedef struct SamplingTest
 {
-    char *command;
-    char *response;
+    const char *command;
+    const char *response;
     RBRInstrumentSampling expected;
 } SamplingTest;
 
@@ -396,8 +396,8 @@ TEST_LOGGER3(sampling_set)
 
 typedef struct DeploymentTest
 {
-    char *command;
-    char *response;
+    const char *command;
+    const char *response;
     RBRInstrumentDeployment expected;
 } DeploymentTest;
 
