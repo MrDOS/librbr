@@ -112,7 +112,7 @@ typedef struct RBRInstrumentThresholding
      *
      * \nol2 Will always be retrieved as #RBRINSTRUMENT_UNKNOWN_GATING.
      */
-    RBRInstrumentGatingState state;
+    const RBRInstrumentGatingState state;
     /**
      * \brief Whether the thresholding channel should be configured by index or
      * by label.
@@ -220,7 +220,7 @@ typedef struct RBRInstrumentTwistActivation
      *
      * \nol2 Will always be retrieved as #RBRINSTRUMENT_UNKNOWN_GATING.
      */
-    RBRInstrumentGatingState state;
+    const RBRInstrumentGatingState state;
 } RBRInstrumentTwistActivation;
 
 /**

@@ -223,7 +223,7 @@ typedef struct RBRInstrumentPowerInternal
      *
      * \readonly
      */
-    float capacity;
+    const float capacity;
     /**
      * \brief The accumulated energy used from the internal battery since the
      * value was last reset.
@@ -356,7 +356,7 @@ typedef struct RBRInstrumentPowerExternal
      *
      * \readonly
      */
-    float capacity;
+    const float capacity;
     /**
      * \brief The accumulated energy used from the external battery since the
      * value was last reset.

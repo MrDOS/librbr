@@ -228,7 +228,7 @@ typedef struct RBRInstrumentSampling
      *
      * \readonly
      */
-    RBRInstrumentPeriod
+    const RBRInstrumentPeriod
         availableFastPeriods[RBRINSTRUMENT_AVAILABLE_FAST_PERIODS_MAX];
     /**
      * \brief The minimum period which can be used in fast sampling modes.
@@ -239,7 +239,7 @@ typedef struct RBRInstrumentSampling
      *
      * \readonly
      */
-    RBRInstrumentPeriod userPeriodLimit;
+    const RBRInstrumentPeriod userPeriodLimit;
     /**
      * \brief The number of measurements taken in each burst.
      *
@@ -434,7 +434,7 @@ typedef struct RBRInstrumentDeployment
      *
      * \readonly
      */
-    RBRInstrumentDeploymentStatus status;
+    const RBRInstrumentDeploymentStatus status;
 } RBRInstrumentDeployment;
 
 /**

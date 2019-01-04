@@ -70,8 +70,14 @@ RBRInstrumentError RBRInstrument_getThresholding(
     RBRInstrumentThresholding *threshold)
 {
     memset(threshold, 0, sizeof(RBRInstrumentThresholding));
-    threshold->state = RBRINSTRUMENT_UNKNOWN_GATING;
-    threshold->condition = RBRINSTRUMENT_UNKNOWN_THRESHOLDING;
+
+    RBRInstrumentGatingState *state =
+        (RBRInstrumentGatingState *) &threshold->state;
+    *state = RBRINSTRUMENT_UNKNOWN_GATING;
+
+    RBRInstrumentThresholdingCondition *condition =
+        (RBRInstrumentThresholdingCondition *) &threshold->condition;
+    *condition = RBRINSTRUMENT_UNKNOWN_THRESHOLDING;
 
     RBR_TRY(RBRInstrument_converse(instrument, "thresholding"));
 
@@ -106,7 +112,7 @@ RBRInstrumentError RBRInstrument_getThresholding(
                     if (strcmp(RBRInstrumentGatingState_name(i),
                                parameter.value) == 0)
                     {
-                        threshold->state = i;
+                        *state = i;
                         break;
                     }
                 }
@@ -133,7 +139,7 @@ RBRInstrumentError RBRInstrument_getThresholding(
                 if (strcmp(RBRInstrumentThresholdingCondition_name(i),
                            parameter.value) == 0)
                 {
-                    threshold->condition = i;
+                    *condition = i;
                     break;
                 }
             }
@@ -228,7 +234,10 @@ RBRInstrumentError RBRInstrument_getTwistActivation(
     RBRInstrumentTwistActivation *twistActivation)
 {
     memset(twistActivation, 0, sizeof(RBRInstrumentTwistActivation));
-    twistActivation->state = RBRINSTRUMENT_UNKNOWN_GATING;
+
+    RBRInstrumentGatingState *state =
+        (RBRInstrumentGatingState *) &twistActivation->state;
+    *state = RBRINSTRUMENT_UNKNOWN_GATING;
 
     RBR_TRY(RBRInstrument_converse(instrument, "twistactivation"));
 
@@ -264,7 +273,7 @@ RBRInstrumentError RBRInstrument_getTwistActivation(
                     if (strcmp(RBRInstrumentGatingState_name(i),
                                parameter.value) == 0)
                     {
-                        twistActivation->state = i;
+                        *state = i;
                         break;
                     }
                 }

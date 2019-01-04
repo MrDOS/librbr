@@ -182,7 +182,7 @@ typedef struct RBRInstrumentSerial
      * instruments. RBRInstrument_getSerial() will populate this field with the
      * baud rates supported by all Logger2 instruments.
      */
-    RBRInstrumentSerialBaudRate availableBaudRates;
+    const RBRInstrumentSerialBaudRate availableBaudRates;
     /**
      * \brief Serial modes which the instrument can use.
      *
@@ -196,7 +196,7 @@ typedef struct RBRInstrumentSerial
      * instruments. RBRInstrument_getSerial() will populate this field with the
      * baud rates supported by all Logger2 instruments.
      */
-    RBRInstrumentSerialMode availableModes;
+    const RBRInstrumentSerialMode availableModes;
 } RBRInstrumentSerial;
 
 /**
@@ -299,7 +299,7 @@ typedef struct RBRInstrumentWiFi
      *
      * \nol2 Will be retrieved as #RBRINSTRUMENT_UNKNOWN_WIFI.
      */
-    RBRInstrumentWiFiState state;
+    const RBRInstrumentWiFiState state;
     /**
      * \brief How long the instrument will wait for a valid command after
      * first powering up the Wi-Fi radio before powering it back down.
@@ -324,7 +324,7 @@ typedef struct RBRInstrumentWiFi
      *
      * \nol2 Will be retrieved as #RBRINSTRUMENT_SERIAL_BAUD_NONE.
      */
-    RBRInstrumentSerialBaudRate baudRate;
+    const RBRInstrumentSerialBaudRate baudRate;
 } RBRInstrumentWiFi;
 
 /**

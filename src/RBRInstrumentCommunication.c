@@ -136,25 +136,30 @@ RBRInstrumentError RBRInstrument_getSerial(RBRInstrument *instrument,
 {
     memset(serial, 0, sizeof(RBRInstrumentSerial));
 
+    RBRInstrumentSerialBaudRate *availableBaudRates =
+        (RBRInstrumentSerialBaudRate *) &serial->availableBaudRates;
+    RBRInstrumentSerialMode *availableModes =
+        (RBRInstrumentSerialMode *) &serial->availableModes;
+
     if (instrument->generation == RBRINSTRUMENT_LOGGER2)
     {
-        serial->availableBaudRates = RBRINSTRUMENT_SERIAL_BAUD_1200
-                                     | RBRINSTRUMENT_SERIAL_BAUD_2400
-                                     | RBRINSTRUMENT_SERIAL_BAUD_4800
-                                     | RBRINSTRUMENT_SERIAL_BAUD_9600
-                                     | RBRINSTRUMENT_SERIAL_BAUD_19200
-                                     | RBRINSTRUMENT_SERIAL_BAUD_115200;
-        serial->availableModes = RBRINSTRUMENT_SERIAL_MODE_RS232
-                                 | RBRINSTRUMENT_SERIAL_MODE_RS485F
-                                 | RBRINSTRUMENT_SERIAL_MODE_UART
-                                 | RBRINSTRUMENT_SERIAL_MODE_UART_IDLE_LOW;
+        *availableBaudRates = RBRINSTRUMENT_SERIAL_BAUD_1200
+                              | RBRINSTRUMENT_SERIAL_BAUD_2400
+                              | RBRINSTRUMENT_SERIAL_BAUD_4800
+                              | RBRINSTRUMENT_SERIAL_BAUD_9600
+                              | RBRINSTRUMENT_SERIAL_BAUD_19200
+                              | RBRINSTRUMENT_SERIAL_BAUD_115200;
+        *availableModes = RBRINSTRUMENT_SERIAL_MODE_RS232
+                          | RBRINSTRUMENT_SERIAL_MODE_RS485F
+                          | RBRINSTRUMENT_SERIAL_MODE_UART
+                          | RBRINSTRUMENT_SERIAL_MODE_UART_IDLE_LOW;
 
         RBR_TRY(RBRInstrument_converse(instrument, "serial"));
     }
     else
     {
-        serial->availableBaudRates = RBRINSTRUMENT_SERIAL_BAUD_NONE;
-        serial->availableModes = RBRINSTRUMENT_SERIAL_MODE_NONE;
+        *availableBaudRates = RBRINSTRUMENT_SERIAL_BAUD_NONE;
+        *availableModes = RBRINSTRUMENT_SERIAL_MODE_NONE;
 
         RBR_TRY(RBRInstrument_converse(instrument, "serial all"));
     }
@@ -217,7 +222,7 @@ RBRInstrumentError RBRInstrument_getSerial(RBRInstrument *instrument,
                     if (strcmp(RBRInstrumentSerialBaudRate_name(i),
                                parameter.value) == 0)
                     {
-                        serial->availableBaudRates |= i;
+                        *availableBaudRates |= i;
                     }
                 }
 
@@ -242,7 +247,7 @@ RBRInstrumentError RBRInstrument_getSerial(RBRInstrument *instrument,
                     if (strcmp(RBRInstrumentSerialMode_name(i),
                                parameter.value) == 0)
                     {
-                        serial->availableModes |= i;
+                        *availableModes |= i;
                     }
                 }
 
@@ -302,7 +307,10 @@ RBRInstrumentError RBRInstrument_getWiFi(RBRInstrument *instrument,
                                          RBRInstrumentWiFi *wifi)
 {
     memset(wifi, 0, sizeof(RBRInstrumentWiFi));
-    wifi->state = RBRINSTRUMENT_UNKNOWN_WIFI;
+
+    RBRInstrumentWiFiState *state =
+        (RBRInstrumentWiFiState *) &wifi->state;
+    *state = RBRINSTRUMENT_UNKNOWN_WIFI;
 
     RBR_TRY(RBRInstrument_converse(instrument, "wifi"));
 
@@ -331,7 +339,7 @@ RBRInstrumentError RBRInstrument_getWiFi(RBRInstrument *instrument,
                 if (strcmp(RBRInstrumentWiFiState_name(i),
                            parameter.value) == 0)
                 {
-                    wifi->state = i;
+                    *state = i;
                     break;
                 }
             }
@@ -353,7 +361,7 @@ RBRInstrumentError RBRInstrument_getWiFi(RBRInstrument *instrument,
                 if (strcmp(RBRInstrumentSerialBaudRate_name(i),
                            parameter.value) == 0)
                 {
-                    wifi->baudRate = i;
+                    *(RBRInstrumentSerialBaudRate *) &wifi->baudRate = i;
                     break;
                 }
             }

@@ -271,7 +271,12 @@ RBRInstrumentError RBRInstrument_getSampling(
     sampling->gate = RBRINSTRUMENT_UNKNOWN_GATE;
     /* Very old Logger2 instruments didn't show the userperiodlimit parameter,
      * so we'll set the default value of the field conservatively. */
-    sampling->userPeriodLimit = 1000;
+    RBRInstrumentPeriod *userPeriodLimit =
+        (RBRInstrumentPeriod *) &sampling->userPeriodLimit;
+    *userPeriodLimit = 1000;
+
+    RBRInstrumentPeriod *availableFastPeriods =
+        (RBRInstrumentPeriod *) sampling->availableFastPeriods;
 
     /*
      * The `sampling` command format added support for the `all` parameter
@@ -350,7 +355,7 @@ RBRInstrumentError RBRInstrument_getSampling(
         }
         else if (strcmp(parameter.key, "userperiodlimit") == 0)
         {
-            sampling->userPeriodLimit = strtol(parameter.value, NULL, 10);
+            *userPeriodLimit = strtol(parameter.value, NULL, 10);
 
             /* Logger3 will tell us available sampling rates, so we don't have
              * to guess them. */
@@ -371,31 +376,31 @@ RBRInstrumentError RBRInstrument_getSampling(
             }
 
             int i = 0;
-            switch (sampling->userPeriodLimit)
+            switch (*userPeriodLimit)
             {
             case 31:
-                sampling->availableFastPeriods[i++] = 31;
-                sampling->availableFastPeriods[i++] = 42;
+                availableFastPeriods[i++] = 31;
+                availableFastPeriods[i++] = 42;
             /* Fallthrough. */
             case 63:
-                sampling->availableFastPeriods[i++] = 63;
+                availableFastPeriods[i++] = 63;
             /* Fallthrough. */
             case 83:
-                sampling->availableFastPeriods[i++] = 83;
-                sampling->availableFastPeriods[i++] = 125;
+                availableFastPeriods[i++] = 83;
+                availableFastPeriods[i++] = 125;
             /* Fallthrough. */
             case 167:
-                sampling->availableFastPeriods[i++] = 167;
+                availableFastPeriods[i++] = 167;
                 if (has3Hz5HzAvailable)
                 {
-                    sampling->availableFastPeriods[i++] = 200;
+                    availableFastPeriods[i++] = 200;
                 }
-                sampling->availableFastPeriods[i++] = 250;
+                availableFastPeriods[i++] = 250;
                 if (has3Hz5HzAvailable)
                 {
-                    sampling->availableFastPeriods[i++] = 333;
+                    availableFastPeriods[i++] = 333;
                 }
-                sampling->availableFastPeriods[i++] = 500;
+                availableFastPeriods[i++] = 500;
             }
         }
         else if (strcmp(parameter.key, "availablefastperiods") == 0)
@@ -410,8 +415,8 @@ RBRInstrumentError RBRInstrument_getSampling(
                     ++nextValue;
                 }
 
-                sampling->availableFastPeriods[periodCount++]
-                    = strtol(parameter.value, NULL, 10);
+                availableFastPeriods[periodCount++] =
+                    strtol(parameter.value, NULL, 10);
 
                 parameter.value = nextValue;
             } while (nextValue != NULL
@@ -619,7 +624,7 @@ static RBRInstrumentError RBRInstrument_getDeploymentL2(
             if (strcmp(RBRInstrumentDeploymentStatus_name(i),
                        parameter.value) == 0)
             {
-                deployment->status = i;
+                *(RBRInstrumentDeploymentStatus *) &deployment->status = i;
                 break;
             }
         }
@@ -667,7 +672,7 @@ static RBRInstrumentError RBRInstrument_getDeploymentL3(
                 if (strcmp(RBRInstrumentDeploymentStatus_name(i),
                            parameter.value) == 0)
                 {
-                    deployment->status = i;
+                    *(RBRInstrumentDeploymentStatus *) &deployment->status = i;
                     break;
                 }
             }
@@ -682,7 +687,9 @@ RBRInstrumentError RBRInstrument_getDeployment(
     RBRInstrumentDeployment *deployment)
 {
     memset(deployment, 0, sizeof(RBRInstrumentDeployment));
-    deployment->status = RBRINSTRUMENT_UNKNOWN_STATUS;
+
+    *(RBRInstrumentDeploymentStatus *) &deployment->status =
+        RBRINSTRUMENT_UNKNOWN_STATUS;
 
     if (instrument->generation == RBRINSTRUMENT_LOGGER2)
     {
