@@ -1,4 +1,0 @@
-@INCLUDE = Doxyfile
-
-# Library consumer documentation doesn't need library-internal functions.
-EXCLUDE_PATTERNS += */src/RBRInstrumentInternal.*

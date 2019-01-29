@@ -1,4 +1,4 @@
-CFLAGS := -I../../src \
+CFLAGS := -I../../include \
           -Werror \
           -Wall \
           -Wextra \
@@ -28,7 +28,7 @@ posix-parse-file: posix-shared.o posix-parse-file.o ../../bin/libRBR.a
 posix-stream: posix-shared.o posix-stream.o ../../bin/libRBR.a
 
 posix-stream-sdl: LDLIBS += -lSDL2
-posix-stream-sdl: posix-shared.o posix-stream-sdl.o
+posix-stream-sdl: posix-shared.o posix-stream-sdl.o ../../bin/libRBR.a
 
 .PHONY: clean
 clean:

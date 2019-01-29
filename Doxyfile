@@ -16,10 +16,7 @@ ALIASES += "nol3=This parameter is unavailable for Logger3 instruments."
 
 # Both consumer and developer documentation sets will be interested in anything
 # in the repository root and the library source code.
-INPUT = . src
-# And neither the consumer nor developer documentation sets will care about
-# anything in implementation files.
-EXCLUDE_PATTERNS = */src/*.c
+INPUT = . include
 
 # Include the makefile and shell scripts.
 FILTER_SOURCE_FILES = YES

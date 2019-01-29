@@ -1,5 +1,19 @@
 # Changes
 
+## v1.0.3
+
+Released 2019-01-29.
+
+### Changed
+
+* Moved public headers out of the `src/` directory
+  into `include/`.
+  This helps enforce the distinction
+  between public and internal APIs
+  and makes it slightly easier
+  for consumer projects
+  to include the library headers.
+
 ## v1.0.2
 
 Released 2019-01-03.
