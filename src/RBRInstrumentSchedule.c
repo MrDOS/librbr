@@ -145,7 +145,7 @@ static RBRInstrumentError RBRInstrument_setClockL2(
     /* Set the clock as quickly as possible so that the hardware clock is as
      * close as possible to the provided value. */
     RBR_TRY(RBRInstrument_converse(instrument,
-                                   "clock datetime = %s",
+                                   "now = %s",
                                    dateTime));
 
     if (isnan(offsetFromUtc))

@@ -108,6 +108,25 @@ TEST_LOGGER2(now)
     return test_clock(instrument, buffers, tests);
 }
 
+TEST_LOGGER2(now_set)
+{
+    RBRInstrumentClock now = {
+        .dateTime = 1550264758524LL,
+        .offsetFromUtc = 0
+    };
+
+    const char *command = "now = 20190215210558" COMMAND_TERMINATOR
+                          "permit = settings" COMMAND_TERMINATOR
+                          "settings offsetfromutc = 0.000000"
+                          COMMAND_TERMINATOR;
+    TestIOBuffers_init(buffers, command, 0);
+    RBRInstrumentError err = RBRInstrument_setClock(instrument, &now);
+    TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
+    TEST_ASSERT_STR_EQ(command, buffers->writeBuffer);
+
+    return true;
+}
+
 TEST_LOGGER3(clock)
 {
     ClockTest tests[] = {
@@ -160,6 +179,23 @@ TEST_LOGGER3(clock)
     };
 
     return test_clock(instrument, buffers, tests);
+}
+
+TEST_LOGGER3(clock_set)
+{
+    RBRInstrumentClock now = {
+        .dateTime = 1550264758524LL,
+        .offsetFromUtc = 0
+    };
+
+    const char *command = "clock datetime = 20190215210558, "
+                          "offsetfromutc = 0.000000" COMMAND_TERMINATOR;
+    TestIOBuffers_init(buffers, command, 0);
+    RBRInstrumentError err = RBRInstrument_setClock(instrument, &now);
+    TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
+    TEST_ASSERT_STR_EQ(command, buffers->writeBuffer);
+
+    return true;
 }
 
 typedef struct SamplingTest

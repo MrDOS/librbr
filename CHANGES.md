@@ -1,5 +1,14 @@
 # Changes
 
+## v1.0.4
+
+Released 2019-02-15.
+
+### Fixed
+
+* Fixed compatibility error with Logger2 instruments
+  in `RBRInstrument_setClock()`.
+
 ## v1.0.3
 
 Released 2019-01-29.
