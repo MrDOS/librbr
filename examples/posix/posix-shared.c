@@ -106,7 +106,10 @@ RBRInstrumentError instrumentRead(const struct RBRInstrument *instrument,
 
     /* A select() call to enforce a read timeout is unnecessary because we
      * configured the serial port in noncanonical mode and specified a read
-     * timeout on the port itself. */
+     * timeout on the port itself. On one hand, this reduces the complexity of
+     * read operations; on the other, it means timeouts can't conveniently be
+     * changed based on context. For example, you might want to have a much
+     * longer timeout for the `enable` or `memclear` commands than for `id`. */
     *size = read(*instrumentFd,
                  data,
                  *size);
@@ -132,13 +135,22 @@ RBRInstrumentError instrumentWrite(const struct RBRInstrument *instrument,
     const uint8_t *const byteData = (const uint8_t *const) data;
     int32_t written = 0;
 
+    fd_set instrumentFdSet;
+    FD_ZERO(&instrumentFdSet);
+    /* We don't need to FD_SET on every loop iteration because there's only one
+     * fd in the set, and we immediately return an error if it's omitted from
+     * the response. */
+    FD_SET(*instrumentFd, &instrumentFdSet);
+
+    struct timeval writeTimeout;
+
     while (written < size)
     {
-        fd_set instrumentFdSet;
-        FD_SET(*instrumentFd, &instrumentFdSet);
-
-        struct timeval writeTimeout = (struct timeval) {
-            .tv_sec =   INSTRUMENT_CHARACTER_TIMEOUT_MSEC / 1000,
+        /* select() may (and on Linux, does) update the timeout argument with
+         * how much of the timeout remained upon return. We want every check to
+         * have the same timeout, so we'll reset it before each use. */
+        writeTimeout = (struct timeval) {
+            .tv_sec  =  INSTRUMENT_CHARACTER_TIMEOUT_MSEC / 1000,
             .tv_usec = (INSTRUMENT_CHARACTER_TIMEOUT_MSEC % 1000) * 1000000
         };
 

@@ -1,5 +1,13 @@
 # Changes
 
+## v1.0.5
+
+Release TBD.
+
+### Fixed
+
+* Fixed uninitialized variable in POSIX examples.
+
 ## v1.0.4
 
 Released 2019-02-15.
