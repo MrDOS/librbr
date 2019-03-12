@@ -202,6 +202,18 @@ TEST_LOGGER3(serial)
     return true;
 }
 
+TEST_LOGGER3(sleep)
+{
+    TestIOBuffers_init(buffers, "", 0);
+    RBRInstrumentError err = RBRInstrument_sleep(instrument);
+    TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
+    TEST_ASSERT_STR_EQ("sleep" COMMAND_TERMINATOR,
+                       buffers->writeBuffer);
+    TEST_ASSERT(instrument->lastActivityTime < 0);
+
+    return true;
+}
+
 typedef struct WiFiTest
 {
     const char *command;
