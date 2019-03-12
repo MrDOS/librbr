@@ -29,8 +29,35 @@
 /** \brief 10-second command timeout. */
 #define COMMAND_TIMEOUT (10 * 1000)
 
-#define WAKE_COMMAND "\r"
-#define WAKE_COMMAND_LEN 1
+/* At https://docs.rbr-global.com/L3commandreference/introduction/command-
+ * processing-and-timeouts/timeouts-output-blanking-and-power-saving, the
+ * command reference suggests using a carriage return (`\r`) as the wake
+ * character with a 10ms pause. This works well when talking directly to the
+ * instrument over a USB or serial link. However, without giving the user the
+ * option of reconfiguring wake behaviour, we need to consider how possible
+ * alternate transports might have different requirements. */
+
+/**
+ * \brief The character sequence to send to wake the instrument.
+ *
+ * To improve compatibility with modems and other serial converters which
+ * packetize conservatively (e.g., serial-over-Ethernet devices), we'll use
+ * both a carriage return and a line feed. One or the other should satisfy the
+ * default transmission criteria for most packetizers, and by reusing the
+ * command terminator, we can make life easier for users of systems which only
+ * support a single match criteria by ensuring that attempts to wake the
+ * instrument will trigger the same behaviour as regular commands.
+ */
+#define WAKE_COMMAND RBRINSTRUMENT_COMMAND_TERMINATOR
+/** \brief The length of the wake sequence. */
+#define WAKE_COMMAND_LEN RBRINSTRUMENT_COMMAND_TERMINATOR_LEN
+/**
+ * \brief How long to wait after the wake sequence.
+ *
+ * 50ms is far longer than it will take to generate any regular command, so
+ * this should be enough margin for any transport which transmits based only on
+ * idle time.
+ */
 #define WAKE_COMMAND_WAIT 50
 
 #define COMMAND_PROMPT "Ready: "

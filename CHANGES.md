@@ -4,6 +4,13 @@
 
 Release TBD.
 
+### Changed
+
+* More compatible wake behaviour.
+  Wake-from-sleep should now be more broadly compatible
+  with alternative transport layers,
+  particularly those with conservative/infrequent packetization.
+
 ### Fixed
 
 * Fixed uninitialized variable in POSIX examples.
