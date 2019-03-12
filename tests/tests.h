@@ -20,6 +20,8 @@ extern "C" {
 
 /* Required for printf. */
 #include <stdio.h>
+/* Required for free, malloc. */
+#include <stdlib.h>
 /* Required for strcmp, strlen. */
 #include <string.h>
 
@@ -115,13 +117,29 @@ extern "C" {
 #define TEST_ASSERT_STR_EQ(_expected, _actual) do { \
         if (strcmp((_expected), (_actual)) != 0) \
         { \
+            int32_t _expectedLen = strlen(_expected); \
+            int32_t _actualLen = strlen(_actual); \
+            int32_t _expectedEscapedLen = _expectedLen * 4 + 1; \
+            int32_t _actualEscapedLen = _actualLen * 4 + 1; \
+            char *_expectedEscaped = (char *) malloc(_expectedEscapedLen); \
+            char *_actualEscaped = (char *) malloc(_actualEscapedLen); \
+            rbr_strnesccntrl(_expectedEscaped, \
+                             _expected, \
+                             _expectedEscapedLen); \
+            rbr_strnesccntrl(_actualEscaped, \
+                             _actual, \
+                             _actualEscapedLen); \
+            \
             printf(" assertion failure at %s:%d:\n" \
                    "\texpected \"%s\"\n" \
                    "\t  actual \"%s\"", \
                    __FILE__, \
                    __LINE__, \
-                   _expected, \
-                   _actual); \
+                   _expectedEscaped, \
+                   _actualEscaped); \
+            \
+            free(_expectedEscaped); \
+            free(_actualEscaped); \
             return false; \
         } \
 } while (0)
@@ -137,6 +155,25 @@ extern "C" {
 
 /** \brief The maximum number of parsed events to buffer. */
 #define TESTPARSERBUFFERS_EVENTS_MAX 64
+
+/**
+ * \brief Escape control characters in a string.
+ *
+ * Control characters (as defined by iscntrl(3)) are replaced in the
+ * destination with the sequence “<XX>”. For the carriage return (`\r`) and
+ * line feed (`\n`) characters, “XX” is “CR” and “LF”, respectively. For all
+ * other control characters, it is the upper-case hexadecimal representation of
+ * the character.
+ *
+ * No more than \a num characters will be written into the \a destination,
+ * inclusive of the null terminator.
+ *
+ * \param [out] destination the destination string buffer
+ * \param [in] source the source string
+ * \param [num] the maximum number of characters to write into the destination
+ * \return the destination string buffer
+ */
+char *rbr_strnesccntrl(char *destination, const char *source, size_t num);
 
 /**
  * \brief The I/O buffers used for tests.

@@ -10,6 +10,9 @@ Release TBD.
   Wake-from-sleep should now be more broadly compatible
   with alternative transport layers,
   particularly those with conservative/infrequent packetization.
+* Escaping of special characters
+  in string comparisons
+  shown upon test failures.
 
 ### Fixed
 

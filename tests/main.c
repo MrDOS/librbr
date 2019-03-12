@@ -8,8 +8,50 @@
  * Licensed under the Apache License, Version 2.0.
  */
 
+/* Required for isprint. */
+#include <ctype.h>
+
 #include "RBRInstrument.h"
 #include "tests.h"
+
+char *rbr_strnesccntrl(char *destination, const char *source, size_t num)
+{
+    size_t pos = 0;
+    while (*source && pos < num - 4)
+    {
+        if (!isprint(*source))
+        {
+            destination[pos++] = '<';
+
+            if (*source == '\r')
+            {
+                destination[pos++] = 'C';
+                destination[pos++] = 'R';
+            }
+            else if (*source == '\n')
+            {
+                destination[pos++] = 'L';
+                destination[pos++] = 'F';
+            }
+            else
+            {
+                sprintf(&destination[pos], "%02X", *source);
+                pos += 2;
+            }
+
+            destination[pos++] = '>';
+        }
+        else
+        {
+            destination[pos++] = *source;
+        }
+
+        ++source;
+    }
+    destination[pos] = '\0';
+
+    return destination;
+}
 
 void TestIOBuffers_init(TestIOBuffers *buffers,
                         const char *readBuffer,
