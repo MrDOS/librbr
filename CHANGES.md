@@ -2,7 +2,7 @@
 
 ## v1.0.5
 
-Release TBD.
+Released 2019-03-12.
 
 ### Changed
 
