@@ -74,5 +74,7 @@ RBRInstrumentError RBRInstrument_reboot(RBRInstrument *instrument,
 {
     RBR_TRY(RBRInstrument_permit(instrument, "reboot"));
     RBR_TRY(RBRInstrument_sendCommand(instrument, "reboot %" PRId32, delay));
+
+    instrument->lastActivityTime = RBRINSTRUMENT_NO_ACTIVITY;
     return RBRINSTRUMENT_SUCCESS;
 }

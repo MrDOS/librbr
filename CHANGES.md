@@ -14,6 +14,11 @@ Release TBD.
 ### Fixed
 
 * Fixed uninitialized variable in POSIX examples.
+* Reset instrument activity timer when rebooting the instrument
+  (in `RBRInstrument_reboot()`).
+  This will cause the library
+  to attempt to wake the instrument
+  before performing any subsequent operations.
 
 ## v1.0.4
 

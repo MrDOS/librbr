@@ -108,6 +108,7 @@ TEST_LOGGER3(reboot)
     TEST_ASSERT_STR_EQ("permit command = reboot" COMMAND_TERMINATOR
                        "reboot 123" COMMAND_TERMINATOR,
                        buffers->writeBuffer);
+    TEST_ASSERT(instrument->lastActivityTime < 0);
 
     return true;
 }

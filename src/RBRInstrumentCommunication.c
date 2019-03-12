@@ -14,8 +14,6 @@
 #include "RBRInstrument.h"
 #include "RBRInstrumentInternal.h"
 
-#define RBRINSTRUMENT_NO_ACTIVITY -1
-
 const char *RBRInstrumentLink_name(RBRInstrumentLink link)
 {
     switch (link)

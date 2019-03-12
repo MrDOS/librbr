@@ -16,8 +16,6 @@
 #include "RBRInstrument.h"
 #include "RBRInstrumentInternal.h"
 
-#define RBRINSTRUMENT_NO_ACTIVITY -1
-
 const char *RBRINSTRUMENT_LIB_NAME =
 #ifdef RBR_LIB_NAME
     RBR_LIB_NAME
