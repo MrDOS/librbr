@@ -161,6 +161,13 @@ extern const char *RBRINSTRUMENT_LIB_BUILD_DATE;
 #define RBRINSTRUMENT_ID_VERSION_MAX 7
 
 /**
+ * \brief The maximum number of characters in the instrument mode.
+ *
+ * Does not include any null terminator.
+ */
+#define RBRINSTRUMENT_ID_MODE_MAX 10
+
+/**
  * A date and time in milliseconds since the Unix epoch
  * (1970-01-01T00:00:00.000Z). Instrument functions operating on time (e.g.,
  * RBRInstrument_getClock(), RBRInstrument_setClock()) will automatically
@@ -278,6 +285,8 @@ typedef struct RBRInstrumentId
     uint32_t serial;
     /** The firmware type of the instrument. */
     uint16_t fwtype;
+    /** The instrument mode. */
+    char mode[RBRINSTRUMENT_ID_MODE_MAX + 1];
 } RBRInstrumentId;
 
 /** \brief Generations of RBR instruments. */

@@ -162,6 +162,13 @@ RBRInstrumentError RBRInstrument_getId(RBRInstrument *instrument,
         {
             id->fwtype = strtol(parameter.value, NULL, 10);
         }
+        else if (strcmp(parameter.key, "mode") == 0)
+        {
+            snprintf(id->mode,
+                     sizeof(id->mode),
+                     "%s",
+                     parameter.value);
+        }
     } while (true);
 
     if (id != &instrument->id)

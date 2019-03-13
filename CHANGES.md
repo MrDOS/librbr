@@ -1,5 +1,13 @@
 # Changes
 
+## v1.1.0
+
+Release TBD.
+
+### Added
+
+* Added support for the `id mode` parameter.
+
 ## v1.0.5
 
 Released 2019-03-12.

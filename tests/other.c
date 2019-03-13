@@ -43,7 +43,8 @@ TEST_LOGGER2(id)
         .model = "RBRduo",
         .version = "1.440",
         .serial = 912345,
-        .fwtype = 103
+        .fwtype = 103,
+        .mode = ""
     };
     RBRInstrumentId actual;
 
@@ -57,6 +58,7 @@ TEST_LOGGER2(id)
     TEST_ASSERT_STR_EQ(expected.version, actual.version);
     TEST_ASSERT_EQ(expected.serial, actual.serial, "%" PRIi32);
     TEST_ASSERT_EQ(expected.fwtype, actual.fwtype, "%" PRIi32);
+    TEST_ASSERT_STR_EQ(expected.mode, actual.mode);
 
     return true;
 }
@@ -67,7 +69,8 @@ TEST_LOGGER3(id)
         .model = "RBRduo3",
         .version = "1.092",
         .serial = 923456,
-        .fwtype = 104
+        .fwtype = 104,
+        .mode = ""
     };
     RBRInstrumentId actual;
 
@@ -82,6 +85,35 @@ TEST_LOGGER3(id)
     TEST_ASSERT_STR_EQ(expected.version, actual.version);
     TEST_ASSERT_EQ(expected.serial, actual.serial, "%" PRIi32);
     TEST_ASSERT_EQ(expected.fwtype, actual.fwtype, "%" PRIi32);
+    TEST_ASSERT_STR_EQ(expected.mode, actual.mode);
+
+    return true;
+}
+
+TEST_LOGGER3(id_simulated)
+{
+    RBRInstrumentId expected = {
+        .model = "RBRduo3",
+        .version = "1.092",
+        .serial = 923456,
+        .fwtype = 104,
+        .mode = "SIMULATED"
+    };
+    RBRInstrumentId actual;
+
+    TestIOBuffers_init(buffers,
+                       "id mode = SIMULATED, model = RBRduo3, "
+                       "version = 1.092, serial = 923456, fwtype = 104"
+                       COMMAND_TERMINATOR,
+                       0);
+    RBRInstrumentError err = RBRInstrument_getId(instrument, &actual);
+    TEST_ASSERT_STR_EQ("id" COMMAND_TERMINATOR, buffers->writeBuffer);
+    TEST_ASSERT_ENUM_EQ(RBRINSTRUMENT_SUCCESS, err, RBRInstrumentError);
+    TEST_ASSERT_STR_EQ(expected.model, actual.model);
+    TEST_ASSERT_STR_EQ(expected.version, actual.version);
+    TEST_ASSERT_EQ(expected.serial, actual.serial, "%" PRIi32);
+    TEST_ASSERT_EQ(expected.fwtype, actual.fwtype, "%" PRIi32);
+    TEST_ASSERT_STR_EQ(expected.mode, actual.mode);
 
     return true;
 }
@@ -92,7 +124,8 @@ TEST_LOGGER3(id_short)
         .model = "",
         .version = "",
         .serial = 0,
-        .fwtype = 0
+        .fwtype = 0,
+        .mode = ""
     };
     RBRInstrumentId actual;
 
