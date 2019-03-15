@@ -65,7 +65,10 @@ export LIB_BUILD_DATE ?= $(shell date '+%FT%T%z')
 ## we gain nothing from leaving deterministic mode on, and we save a lot of
 ## developer time on the edit/compile/test loop by turning it off.
 ARFLAGS := -c -r -s
-ARFLAGS += $(shell ar --version 2>&1 | grep -q GNU && echo -U)
+ARFLAGS += $(shell \
+    ar --version 2>&1 | grep -q GNU \
+    && ar --help 2>&1 | grep -q '\[U\]' \
+    && echo -U)
 
 ## \brief C compilation flags.
 ##

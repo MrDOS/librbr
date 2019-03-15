@@ -8,6 +8,10 @@ Release TBD.
 
 * Added support for the `id mode` parameter.
 
+### Changed
+
+* Building: Better detection of `-U` flag support for `ar(1)`.
+
 ## v1.0.5
 
 Released 2019-03-12.
