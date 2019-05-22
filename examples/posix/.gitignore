@@ -3,6 +3,7 @@ posix-download
 posix-fetch
 posix-parse-download
 posix-parse-file
+posix-postprocessing
 posix-stream
 posix-stream-sdl
 *.exe

@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
                 programName,
                 RBRInstrumentError_name(err));
         status = EXIT_FAILURE;
-        goto fileCleanup;
+        goto serialCleanup;
     }
 
     printf(
@@ -140,7 +140,8 @@ int main(int argc, char *argv[])
         fprintf(stderr, "%s: Failed to open output file: %s!\n",
                 programName,
                 strerror(errno));
-        return EXIT_FAILURE;
+        status = EXIT_FAILURE;
+        goto instrumentCleanup;
     }
 
     struct stat stat;
@@ -149,13 +150,28 @@ int main(int argc, char *argv[])
         fprintf(stderr, "%s: Failed to stat output file: %s!\n",
                 programName,
                 strerror(errno));
-        return EXIT_FAILURE;
+        status = EXIT_FAILURE;
+        goto fileCleanup;
     }
     int32_t initialOffset = stat.st_size;
 
+    if (initialOffset == 0)
+    {
+        printf("It looks like the output file, %s, is new. Downloading from "
+               "the beginning of instrument memory.\n",
+               filename);
+    }
+    else
+    {
+        printf("It looks like the output file, %s, already contains %" PRIi32
+               "B. I'll resume the instrument download from there.\n",
+               filename,
+               initialOffset);
+    }
+
     uint8_t buf[CHUNK_SIZE];
     RBRInstrumentData data = {
-        .dataset = RBRINSTRUMENT_DATASET_STANDARD,
+        .dataset = meminfo.dataset,
         .offset  = initialOffset,
         .data    = buf
     };
@@ -208,10 +224,12 @@ int main(int argc, char *argv[])
            data.offset,
            elapsed,
            rate);
-    close(downloadFd);
 
-    RBRInstrument_close(instrument);
 fileCleanup:
+    close(downloadFd);
+instrumentCleanup:
+    RBRInstrument_close(instrument);
+serialCleanup:
     close(instrumentFd);
 
     return status;

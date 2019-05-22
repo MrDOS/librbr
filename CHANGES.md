@@ -7,10 +7,13 @@ Release TBD.
 ### Added
 
 * Added support for the `id mode` parameter.
+* Added support for the `postprocessing` command.
 
 ### Changed
 
 * Building: Better detection of `-U` flag support for `ar(1)`.
+* Added missing parameter range validation
+  for some memory commands.
 
 ## v1.0.5
 

@@ -57,7 +57,7 @@ are rare and made only when absolutely necessary.
 | Firmware Type           | Generation | Version |
 | ----------------------- | ---------- | ------- |
 | 103 (Logger2, standard) | Early 2015 |  v1.440 |
-| 104 (Logger3, standard) |  Late 2017 |  v1.094 |
+| 104 (Logger3, standard) |  Late 2017 |  v1.102 |
 
 ## Building
 
