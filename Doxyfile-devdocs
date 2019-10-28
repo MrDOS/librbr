@@ -1,5 +1,0 @@
-@INCLUDE = Doxyfile
-
-# Developer documentation should include internal functions and the test
-# framework headers.
-INPUT += src/RBRInstrumentInternal.h tests/tests.h

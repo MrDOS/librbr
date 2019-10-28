@@ -28,7 +28,8 @@ FILE_PATTERNS += Makefile *.sh
 # We need to apply the filter only to the makefile and shell scripts lest it
 # also be applied to the Markdown files, where lines starting with “##” are
 # valid headers.
-FILTER_PATTERNS = *Makefile="./shell-filter.sh" *.sh="./shell-filter.sh"
+FILTER_PATTERNS = *Makefile="./tools/shell-filter.sh" \
+                  *.sh="./tools/shell-filter.sh"
 
 # Use the README as the documentation launching-off point.
 USE_MDFILE_AS_MAINPAGE = README.md

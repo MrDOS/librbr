@@ -13,7 +13,6 @@
 ## - `clean` will remove any compiled binaries and documentation
 ## - `devdocs` will generate the documentation inclusive of content only of
 ##   interest to library developers
-## - `tidy` will remove indent backup files
 ##
 ## \copyright
 ## Copyright (c) 2018 RBR Ltd.
@@ -119,11 +118,11 @@ bin/libRBR.a: bin bin/libRBR.a(src/RBRInstrument.o \
 
 .PHONY: docs
 docs:
-	doxygen Doxyfile
+	doxygen tools/Doxyfile
 
 .PHONY: devdocs
 devdocs:
-	doxygen Doxyfile-devdocs
+	doxygen tools/Doxyfile-devdocs
 
 tests: CFLAGS += -Wno-error=unused-parameter -Wno-unused-parameter
 tests: LDFLAGS += -Lbin

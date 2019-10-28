@@ -168,7 +168,7 @@ RBRInstrumentError RBRInstrument_exampleOfAReallyLongFunctionName(
 ~~~
 
 If you have [Uncrustify] installed,
-you can invoke indent.sh
+you can invoke the `tools/indent.sh` script
 to make an automatic attempt
 at code indentation.
 The auto-indentation configuration

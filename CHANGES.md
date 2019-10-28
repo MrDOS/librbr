@@ -1,5 +1,15 @@
 # Changes
 
+## v1.2.0
+
+Release TBD.
+
+### Changed
+
+* Moved developer tools into `tools/`.
+  An attempt to keep only universally interesting things
+  in the top level of the project directory.
+
 ## v1.1.0
 
 Released 2019-05-22.

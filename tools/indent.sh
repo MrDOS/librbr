@@ -14,26 +14,25 @@
 ## ### Syntax
 ##
 ## ~~~{.sh}
-## ./indent.sh [filename ...]
+## ./tools/indent.sh [filename ...]
 ## ~~~
 ##
 ## ### Usage
 ##
 ## ~~~{.sh}
-## ./indent.sh
+## ./tools/indent.sh
 ## ~~~
 ##
 ## ...will reindent everything in `src/`, and
 ##
 ## ~~~{.sh}
-## ./indent.sh filename1 filename2
+## ./tools/indent.sh filename1 filename2
 ## ~~~
 ##
 ## ...will reindent just `filename1` and `filename2`.
 ##
-## Backup files will be made with the extension `.unc-backup~`, and hashes of
-## the originals in `.unc-backup.md5~` files. These can be cleaned up
-## automatically with `make tidy`.
+## Backup files won't be made, under the assumption that Git (or some other
+## form of source control) is your backup.
 ##
 ## \copyright
 ## Copyright (c) 2018 RBR Ltd.
@@ -49,8 +48,8 @@ fi
 
 if [ $# -ge 1 ]
 then
-    uncrustify -c "$SCRIPT_DIR"/"uncrustify.cfg" --no-backup "$@"
+    uncrustify --no-backup -c "$SCRIPT_DIR"/"uncrustify.cfg" "$@"
 else
-    uncrustify -c "$SCRIPT_DIR"/"uncrustify.cfg" --no-backup src/*.[ch] \
+    uncrustify --no-backup -c "$SCRIPT_DIR"/"uncrustify.cfg" src/*.[ch] \
                                                              tests/*.[ch]
 fi
