@@ -4,6 +4,10 @@
 
 Release TBD.
 
+### Added
+
+* Bitbucket Pipelines: build with GCC 9 and Clang 9.
+
 ### Changed
 
 * Moved developer tools into `tools/`.
