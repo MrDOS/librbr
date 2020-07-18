@@ -1,5 +1,34 @@
 # libRBR
 
+## Preface
+
+libRBR is a project I undertook
+while employed by [RBR][rbr].
+It's a C library
+for communicating with their products,
+which are high-resolution data loggers
+for use in physical oceanography.
+As is described below,
+the library's interface mirrors
+the text-based command language
+exposed by the instruments.
+
+This repository is a snapshot of the library
+as it existed when I stopped working on it.
+As the commit history indicates,
+I was the sole developer on the project up to this point.
+I did, of course,
+decide upon design principles in collaboration with my colleagues,
+as well as receive input and support from them,
+but the implementation in its entirety –
+the core library, testing, and documentation –
+were all my effort,
+and I'm proud of the result.
+
+[rbr]: https://rbr-global.com
+
+---
+
 ## Introduction
 
 libRBR provides an interface
